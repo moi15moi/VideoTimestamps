@@ -5,7 +5,6 @@ from ..abc_video_parser import ABCVideoParser
 from ..rounding_method import RoundingMethod
 from fractions import Fraction
 from pathlib import Path
-from typing import Tuple
 
 
 class MKVToolNixTimestamps(ABCVideoParser):
@@ -16,7 +15,7 @@ class MKVToolNixTimestamps(ABCVideoParser):
 
 
     @staticmethod
-    def get_timestamps(video_path: Path, index: int, normalize: bool, rounding_method: RoundingMethod) -> Tuple[Timestamps, Fraction]:
+    def get_timestamps(video_path: Path, index: int, normalize: bool, rounding_method: RoundingMethod) -> tuple[Timestamps, Fraction]:
         mkvmerge_version = MKVMerge.get_version()
         if mkvmerge_version < (82, 0):
             # We need the version 82.0 for the timestamp_scale properties: https://help.mkvtoolnix.download/t/how-to-get-timestamp-scale-information-without-using-mkvinfo/299/3

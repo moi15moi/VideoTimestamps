@@ -1,0 +1,64 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+jobs:
+  run-tests:
+    name: "Test (${{matrix.os}}, Python ${{ matrix.python-version }})"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        # TODO change ubuntu-24.04 to ubuntu-latest when the latest will be at least 24.04
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Python requirements
+      run: pip install --upgrade --upgrade-strategy eager .[dev]
+
+    - name: Install platform-specific requirements (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install mkvtoolnix
+        sudo apt install ffmpeg 
+
+    - name: Install platform-specific requirements (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install mkvtoolnix
+        brew install ffmpeg
+
+    - name: Install platform-specific requirements (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install mkvtoolnix --no-progress --yes
+        choco install ffmpeg --no-progress --yes
+
+    - name: Run tests
+      run: |
+        pytest
+
+    - name: Typecheck with mypy
+      run: |
+        mypy
+
+    - name: Generate coverage report
+      run: |
+        coverage run -m pytest
+        coverage xml
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}

@@ -1,4 +1,3 @@
-from __future__ import annotations
 from .abc_video_parser import ABCVideoParser
 from .rounding_method import RoundingMethod
 from .timestamps_file_parser import TimestampsFileParser

@@ -2,7 +2,6 @@ from .rounding_method import RoundingMethod
 from fractions import Fraction
 from io import TextIOWrapper
 from re import compile
-from typing import List, Tuple
 
 
 class RangeV1:
@@ -16,7 +15,7 @@ class TimestampsFileParser:
     @staticmethod
     def parse_file(
         file_content: TextIOWrapper, rounding_method: RoundingMethod
-    ) -> Tuple[List[int], Fraction, Fraction]:
+    ) -> tuple[list[int], Fraction, Fraction]:
         """Parse timestamps from a [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files) and return them.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
@@ -68,7 +67,7 @@ class TimestampsFileParser:
     @staticmethod
     def _parse_v1_file(
         file_content: TextIOWrapper, rounding_method: RoundingMethod
-    ) -> Tuple[List[int], Fraction, Fraction]:
+    ) -> tuple[list[int], Fraction, Fraction]:
         """Create timestamps based on the timestamps v1 file provided.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L82-175
@@ -83,8 +82,8 @@ class TimestampsFileParser:
                 2. The last timestamps not rounded
                 3. The fpms (frame(s) per milliseconds)
         """
-        timestamps: List[int] = []
-        ranges_v1: List[RangeV1] = []
+        timestamps: list[int] = []
+        ranges_v1: list[RangeV1] = []
         line: str = ""
 
         for line in file_content:
@@ -172,7 +171,7 @@ class TimestampsFileParser:
     @staticmethod
     def _parse_v2_and_v4_file(
         file_content: TextIOWrapper, version: int, rounding_method: RoundingMethod
-    ) -> Tuple[List[int], Fraction, Fraction]:
+    ) -> tuple[list[int], Fraction, Fraction]:
         """Create timestamps based on the timestamps v2 or v4 file provided.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L201-267
@@ -192,7 +191,7 @@ class TimestampsFileParser:
         if version not in (2, 4):
             raise ValueError("You can only specify version 2 or 4.")
 
-        timestamps: List[int] = []
+        timestamps: list[int] = []
         previous_timestamp: int = 0
         lowest_timestamp: Fraction = None # type: ignore
         highest_timestamp: Fraction = None # type: ignore
