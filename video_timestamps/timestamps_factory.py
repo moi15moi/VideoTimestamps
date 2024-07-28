@@ -30,7 +30,7 @@ class TimestampsFactory:
 
         Returns:
             A Timestamps instance.
-        
+
         Note:
             This assume a constant fps. You cannot use this method with video with drop frame.
         """
@@ -112,7 +112,7 @@ class TimestampsFactory:
 
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
-        
+
         is_file_mkv = MKVUtils.is_mkv(video_path)
 
         video_parser: Optional[ABCVideoParser] = None
@@ -124,7 +124,7 @@ class TimestampsFactory:
             raise OSError("MKVToolNix and/or FFprobe aren't in your environment variable. Note that if your video isn't a mkv, you absolutely need FFprobe.")
 
         timestamps, time_scale = video_parser.get_timestamps(video_path, index, normalize, rounding_method)
-    
+
         if is_file_mkv:
             # We only do this check for .mkv file. See the note about mkv in the Timestamps class documentation.
             # 1/1000 represent 1 ms. If the time_base cannot divided by 1/1000, then it means that the timestamps aren't rounded to milliseconds.

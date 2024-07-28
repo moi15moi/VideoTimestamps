@@ -48,7 +48,7 @@ class MKVMerge:
             The major and minor version numbers of `mkvmerge`.
         """
         MKVMerge.verify_if_mkvmerge_installed()
-        
+
         return MKVUtils.get_version(MKVMerge.PROGRAM_NAME, MKVMerge.PROGRAM_PATH) # type: ignore
 
 

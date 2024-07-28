@@ -155,16 +155,16 @@ class TimestampsFileParser:
                 raise ValueError("Override ranges must not overlap.")
 
             while frame < range_v1.start_frame:
-                timestamps.append(rounding_method(time)) 
+                timestamps.append(rounding_method(time))
                 time += Fraction(1000) / default_fps
                 frame += 1
 
             while frame <= range_v1.end_frame:
-                timestamps.append(rounding_method(time)) 
+                timestamps.append(rounding_method(time))
                 time += Fraction(1000) / range_v1.fps
                 frame += 1
 
-        timestamps.append(rounding_method(time)) 
+        timestamps.append(rounding_method(time))
         fpms = default_fps / Fraction(1000)
         return timestamps, time, fpms
 
@@ -215,7 +215,7 @@ class TimestampsFileParser:
             if lowest_timestamp is None or lowest_timestamp > timestamp:
                 lowest_timestamp = timestamp
 
-            rounded_timestamp = rounding_method(timestamp) 
+            rounded_timestamp = rounding_method(timestamp)
 
             if version == 2 and rounded_timestamp < previous_timestamp:
                 raise ValueError(

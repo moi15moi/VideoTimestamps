@@ -69,7 +69,7 @@ class MKVUtils():
             for path in possible_paths:
                 if path.is_file():
                     return path
-        
+
         return None
 
 

@@ -282,7 +282,7 @@ def test_ms_to_frames_round() -> None:
     # The last frame is equal to (5 * 1/30 * 1000 + 6 * 1/15 * 1000) = 1700/3 = 566.666
     assert 11 == timestamps.ms_to_frames(599, TimeType.EXACT)
     assert 12 == timestamps.ms_to_frames(600, TimeType.EXACT)  # 1700/3 + 1/30 * 1000 = 600
-    assert 12 == timestamps.ms_to_frames(632, TimeType.EXACT) 
+    assert 12 == timestamps.ms_to_frames(632, TimeType.EXACT)
     assert 13 == timestamps.ms_to_frames(633, TimeType.EXACT)  # 1700/3 + 2/30 * 1000 = round(633.33) = 633
     assert 13 == timestamps.ms_to_frames(666, TimeType.EXACT)
     assert 14 == timestamps.ms_to_frames(667, TimeType.EXACT)  # 1700/3 + 3/30 * 1000 = round(666.66) = 667
@@ -339,7 +339,7 @@ def test_ms_to_frames_floor() -> None:
     assert 12 == timestamps.ms_to_frames(600, TimeType.EXACT)  # 1700/3 + 1/30 * 1000 = 600
     assert 12 == timestamps.ms_to_frames(632, TimeType.EXACT)
     assert 13 == timestamps.ms_to_frames(633, TimeType.EXACT)  # 1700/3 + 2/30 * 1000 = floor(633.33) = 633
-    assert 13 == timestamps.ms_to_frames(665, TimeType.EXACT) 
+    assert 13 == timestamps.ms_to_frames(665, TimeType.EXACT)
     assert 14 == timestamps.ms_to_frames(666, TimeType.EXACT)  # 1700/3 + 3/30 * 1000 = floor(666.66) = 666
 
     # 15 fps is a "special" fps, because the frame 3 has a exact value

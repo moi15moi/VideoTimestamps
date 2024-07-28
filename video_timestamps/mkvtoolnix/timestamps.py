@@ -21,7 +21,7 @@ class MKVToolNixTimestamps(ABCVideoParser):
         if mkvmerge_version < (82, 0):
             # We need the version 82.0 for the timestamp_scale properties: https://help.mkvtoolnix.download/t/how-to-get-timestamp-scale-information-without-using-mkvinfo/299/3
             raise OSError(f"You need at least the version 82.0 of mkvmerge. You have the version {mkvmerge_version[0]}.{mkvmerge_version[1]}")
-        
+
         mkv_info = MKVMerge.get_mkv_info(video_path)
 
         is_index_in_video = False
@@ -34,7 +34,7 @@ class MKVToolNixTimestamps(ABCVideoParser):
 
         if not is_index_in_video:
             raise ValueError(f"The index {index} is not in the file {video_path}.")
-        
+
         timestamp_scale = mkv_info["container"]["properties"]["timestamp_scale"]
         # Technically, time_base = TimestampScale * TrackTimestampScale / 10^9
         # but mkvmerge doesn't report the TrackTimestampScale.

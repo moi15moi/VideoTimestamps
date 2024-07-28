@@ -23,7 +23,7 @@ class TimeType(Enum):
        Example:
            - fps = 24000/1001
            - rounding_method = RoundingMethod.ROUND
-           
+
            Frame intervals:
                - Frame 0: [0, 41] ms
                - Frame 1: [42, 82] ms
