@@ -1,7 +1,7 @@
-import json
 from .utils import MKVUtils
+import json
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
 
 __all__ = ["MKVMerge"]
 
@@ -39,7 +39,7 @@ class MKVMerge:
 
 
     @staticmethod
-    def get_version() -> Tuple[int, int]:
+    def get_version() -> tuple[int, int]:
         """Retrieves the version of `mkvmerge`.
 
         Equivalent to running: `mkvmerge --version`

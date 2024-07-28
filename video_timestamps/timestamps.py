@@ -1,10 +1,9 @@
-from __future__ import annotations
-from math import ceil
 from .rounding_method import RoundingMethod
 from .time_type import TimeType
 from bisect import bisect_right
 from fractions import Fraction
-from typing import Any, List, Optional, Tuple
+from math import ceil
+from typing import Any, Optional
 
 __all__ = ["Timestamps"]
 
@@ -42,7 +41,7 @@ class Timestamps:
     def __init__(
         self,
         rounding_method: RoundingMethod,
-        timestamps: Optional[List[int]] = None,
+        timestamps: Optional[list[int]] = None,
         normalize: Optional[bool] = True,
         fpms: Optional[Fraction] = None,
         last_frame_time: Optional[Fraction] = None,
@@ -101,8 +100,8 @@ class Timestamps:
 
     @staticmethod
     def normalize(
-        timestamps: List[int], last_frame_time: Fraction
-    ) -> Tuple[List[int], Fraction]:
+        timestamps: list[int], last_frame_time: Fraction
+    ) -> tuple[list[int], Fraction]:
         """Shift the timestamps to make them start from 0. This way, frame 0 will start at time 0.
 
         Parameters:

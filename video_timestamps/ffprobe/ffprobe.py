@@ -1,10 +1,11 @@
 from ..rounding_method import RoundingMethod
 import json
+import sys
 from fractions import Fraction
 from subprocess import CompletedProcess, run
 from pathlib import Path
 from shutil import which
-from typing import Any, List, Tuple
+from typing import Any
 
 __all__ = ["FFprobe"]
 
@@ -55,7 +56,7 @@ class FFprobe:
 
 
     @staticmethod
-    def run_command(cmd: List[Any]) -> CompletedProcess[str]:
+    def run_command(cmd: list[Any]) -> CompletedProcess[str]:
         """Runs a command and verifies if it fails.
 
         Parameters:
@@ -73,7 +74,7 @@ class FFprobe:
 
 
     @staticmethod
-    def get_timestamps(video_path: Path, index: int, rounding_method: RoundingMethod) -> Tuple[List[int], Fraction, Fraction, Fraction]:
+    def get_timestamps(video_path: Path, index: int, rounding_method: RoundingMethod) -> tuple[list[int], Fraction, Fraction, Fraction]:
         """
 
         Parameters:

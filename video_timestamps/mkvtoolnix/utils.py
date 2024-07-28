@@ -1,12 +1,13 @@
-import re
-from subprocess import CompletedProcess
-import subprocess
-from warnings import warn
 from .exit_code import ExitCode
+import re
+import subprocess
+import sys
 from pathlib import Path
 from platform import system
 from shutil import which
-from typing import Any, List, Optional, Tuple
+from subprocess import CompletedProcess
+from typing import Any, Optional
+from warnings import warn
 
 __all__ = ["MKVUtils"]
 
@@ -93,7 +94,7 @@ class MKVUtils():
 
 
     @staticmethod
-    def run_command(program_name: str, cmd: List[Any]) -> CompletedProcess[str]:
+    def run_command(program_name: str, cmd: list[Any]) -> CompletedProcess[str]:
         """Runs a command and verifies if it fails.
 
         Parameters:
@@ -115,7 +116,7 @@ class MKVUtils():
 
 
     @staticmethod
-    def get_version(program_name: str, program_path: Path) -> Tuple[int, int]:
+    def get_version(program_name: str, program_path: Path) -> tuple[int, int]:
         """Retrieves the version of the specified program.
 
         Parameters:

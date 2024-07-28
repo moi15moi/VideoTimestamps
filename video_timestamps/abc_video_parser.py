@@ -1,9 +1,8 @@
-from fractions import Fraction
 from .rounding_method import RoundingMethod
 from .timestamps import Timestamps
 from abc import ABC, abstractmethod
+from fractions import Fraction
 from pathlib import Path
-from typing import Tuple
 
 
 class ABCVideoParser(ABC):
@@ -19,7 +18,7 @@ class ABCVideoParser(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_timestamps(video_path: Path, index: int, normalize: bool, rounding_method: RoundingMethod) -> Tuple[Timestamps, Fraction]:
+    def get_timestamps(video_path: Path, index: int, normalize: bool, rounding_method: RoundingMethod) -> tuple[Timestamps, Fraction]:
         """Create timestamps based on the ``video_path`` provided.
 
         Parameters:
