@@ -74,6 +74,42 @@ class FFprobe:
 
 
     @staticmethod
+    def get_nbr_frame_and_packet(video_path: Path, index: int) -> tuple[int, int]:
+        """
+
+        Parameters:
+            video_path (Path): A video path.
+            index (int): Index of the video stream.
+        Returns:
+            A tuple containing these 2 informations:
+                1. The number of frames.
+                2. The number of packets.
+        """
+
+        cmd = [
+            FFprobe.PROGRAM_NAME,
+            "-hide_banner",
+            "-select_streams",
+            str(index),
+            "-show_entries",
+            "stream=nb_read_frames,nb_read_packets",
+            "-count_frames",
+            "-count_packets",
+            video_path,
+            "-print_format",
+            "json",
+        ]
+        ffprobe_output = FFprobe.run_command(cmd)
+
+        ffprobe_output_dict = json.loads(ffprobe_output.stdout)
+
+        nbr_frames = int(ffprobe_output_dict["streams"][0]["nb_read_frames"])
+        nbr_packets = int(ffprobe_output_dict["streams"][0]["nb_read_packets"])
+
+        return nbr_frames, nbr_packets
+
+
+    @staticmethod
     def get_timestamps(video_path: Path, index: int, rounding_method: RoundingMethod) -> tuple[list[int], Fraction, Fraction, Fraction]:
         """
 
@@ -89,6 +125,9 @@ class FFprobe:
                 4. The last timestamps not rounded
         """
 
+        nbr_frames, nbr_packets = FFprobe.get_nbr_frame_and_packet(video_path, index)
+        element = "packet" if nbr_frames == nbr_packets else "frame"
+
         cmd = [
             FFprobe.PROGRAM_NAME,
             "-hide_banner",
@@ -99,7 +138,7 @@ class FFprobe:
             # But, using frame make the execution really slow
             # I tried to ask [here](https://ffmpeg.org/pipermail/ffmpeg-user/2024-July/058509.html) if I could use a heuristic
             # to know when I need to switch to frame, but I never got an answer.
-            "packet=pts_time,dts_time:stream=codec_type,time_base", #todo
+            f"{element}=pts_time,dts_time:stream=codec_type,time_base", #todo
             video_path,
             "-print_format",
             "json",
@@ -122,7 +161,7 @@ class FFprobe:
         lowest_timestamp: Fraction = None # type: ignore
         highest_timestamp: Fraction = None # type: ignore
 
-        for packet in ffprobe_output_dict["packets"]:
+        for packet in ffprobe_output_dict[f"{element}s"]:
             timestamp = Fraction(
                 # Sometimes, pts_time isn't available.
                 # If it is the case, fallback to dts_time
