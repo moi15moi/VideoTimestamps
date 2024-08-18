@@ -72,7 +72,7 @@ class Timestamps:
             if len(timestamps) <= 1:
                 raise ValueError("There must be at least 2 timestamps.")
 
-            if any(timestamps[i] > timestamps[i + 1] for i in range(len(timestamps) - 1)):
+            if any(timestamps[i] >= timestamps[i + 1] for i in range(len(timestamps) - 1)):
                 raise ValueError("Timestamps must be in non-decreasing order.")
 
             if timestamps.count(timestamps[0]) == len(timestamps):

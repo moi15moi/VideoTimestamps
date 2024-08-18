@@ -301,6 +301,10 @@ def test_validate() -> None:
     assert str(exc_info.value) == "Timestamps must be in non-decreasing order."
 
     with pytest.raises(ValueError) as exc_info:
+        Timestamps(RoundingMethod.FLOOR, [0, 40, 50, 50], last_frame_time=Fraction(0))
+    assert str(exc_info.value) == "Timestamps must be in non-decreasing order."
+
+    with pytest.raises(ValueError) as exc_info:
         Timestamps(RoundingMethod.FLOOR, [20, 20], last_frame_time=Fraction(0))
     assert str(exc_info.value) == "Timestamps must not be all identical."
 
