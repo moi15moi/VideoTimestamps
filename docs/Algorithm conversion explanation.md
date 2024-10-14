@@ -86,6 +86,11 @@ pts\_time \in \mathbb{Q}^{+} \\
 \end{gather}
 ```
 
+[Source for pts](https://ffmpeg.org/doxygen/7.0/structAVPacket.html#a73bde0a37f3b1efc839f11295bfbf42a)
+
+[Source for timebase](https://www.ffmpeg.org/doxygen/7.0/structAVStream.html#a9db755451f14e2bf590d4b85d82b32e6)
+
+
 But, how are $pts$ and $timebase$ setted?
 
 The $timebase$ also depend on the implementation that varie a lot. For example, for .m2ts file, the $timebase$ will always be ${1 \over 90000}$. By default mkvtoolnix set the timebase to ${1 \over 1000}$. Important to note that there is a really similar value to $timebase$ which is called $timescale$. It id defined like this:
@@ -106,28 +111,25 @@ We choosed that the maximum precision that a user could need is nanoseconds.
 
 
 # frame_to_time for TimeType.EXACT
+$\text{EXACT : } [\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}[$
 
-$\text{EXACT : } [\lceil \text{CurrentFrameTimestamps} \rceil, \lceil \text{NextFrameTimestamps} \rceil - 1]$
+The lower bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale}$
 
-The lower bound is: $timens = \lceil \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rceil$
-
-The upper bound is: $timens = \lceil \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rceil - 1$
+The upper bound is: $time = \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale}$
 
 # frame_to_time for TimeType.START
+$\text{START : } ]\text{PreviousFrameTimestamps} , \text{CurrentFrameTimestamps}]$
 
-$\text{START : } [\lfloor \text{PreviousFrameTimestamps} \rfloor + 1, \lfloor \text{CurrentFrameTimestamps} \rfloor]$
+The lower bound is: $time = \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale}$
 
-The lower bound is: $timens = \lfloor \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1$
-
-The upper bound is: $timens = \lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor$
+The upper bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale}$
 
 # frame_to_time for TimeType.END
+$\text{END : } ]\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}]$
 
-$\text{END : } [\lfloor \text{CurrentFrameTimestamps} \rfloor + 1, \lfloor \text{NextFrameTimestamps} \rfloor]$
+The lower bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale}$
 
-The lower bound is: $timens = \lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1$
-
-The upper bound is: $timens = \lfloor \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor$
+The upper bound is: $time = \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale}$
 
 
 
@@ -146,151 +148,136 @@ Frame_2 : [83, 125[ ms \\
 Frame_3 : [125, 167[ ms
 \end{gather}
 ```
-PS: *The number are in milliseconds for simplicity, but actually, the formula give time in $10^{-9}$ second.*
+PS: *The number are in milliseconds for simplicity, but actually, the formula give time in second.*
 
-With that in mind, we know can say that the property says that we need to use the largest $frame$ such that the $frame$ does not exceed the requested $timens$.
+With that in mind, we know can say that the property says that we need to use the largest $frame$ such that the $frame$ does not exceed the requested $time$.
 
-From that property, we can deduce this equation: $\lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor \leq timens$
+From that property, we can deduce this equation: $\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \leq time$
 
 Now, we have an inequation and it is possible to isolate properly our $frame$ variable. Since the $\text{roundingMethod}$ can be floor or rounded, we will have 2 final equations that are described below
 
-$\lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor \leq timens$
+$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \leq time$
 
-$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} < timens + 1$
-
-$\text{roundingMethod}(frame \times {timescale \over fps}) < (timens + 1) \times timescale \times 10^{-9}$
-
-
-
+$\text{roundingMethod}(frame \times {timescale \over fps}) \leq time \times timescale$
 
 
 ## Explanation for rounding method
-$\text{round}(frame \times {timescale \over fps}) < (timens + 1) \times timescale \times 10^{-9}$
+$\text{round}(frame \times {timescale \over fps}) \leq time \times timescale$
 
-$frame \times {timescale \over fps} + 0.5 < \lceil (timens + 1) \times timescale \times 10^{-9} \rceil$
+$frame \times {timescale \over fps} < \lfloor time \times timescale \rfloor + 0.5$
 
-$frame \times {timescale \over fps} < \lceil (timens + 1) \times timescale \times 10^{-9} \rceil - 0.5$
+$frame < (\lfloor time \times timescale \rfloor + 0.5) \times {fps \over timescale}$
 
-$frame < (\lceil (timens + 1) \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale}$
+$frame < \lceil (\lfloor time \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil$
 
-$frame < \lceil (\lceil (timens + 1) \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} \rceil$
+$frame \leq \lceil (\lfloor time \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil - 1$
 
-$frame \leq  \lceil (\lceil (timens + 1) \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
-
-$frame =  \lceil (\lceil (timens + 1) \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
-
-
-
+$frame = \lceil (\lfloor time \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil - 1$
 
 
 ## Explanation for floor method
-$\lfloor frame \times {timescale \over fps} \rfloor < (timens + 1) \times timescale \times 10^{-9}$
 
-$frame \times {timescale \over fps} < \lceil (timens + 1) \times timescale \times 10^{-9} \rceil$
+$\lfloor frame \times {timescale \over fps} \rfloor \leq time \times timescale$
 
-$frame < \lceil (timens + 1) \times timescale \times 10^{-9} \rceil \times {fps \over timescale}$
+$frame \times {timescale \over fps} < \lfloor time \times timescale \rfloor + 1$
 
-$frame < \lceil \lceil (timens + 1) \times timescale \times 10^{-9} \rceil \times {fps \over timescale} \rceil$
+$frame < (\lfloor time \times timescale \rfloor + 1) \times {fps \over timescale}$
 
-$frame \leq \lceil \lceil (timens + 1) \times timescale \times 10^{-9} \rceil \times {fps \over timescale} \rceil - 1$
+$frame < \lceil (\lfloor time \times timescale \rfloor + 1) \times {fps \over timescale} \rceil$
 
-$frame = \lceil \lceil (timens + 1) \times timescale \times 10^{-9} \rceil \times {fps \over timescale} \rceil - 1$
+$frame \leq \lceil (\lfloor time \times timescale \rfloor + 1) \times {fps \over timescale} \rceil - 1$
+
+$frame = \lceil (\lfloor time \times timescale \rfloor + 1) \times {fps \over timescale} \rceil - 1$
 
 
 
 
 
 # time_to_frame for TimeType.START
-$timens = \lfloor \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1$
 
-$\lfloor \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1 \leq timens$
+$time = \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale}$
 
-$\lfloor \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor \leq timens - 1$
+$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} < time$
 
-$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} < timens$
-
-$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) < timens \times timescale \times 10^{-9}$
+$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) < time \times timescale$
 
 
 ## Explanation for rounding method
-$\text{round}((frame - 1) \times {timescale \over fps}) < timens \times timescale \times 10^{-9}$
 
-$(frame - 1) \times {timescale \over fps} + 0.5 < \lceil timens \times timescale \times 10^{-9} \rceil$
+$\text{round}((frame - 1) \times {timescale \over fps}) < time \times timescale$
 
-$(frame - 1) \times {timescale \over fps} < \lceil timens \times timescale \times 10^{-9} \rceil - 0.5$
+$(frame - 1) \times {timescale \over fps} + 0.5 < \lceil time \times timescale\rceil$
 
-$frame - 1 < (\lceil timens \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale}$
+$(frame - 1) \times {timescale \over fps} < \lceil time \times timescale \rceil - 0.5$
 
-$frame < (\lceil timens \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} + 1$
+$frame - 1 < (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale}$
 
-$frame < \lceil (\lceil timens \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} + 1 \rceil$
+$frame < (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} + 1$
 
-$frame \leq \lceil (\lceil timens \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
+$frame < \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil$
 
-$frame = \lceil (\lceil timens \times timescale \times 10^{-9} \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
+$frame \leq \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
+
+$frame = \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
 
 
 ## Explanation for floor method
 
-$\lfloor (frame - 1) \times {timescale \over fps} \rfloor < timens \times timescale \times 10^{-9}$
+$\lfloor (frame - 1) \times {timescale \over fps} \rfloor < time \times timescale$
 
-$(frame - 1) \times {timescale \over fps} < \lceil timens \times timescale \times 10^{-9} \rceil$
+$(frame - 1) \times {timescale \over fps} < \lceil time \times timescale\rceil$
 
-$frame - 1 < \lceil timens \times timescale \times 10^{-9} \rceil \times {fps \over timescale}$
+$frame - 1 < \lceil time \times timescale \rceil \times {fps \over timescale}$
 
-$frame < \lceil timens \times timescale \times 10^{-9} \rceil \times {fps \over timescale} + 1$
+$frame < \lceil time \times timescale \rceil \times {fps \over timescale} + 1$
 
-$frame < \lceil \lceil timens \times timescale \times 10^{-9} \rceil \times {fps \over timescale} + 1 \rceil$
+$frame < \lceil \lceil time \times timescale \rceil \times {fps \over timescale} + 1 \rceil$
 
-$frame \leq \lceil \lceil timens \times timescale \times 10^{-9} \rceil \times {fps \over timescale} + 1 \rceil - 1$
+$frame \leq \lceil \lceil time \times timescale \rceil \times {fps \over timescale} + 1 \rceil - 1$
 
-$frame = \lceil \lceil timens \times timescale \times 10^{-9} \rceil \times {fps \over timescale} + 1 \rceil - 1$
+$frame = \lceil \lceil time \times timescale \rceil \times {fps \over timescale} + 1 \rceil - 1$
 
 
 
 
 
 # time_to_frame for TimeType.END
-$timens = \lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1$
 
-$\lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor + 1 \leq timens$
+$time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale}$
 
-$\lfloor \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} \rfloor \leq timens - 1$
+$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} < time$
 
-$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} \times 10^{9} < timens$
-
-$\text{roundingMethod}(frame \times {timescale \over fps}) < timens \times timescale \times 10^{9}$
-
+$\text{roundingMethod}(frame \times {timescale \over fps}) < time \times timescale$
 
 ## Explanation for rounding method
 
-$\text{round}(frame \times {timescale \over fps}) < timens \times timescale \times 10^{9}$
+$\text{round}(frame \times {timescale \over fps}) < time \times timescale$
 
-$frame \times {timescale \over fps} + 0.5 < \lceil timens \times timescale \times 10^{9} \rceil$
+$frame \times {timescale \over fps} + 0.5 < \lceil time \times timescale \rceil$
 
-$frame \times {timescale \over fps} < \lceil timens \times timescale \times 10^{9} \rceil - 0.5$
+$frame \times {timescale \over fps} < \lceil time \times timescale \rceil - 0.5$
 
-$frame < (\lceil timens \times timescale \times 10^{9} \rceil - 0.5) \times {fps \over timescale}$
+$frame < (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale}$
 
-$frame < \lceil (\lceil timens \times timescale \times 10^{9} \rceil - 0.5) \times {fps \over timescale} \rceil$
+$frame < \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil$
 
-$frame \leq \lceil (\lceil timens \times timescale \times 10^{9} \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
+$frame \leq \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
 
-$frame = \lceil (\lceil timens \times timescale \times 10^{9} \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
+$frame = \lceil (\lceil time \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
 
 ## Explanation for floor method
 
-$\lfloor frame \times {timescale \over fps} \rfloor < timens \times timescale \times 10^{9}$
+$\lfloor frame \times {timescale \over fps} \rfloor < time \times timescale$
 
-$frame \times {timescale \over fps} < \lceil timens \times timescale \times 10^{9} \rceil$
+$frame \times {timescale \over fps} < \lceil time \times timescale \rceil$
 
-$frame < \lceil timens \times timescale \times 10^{9} \rceil \times {fps \over timescale}$
+$frame < \lceil time \times timescale \rceil \times {fps \over timescale}$
 
-$frame < \lceil \lceil timens \times timescale \times 10^{9} \rceil \times {fps \over timescale} \rceil$
+$frame < \lceil \lceil time \times timescale \rceil \times {fps \over timescale} \rceil$
 
-$frame \leq \lceil \lceil timens \times timescale \times 10^{9} \rceil \times {fps \over timescale} \rceil - 1$
+$frame \leq \lceil \lceil time \times timescale \rceil \times {fps \over timescale} \rceil - 1$
 
-$frame = \lceil \lceil timens \times timescale \times 10^{9} \rceil \times {fps \over timescale} \rceil - 1$
+$frame = \lceil \lceil time \times timescale \rceil \times {fps \over timescale} \rceil - 1$
 
 
 
