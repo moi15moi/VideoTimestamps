@@ -1,10 +1,8 @@
-from ..rounding_method import RoundingMethod
 import json
-import sys
 from fractions import Fraction
-from subprocess import CompletedProcess, run
 from pathlib import Path
 from shutil import which
+from subprocess import CompletedProcess, run
 from typing import Any
 
 __all__ = ["FFprobe"]
@@ -28,13 +26,14 @@ class FFprobe:
         """
         return which("ffprobe") is not None
 
+
     @staticmethod
     def verify_if_ffprobe_is_installed() -> None:
         """
-        Verifies if the `mkvextract` program is installed. Raises an error if not found.
+        Verifies if the `ffprobe` program is installed. Raises an error if not found.
 
         Raises:
-            Exception: If `mkvextract` is not found in the system's PATH.
+            Exception: If `ffprobe` is not found in the system's PATH.
         """
         if not FFprobe.is_ffprobe_installed():
             raise Exception("ffprobe is not in the environment variable.")
@@ -74,19 +73,16 @@ class FFprobe:
 
 
     @staticmethod
-    def get_timestamps(video_path: Path, index: int, rounding_method: RoundingMethod) -> tuple[list[int], Fraction, Fraction, Fraction]:
+    def get_pts(video_path: Path, index: int) -> tuple[list[int], Fraction]:
         """
 
         Parameters:
             video_path (Path): A video path.
             index (int): Index of the video stream.
-            rounding_method (RoundingMethod): A rounding method. See the comment in Timestamps class about FLOOR vs ROUND.
         Returns:
-            A tuple containing these 3 informations:
-                1. A list of each timestamps rounded to milliseconds
-                2. The time_base
-                3. The first timestamps not rounded
-                4. The last timestamps not rounded
+            A tuple containing these 2 informations:
+                1. A list of each pts sorted.
+                2. The time_base.
         """
 
         cmd = [
@@ -99,7 +95,7 @@ class FFprobe:
             # But, using frame make the execution really slow
             # I tried to ask [here](https://ffmpeg.org/pipermail/ffmpeg-user/2024-July/058509.html) if I could use a heuristic
             # to know when I need to switch to frame, but I never got an answer.
-            "packet=pts_time,dts_time:stream=codec_type,time_base", #todo
+            f"packet=pts,dts:stream=codec_type,time_base", # TODO
             video_path,
             "-print_format",
             "json",
@@ -118,23 +114,53 @@ class FFprobe:
 
         time_base = Fraction(ffprobe_output_dict["streams"][0]["time_base"])
 
-        timestamps = []
-        lowest_timestamp: Fraction = None # type: ignore
-        highest_timestamp: Fraction = None # type: ignore
-
+        pts_list = []
         for packet in ffprobe_output_dict["packets"]:
-            timestamp = Fraction(
-                # Sometimes, pts_time isn't available.
-                # If it is the case, fallback to dts_time
-                packet.get("pts_time", packet.get("dts_time"))
-            ) * Fraction(1000)
-            if highest_timestamp is None or highest_timestamp < timestamp:
-                highest_timestamp = timestamp
-            if lowest_timestamp is None or lowest_timestamp > timestamp:
-                lowest_timestamp = timestamp
+            timestamp = int(
+                # Sometimes, pts isn't available.
+                # If it is the case, fallback to dts.
+                packet.get("pts", packet.get("dts"))
+            )
+            pts_list.append(timestamp)
+        pts_list.sort()
+
+        return pts_list, time_base
 
 
-            timestamps.append(rounding_method(timestamp))
-        timestamps.sort()
+    @staticmethod
+    def get_fps(video_path: Path, index: int) -> Fraction:
+        """
 
-        return timestamps, time_base, lowest_timestamp, highest_timestamp
+        Parameters:
+            video_path (Path): A video path.
+            index (int): Index of the video stream.
+        Returns:
+            The video fps.
+        """
+
+        cmd = [
+            FFprobe.PROGRAM_NAME,
+            "-hide_banner",
+            "-select_streams",
+            str(index),
+            "-show_entries",
+            f"stream=avg_frame_rate,codec_type",
+            video_path,
+            "-print_format",
+            "json",
+        ]
+        ffprobe_output = FFprobe.run_command(cmd)
+
+        ffprobe_output_dict = json.loads(ffprobe_output.stdout)
+
+        if len(ffprobe_output_dict["streams"]) == 0:
+            raise ValueError(f"The index {index} is not in the file {video_path}.")
+
+        if ffprobe_output_dict["streams"][0]["codec_type"] != "video":
+            raise ValueError(
+                f'The index {index} is not a video stream. It is an "{ffprobe_output_dict["streams"][0]["codec_type"]}" stream.'
+            )
+
+        fps = Fraction(ffprobe_output_dict["streams"][0]["avg_frame_rate"])
+
+        return fps
