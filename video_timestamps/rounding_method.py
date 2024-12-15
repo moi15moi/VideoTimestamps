@@ -1,5 +1,6 @@
 from enum import Enum
 from fractions import Fraction
+from math import ceil, floor
 from typing import Callable
 
 __all__ = ["RoundingMethod"]
@@ -7,16 +8,19 @@ __all__ = ["RoundingMethod"]
 
 CallType = Callable[[Fraction], int]
 
-def floor_method(ms: Fraction) -> int:
-    return int(ms)
+def floor_method(number: Fraction) -> int:
+    return floor(number)
 
-def round_method(ms: Fraction) -> int:
-    return int(ms + Fraction("0.5"))
+def round_method(number: Fraction) -> int:
+    if number >= 0:
+        return floor(number + Fraction(1, 2))
+    else:
+        return ceil(number - Fraction(1, 2))
 
 class RoundingMethod(Enum):
     FLOOR: CallType = floor_method
     ROUND: CallType = round_method
 
-    def __call__(self, ms: Fraction) -> int:
+    def __call__(self, number: Fraction) -> int:
         method: CallType = self.value
-        return method(ms)
+        return method(number)
