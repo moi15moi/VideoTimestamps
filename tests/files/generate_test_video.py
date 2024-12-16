@@ -42,7 +42,7 @@ def main() -> None:
         # draw multiline text
         d.multiline_text((10, 10), text, font=font, fill=(0, 0, 0))
 
-        canvas.save(f"img/test_video_{frame:04}.png")
+        canvas.save(os.path.join(dir_path, "img", f"test_video_{frame:04}.png"))
 
     # Create 1 mp4 and 1 mkv video with an silence audio track
     video_formats = ["mp4", "mkv"]
@@ -54,7 +54,7 @@ def main() -> None:
                 "-r",
                 f"{fps}",
                 "-i",
-                "img/test_video_%04d.png",
+                os.path.join(dir_path, "img", "test_video_%04d.png"),
                 "-f",
                 "lavfi",
                 "-i",
@@ -74,7 +74,7 @@ def main() -> None:
             "-r",
             f"{fps}",
             "-i",
-            "img/test_video_%04d.png",
+            os.path.join(dir_path, "img", "test_video_%04d.png"),
             "-pix_fmt",
             "yuv420p",
             os.path.join(dir_path, f"test_video.avi"),
