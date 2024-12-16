@@ -94,6 +94,21 @@ def main() -> None:
         ]
     )
 
+    # Create a mkv with negative PTS
+    subprocess.check_call(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            os.path.join(dir_path, "test_video.mp4"),
+            "-video_track_timescale",
+            "90000",
+            "-bsf:v",
+            "setts=ts=(N/TB*1001/24000)-5",
+            os.path.join(dir_path, "video_with_negative_pts.mp4"),
+        ]
+    )
+
     # Create a mkv with microsecond timestamps precision
     subprocess.check_call(
         [
