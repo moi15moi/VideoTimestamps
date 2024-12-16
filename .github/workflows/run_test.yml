@@ -29,19 +29,16 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt update
-        sudo apt install mkvtoolnix
         sudo apt install ffmpeg 
 
     - name: Install platform-specific requirements (macOS)
       if: runner.os == 'macOS'
       run: |
-        brew install mkvtoolnix
         brew install ffmpeg
 
     - name: Install platform-specific requirements (Windows)
       if: runner.os == 'Windows'
       run: |
-        choco install mkvtoolnix --no-progress --yes
         choco install ffmpeg --no-progress --yes
 
     - name: Run tests
