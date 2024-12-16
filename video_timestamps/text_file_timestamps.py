@@ -45,18 +45,10 @@ class TextFileTimestamps(VideoTimestamps):
     ):
         if isinstance(path_to_timestamps_file_or_content, Path):
             with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
-                timestamps, fps_from_file = TimestampsFileParser.parse_file(f)
+                timestamps = TimestampsFileParser.parse_file(f)
         else:
             f = StringIO(path_to_timestamps_file_or_content)
-            timestamps, fps_from_file = TimestampsFileParser.parse_file(f)
-
-        if fps_from_file:
-            if fps:
-                warn(
-                    "You have setted a fps, but the timestamps file also contain a fps. We will use the timestamps file fps.",
-                    UserWarning,
-                )
-            fps = fps_from_file
+            timestamps = TimestampsFileParser.parse_file(f)
 
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
 
