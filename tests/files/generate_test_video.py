@@ -94,14 +94,14 @@ def main() -> None:
         ]
     )
 
-    # Create a mkv with nanosecond timestamps precision
+    # Create a mkv with microsecond timestamps precision
     subprocess.check_call(
         [
             "mkvmerge",
             "--output",
-            os.path.join(dir_path, "mkv_timescale_ns.mkv"),
+            os.path.join(dir_path, "mkv_timescale_us.mkv"),
             "--timestamp-scale",
-            "1000",  # 1000 means nanosecond
+            "1000",  # 1000 means microsecond
             "--default-duration",
             "0:24000/1001p",
             os.path.join(dir_path, "test_video.mkv"),
