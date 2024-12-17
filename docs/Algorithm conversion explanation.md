@@ -57,19 +57,6 @@ The interval for each type of timing are defined like this:
 ```
 
 
-But, for our case, the interval are always integer, so it gives:
-
-```math
-\begin{gather}
-\text{EXACT : } [\lceil \text{CurrentFrameTimestamps} \rceil, \lceil \text{NextFrameTimestamps} \rceil - 1] \\
-\text{START : } [\lfloor \text{PreviousFrameTimestamps} \rfloor + 1, \lfloor \text{CurrentFrameTimestamps} \rfloor] \\
-\text{END : } [\lfloor \text{CurrentFrameTimestamps} \rfloor + 1, \lfloor \text{NextFrameTimestamps} \rfloor]
-\end{gather}
-```
-
-The interval are integer because float/double don't have infinite precision, so there are some rounding issues that we don't want. But, there is a drawback. We cannot have a higher precision then the unit that the integer represent. So, I arbitrarily choosed to use nanoseconds because in all the chapter and subtitle format that I know, this is the smallest unit available.
-
-
 
 
 
