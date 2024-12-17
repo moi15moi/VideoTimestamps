@@ -1,6 +1,6 @@
 To understand how ``frame_to_time`` and ``time_to_frame`` works, we need to fully understand how TimeType works.
 
-Here is an example of timestamps and their TimeType:
+Here is an example of timestamps and their TimeType with a $fps = 30$:
 
 **Timestamps**
 ```math
