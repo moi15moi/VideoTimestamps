@@ -83,7 +83,7 @@ def test_get_pts_non_video_index() -> None:
 
     with pytest.raises(ValueError) as exc_info:
         FFprobe.get_pts(video_file_path, 1)
-    assert str(exc_info.value) == f"The index 1 is not a video stream. It is an \"audio\" stream."
+    assert str(exc_info.value) == "The index 1 is not a video stream. It is an \"audio\" stream."
 
 
 def test_get_pts_invalid_index() -> None:
@@ -106,7 +106,7 @@ def test_get_fps_non_video_index() -> None:
 
     with pytest.raises(ValueError) as exc_info:
         FFprobe.get_fps(video_file_path, 1)
-    assert str(exc_info.value) == f"The index 1 is not a video stream. It is an \"audio\" stream."
+    assert str(exc_info.value) == "The index 1 is not a video stream. It is an \"audio\" stream."
 
 
 def test_get_fps_invalid_index() -> None:

@@ -73,14 +73,14 @@ class TimestampsFileParser:
 
             if version == 2 and previous_timestamp is not None and timestamp < previous_timestamp:
                 raise ValueError(
-                    f"The timestamps file contain timestamps NOT in ascending order."
+                    "The timestamps file contain timestamps NOT in ascending order."
                 )
 
             previous_timestamp = timestamp
             timestamps.append(timestamp)
 
         if not len(timestamps):
-            raise ValueError(f"The timestamps file is empty.")
+            raise ValueError("The timestamps file is empty.")
 
         if version == 4:
             timestamps.sort()

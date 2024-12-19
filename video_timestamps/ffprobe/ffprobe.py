@@ -95,7 +95,7 @@ class FFprobe:
             # But, using frame make the execution really slow
             # I tried to ask [here](https://ffmpeg.org/pipermail/ffmpeg-user/2024-July/058509.html) if I could use a heuristic
             # to know when I need to switch to frame, but I never got an answer.
-            f"packet=pts,dts:stream=codec_type,time_base", # TODO
+            "packet=pts,dts:stream=codec_type,time_base", # TODO
             video_path,
             "-print_format",
             "json",
@@ -144,7 +144,7 @@ class FFprobe:
             "-select_streams",
             str(index),
             "-show_entries",
-            f"stream=avg_frame_rate,codec_type",
+            "stream=avg_frame_rate,codec_type",
             video_path,
             "-print_format",
             "json",

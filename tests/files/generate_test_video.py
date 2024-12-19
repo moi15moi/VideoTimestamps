@@ -77,7 +77,7 @@ def main() -> None:
             os.path.join(dir_path, "img", "test_video_%04d.png"),
             "-pix_fmt",
             "yuv420p",
-            os.path.join(dir_path, f"test_video.avi"),
+            os.path.join(dir_path, "test_video.avi"),
         ]
     )
 
