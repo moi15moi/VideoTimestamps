@@ -25,7 +25,7 @@ def test_init_v2() -> None:
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(6, Fraction(2003, 1000))
-    assert timestamps.approximate_pts_from_last_pts == True
+    assert timestamps.approximate_pts_from_last_pts is True
     assert timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
 
 
@@ -39,5 +39,5 @@ def test_init_from_file() -> None:
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(2, Fraction(100, 1000))
-    assert timestamps.approximate_pts_from_last_pts == False
+    assert timestamps.approximate_pts_from_last_pts is False
     assert timestamps.pts_list == [0, 50, 100]
