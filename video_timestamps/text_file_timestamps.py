@@ -5,7 +5,6 @@ from fractions import Fraction
 from io import StringIO
 from pathlib import Path
 from typing import Optional, Union
-from warnings import warn
 
 __all__ = ["TextFileTimestamps"]
 

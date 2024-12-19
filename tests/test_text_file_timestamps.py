@@ -1,7 +1,7 @@
 import os
 from fractions import Fraction
 from pathlib import Path
-from video_timestamps import RoundingMethod, TextFileTimestamps, TimeType
+from video_timestamps import RoundingMethod, TextFileTimestamps
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
