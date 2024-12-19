@@ -52,6 +52,10 @@ jobs:
       run: |
         mypy
 
+    - name: Check code with ruff
+      run: |
+        ruff check
+
     - name: Generate coverage report
       run: |
         coverage run -m pytest
