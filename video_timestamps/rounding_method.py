@@ -18,8 +18,8 @@ def round_method(number: Fraction) -> int:
         return ceil(number - Fraction(1, 2))
 
 class RoundingMethod(Enum):
-    FLOOR: CallType = floor_method
-    ROUND: CallType = round_method
+    FLOOR = floor_method
+    ROUND = round_method
 
     def __call__(self, number: Fraction) -> int:
         method: CallType = self.value
