@@ -52,3 +52,26 @@ class TextFileTimestamps(VideoTimestamps):
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
 
         super().__init__(pts_list, time_scale, normalize, fps, rounding_method, approximate_pts_from_last_pts)
+
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TextFileTimestamps):
+            return False
+        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
+        )
+
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.rounding_method,
+                self.fps,
+                self.time_scale,
+                self.first_pts,
+                self.first_timestamps,
+                tuple(self.pts_list),
+                tuple(self.timestamps),
+                self.approximate_pts_from_last_pts,
+            )
+        )

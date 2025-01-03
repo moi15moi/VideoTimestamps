@@ -293,3 +293,26 @@ class VideoTimestamps(ABCTimestamps):
             raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
 
         return time
+
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, VideoTimestamps):
+            return False
+        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
+        )
+
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.rounding_method,
+                self.fps,
+                self.time_scale,
+                self.first_pts,
+                self.first_timestamps,
+                tuple(self.pts_list),
+                tuple(self.timestamps),
+                self.approximate_pts_from_last_pts,
+            )
+        )
