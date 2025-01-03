@@ -319,3 +319,13 @@ class ABCTimestamps(ABC):
         """
 
         return self.frame_to_time(self.time_to_frame(time, time_type, input_unit), time_type, output_unit, center_time)
+
+
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
+        pass
+
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        pass

@@ -125,3 +125,23 @@ class FPSTimestamps(ABCTimestamps):
             raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
 
         return time
+
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FPSTimestamps):
+            return False
+        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps
+        )
+
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.rounding_method,
+                self.fps,
+                self.time_scale,
+                self.first_pts,
+                self.first_timestamps,
+            )
+        )

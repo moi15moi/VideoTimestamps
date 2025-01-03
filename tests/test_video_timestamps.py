@@ -107,3 +107,65 @@ def test_guess_rounding_method_vfr() -> None:
     fps = Fraction(24000, 1001)
 
     assert VideoTimestamps.guess_rounding_method(pts_list, time_scale, fps) == RoundingMethod.FLOOR
+
+
+def test__eq__and__hash__() -> None:
+    video_1 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None, RoundingMethod.FLOOR, False)
+    video_2 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None, RoundingMethod.FLOOR, False)
+    assert video_1 == video_2
+    assert hash(video_1) == hash(video_2)
+
+    video_3 = VideoTimestamps(
+        [0, 42, 100], # different
+        Fraction(1000),
+        True,
+        None,
+        RoundingMethod.FLOOR,
+        False
+    )
+    assert video_1 != video_3
+    assert hash(video_1) != hash(video_3)
+
+    video_4 = VideoTimestamps(
+        [0, 42, 83],
+        Fraction(1001), # different
+        True,
+        None,
+        RoundingMethod.FLOOR,
+        False
+    )
+    assert video_1 != video_4
+    assert hash(video_1) != hash(video_4)
+
+    video_5 = VideoTimestamps(
+        [0, 42, 83],
+        Fraction(1000),
+        True,
+        Fraction(1), # different
+        RoundingMethod.FLOOR,
+        False
+    )
+    assert video_1 != video_5
+    assert hash(video_1) != hash(video_5)
+
+    video_6 = VideoTimestamps(
+        [0, 42, 83],
+        Fraction(1000),
+        True,
+        None,
+        RoundingMethod.ROUND, # different
+        False
+    )
+    assert video_1 != video_6
+    assert hash(video_1) != hash(video_6)
+
+    video_7 = VideoTimestamps(
+        [0, 42, 83],
+        Fraction(1000),
+        True,
+        None,
+        RoundingMethod.FLOOR,
+        True # different
+    )
+    assert video_1 != video_7
+    assert hash(video_1) != hash(video_7)
