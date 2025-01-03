@@ -1,18 +1,18 @@
 from fractions import Fraction
-from io import TextIOWrapper
+from io import TextIOBase
 from re import compile
 from typing import Optional
 
 
 class TimestampsFileParser:
     @staticmethod
-    def parse_file(file_content: TextIOWrapper) -> list[Fraction]:
+    def parse_file(file_content: TextIOBase) -> list[Fraction]:
         """Parse timestamps from a [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files) and return them.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
 
         Parameters:
-            file_content (TextIOWrapper): The timestamps content.
+            file_content (TextIOBase): The timestamps content.
 
         Returns:
             A list of each frame timestamps (in milliseconds).
@@ -38,14 +38,14 @@ class TimestampsFileParser:
 
     @staticmethod
     def _parse_v2_and_v4_file(
-        file_content: TextIOWrapper, version: int
+        file_content: TextIOBase, version: int
     ) -> list[Fraction]:
         """Create timestamps based on the timestamps v2 or v4 file provided.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L201-267
 
         Parameters:
-            file_content (TextIOWrapper): The timestamps content
+            file_content (TextIOBase): The timestamps content
             version (int): The version of the timestamps (only 2 or 4 is allowed)
 
         Returns:

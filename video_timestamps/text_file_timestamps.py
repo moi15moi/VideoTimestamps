@@ -46,8 +46,8 @@ class TextFileTimestamps(VideoTimestamps):
             with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
                 timestamps = TimestampsFileParser.parse_file(f)
         else:
-            f = StringIO(path_to_timestamps_file_or_content)
-            timestamps = TimestampsFileParser.parse_file(f)
+            file = StringIO(path_to_timestamps_file_or_content)
+            timestamps = TimestampsFileParser.parse_file(file)
 
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
 
