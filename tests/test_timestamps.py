@@ -590,7 +590,7 @@ def test_time_to_frame_floor(timestamp: ABCTimestamps) -> None:
 @pytest.mark.parametrize(
     "timestamp",
     [
-        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), -10000),
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(-10000, 90000)),
         VideoTimestamps([-10000, -6247, -2493, 1261, 5015, 8768], Fraction(90000), False),
         VideoTimestamps([-10000, -6247, -2493], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR), # Test VideoTimestamps over the video lenght
     ],
@@ -692,7 +692,7 @@ def test_frame_to_time_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None
 @pytest.mark.parametrize(
     "timestamp",
     [
-        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), -10000),
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(-10000, 90000)),
         VideoTimestamps([-10000, -6247, -2493, 1261, 5015, 8768], Fraction(90000), False),
         VideoTimestamps([-10000, -6247, -2493], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR), # Test VideoTimestamps over the video lenght
     ],
@@ -835,7 +835,7 @@ def test_time_to_frame_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None
 @pytest.mark.parametrize(
     "timestamp",
     [
-        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), 3753),
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(3753, 90000)),
         VideoTimestamps([3753, 7506, 11260, 15014, 18768, 22521], Fraction(90000), False),
         VideoTimestamps([3753, 7506, 11260], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR), # Test VideoTimestamps over the video lenght
     ],
@@ -938,7 +938,7 @@ def test_frame_to_time_floor_first_pts_over_0(timestamp: ABCTimestamps) -> None:
 @pytest.mark.parametrize(
     "timestamp",
     [
-        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), 3753),
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(3753, 90000)),
         VideoTimestamps([3753, 7506, 11260, 15014, 18768, 22521], Fraction(90000), False),
         VideoTimestamps([3753, 7506, 11260], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR), # Test VideoTimestamps over the video lenght
     ],

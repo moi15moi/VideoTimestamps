@@ -19,7 +19,6 @@ class FPSTimestamps(ABCTimestamps):
         time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
             Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
         fps (Fraction): The frames per second of the video.
-        first_pts (int): PTS (Presentation Time Stamp) of the first frame of the video.
         first_timestamps (int): Time (in seconds) of the first frame of the video.
     """
 
@@ -28,7 +27,7 @@ class FPSTimestamps(ABCTimestamps):
         rounding_method: RoundingMethod,
         time_scale: Fraction,
         fps: Union[int, float, Fraction, Decimal],
-        first_pts: int = 0
+        first_timestamps: Fraction = Fraction(0)
     ):
         if time_scale <= 0:
             raise ValueError("Parameter ``time_scale`` must be higher than 0.")
@@ -39,8 +38,7 @@ class FPSTimestamps(ABCTimestamps):
         self.__rounding_method = rounding_method
         self.__time_scale = time_scale
         self.__fps = Fraction(fps)
-        self.__first_pts = first_pts
-        self.__first_timestamps = self.first_pts / self.time_scale
+        self.__first_timestamps = first_timestamps
 
     @property
     def rounding_method(self) -> RoundingMethod:
@@ -55,10 +53,6 @@ class FPSTimestamps(ABCTimestamps):
         return self.__time_scale
 
     @property
-    def first_pts(self) -> int:
-        return self.__first_pts
-
-    @property
     def first_timestamps(self) -> Fraction:
         return self.__first_timestamps
 
@@ -71,19 +65,19 @@ class FPSTimestamps(ABCTimestamps):
 
         if time_type == TimeType.START:
             if self.rounding_method == RoundingMethod.ROUND:
-                frame = ceil((ceil((time - self.first_timestamps) * self.time_scale) - Fraction(1, 2)) * self.fps / self.time_scale + Fraction(1, 1)) - 1
+                frame = ceil(((ceil(time * self.time_scale) - Fraction(1, 2)) / self.time_scale - self.first_timestamps) * self.fps + Fraction(1)) - 1
             elif self.rounding_method == RoundingMethod.FLOOR:
-                frame = ceil(ceil((time - self.first_timestamps) * self.time_scale) * self.fps / self.time_scale + Fraction(1, 1)) - 1
+                frame = ceil(((ceil(time * self.time_scale)) / self.time_scale - self.first_timestamps) * self.fps + Fraction(1)) - 1
         elif time_type == TimeType.END:
             if self.rounding_method == RoundingMethod.ROUND:
-                frame = ceil((ceil((time - self.first_timestamps) * self.time_scale) - Fraction(1, 2)) * self.fps/self.time_scale) - 1
+                frame = ceil(((ceil(time * self.time_scale) - Fraction(1, 2)) / self.time_scale - self.first_timestamps) * self.fps) - 1
             elif self.rounding_method == RoundingMethod.FLOOR:
-                frame = ceil(ceil((time - self.first_timestamps) * self.time_scale) * self.fps/self.time_scale) - 1
+                frame = ceil(((ceil(time * self.time_scale)) / self.time_scale - self.first_timestamps) * self.fps) - 1
         elif time_type == TimeType.EXACT:
             if self.rounding_method == RoundingMethod.ROUND:
-                frame = ceil((floor((time - self.first_timestamps) * self.time_scale) + Fraction(1, 2)) * self.fps/self.time_scale) - 1
+                frame = ceil(((floor(time * self.time_scale) + Fraction(1, 2)) / self.time_scale - self.first_timestamps) * self.fps) - 1
             elif self.rounding_method == RoundingMethod.FLOOR:
-                frame = ceil((floor((time - self.first_timestamps) * self.time_scale) + Fraction(1)) * self.fps/self.time_scale) - 1
+                frame = ceil(((floor(time * self.time_scale) + Fraction(1)) / self.time_scale - self.first_timestamps) * self.fps) - 1
         else:
             raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
 
@@ -98,28 +92,25 @@ class FPSTimestamps(ABCTimestamps):
     ) -> Fraction:
 
         if time_type == TimeType.START:
-            if frame == 0:
-                return self.first_timestamps
+            upper_bound = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
 
-            upper_bound = self.rounding_method(frame * self.time_scale/self.fps) * 1/self.time_scale + self.first_timestamps
-
-            if center_time:
-                lower_bound = self.rounding_method((frame-1) * self.time_scale/self.fps) * 1/self.time_scale + self.first_timestamps
+            if center_time and frame > 0:
+                lower_bound = self.rounding_method(((frame-1)/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
                 time = (lower_bound + upper_bound) / 2
             else:
                 time = upper_bound
 
         elif time_type == TimeType.END:
-            upper_bound = self.rounding_method((frame+1) * self.time_scale/self.fps) * 1/self.time_scale + self.first_timestamps
+            upper_bound = self.rounding_method(((frame+1)/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
 
             if center_time:
-                lower_bound = self.rounding_method(frame * self.time_scale/self.fps) * 1/self.time_scale + self.first_timestamps
+                lower_bound = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
                 time = (lower_bound + upper_bound) / 2
             else:
                 time = upper_bound
 
         elif time_type == TimeType.EXACT:
-            time = self.rounding_method(frame * self.time_scale/self.fps) * 1/self.time_scale + self.first_timestamps
+            time = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
 
         else:
             raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
@@ -130,8 +121,8 @@ class FPSTimestamps(ABCTimestamps):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FPSTimestamps):
             return False
-        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps) == (
-            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps
+        return (self.rounding_method, self.fps, self.time_scale, self.first_timestamps) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_timestamps
         )
 
 
@@ -141,7 +132,6 @@ class FPSTimestamps(ABCTimestamps):
                 self.rounding_method,
                 self.fps,
                 self.time_scale,
-                self.first_pts,
                 self.first_timestamps,
             )
         )
