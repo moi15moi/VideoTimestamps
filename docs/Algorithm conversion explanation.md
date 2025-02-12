@@ -88,7 +88,7 @@ For the $pts$, it is simple, $pts = \text{roundingMethod}(frame \times ticks)$. 
 
 $$ticks = {timescale \over fps}$$
 
-So, in brief, the expended formula is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1 \over timescale} + first\_timestamps$
+So, in brief, the expended formula is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale} $
 
 But, that would make time in seconds and it would be a rational number which would be not precise.
 We choosed that the maximum precision that a user could need is nanoseconds.
@@ -100,23 +100,23 @@ We choosed that the maximum precision that a user could need is nanoseconds.
 # frame_to_time for TimeType.EXACT
 $\text{EXACT : } [\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}[$
 
-The lower bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The lower bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-The upper bound is: $time = \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The upper bound is: $time = {\text{roundingMethod}(({(frame + 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
 # frame_to_time for TimeType.START
 $\text{START : } ]\text{PreviousFrameTimestamps} , \text{CurrentFrameTimestamps}]$
 
-The lower bound is: $time = \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The lower bound is: $time = {\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-The upper bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The upper bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
 # frame_to_time for TimeType.END
 $\text{END : } ]\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}]$
 
-The lower bound is: $time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The lower bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-The upper bound is: $time = \text{roundingMethod}((frame + 1) \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps$
+The upper bound is: $time = {\text{roundingMethod}(({(frame + 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
 
 
@@ -139,90 +139,102 @@ PS: *The number are in milliseconds for simplicity, but actually, the formula gi
 
 With that in mind, we know can say that the property says that we need to use the largest $frame$ such that the $frame$ does not exceed the requested $time$.
 
-From that property, we can deduce this equation: $\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps \leq time$
+From that property, we can deduce this equation: ${\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale} \leq time$
 
-Now, we have an inequation and it is possible to isolate properly our $frame$ variable. Since the $\text{roundingMethod}$ can be floor or rounded, we will have 2 final equations that are described below
+We can isolate our roundingMethod like this: $\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \leq time \times timescale$
 
-$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} + first\_timestamps \leq time$
-
-$\text{roundingMethod}(frame \times {timescale \over fps}) \leq (time - first\_timestamps) \times timescale$
-
+Now, we have an inequation and it is possible to isolate properly our $frame$ variable. Since the $\text{roundingMethod}$ can be floor or rounded, we will have 2 final equations that are described below:
 
 ## Explanation for rounding method
-$\text{round}(frame \times {timescale \over fps}) \leq (time - first\_timestamps) \times timescale$
+$\text{round}(({frame \over fps} + first\_timestamps) \times timescale) \leq time \times timescale$
 
-$frame \times {timescale \over fps} < \lfloor (time - first\_timestamps) \times timescale \rfloor + 0.5$
+$({frame \over fps} + first\_timestamps) \times timescale < \lfloor time \times timescale \rfloor + 0.5$
 
-$frame < (\lfloor (time - first\_timestamps) \times timescale \rfloor + 0.5) \times {fps \over timescale}$
+${frame \over fps} + first\_timestamps < {\lfloor time \times timescale \rfloor + 0.5 \over timescale}$
 
-$frame < \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil$
+${frame \over fps} < {\lfloor time \times timescale \rfloor + 0.5 \over timescale} - first\_timestamps$
 
-$frame \leq \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil - 1$
+$frame < ({\lfloor time \times timescale \rfloor + 0.5 \over timescale} - first\_timestamps) \times fps$
 
-$frame = \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 0.5) \times {fps \over timescale} \rceil - 1$
+$frame < \lceil ({\lfloor time \times timescale \rfloor + 0.5 \over timescale} - first\_timestamps) \times fps \rceil$
+
+$frame \leq \lceil ({\lfloor time \times timescale \rfloor + 0.5 \over timescale} - first\_timestamps) \times fps \rceil - 1$
+
+$frame = \lceil ({\lfloor time \times timescale \rfloor + 0.5 \over timescale} - first\_timestamps) \times fps \rceil - 1$
 
 
 ## Explanation for floor method
 
-$\lfloor frame \times {timescale \over fps} \rfloor \leq (time - first\_timestamps) \times timescale$
+$\lfloor ({frame \over fps} + first\_timestamps) \times timescale \rfloor \leq time \times timescale$
 
-$frame \times {timescale \over fps} < \lfloor (time - first\_timestamps) \times timescale \rfloor + 1$
+$({frame \over fps} + first\_timestamps) \times timescale < \lfloor time \times timescale \rfloor + 1$
 
-$frame < (\lfloor (time - first\_timestamps) \times timescale \rfloor + 1) \times {fps \over timescale}$
+${frame \over fps} + first\_timestamps < {\lfloor time \times timescale \rfloor + 1 \over timescale}$
 
-$frame < \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 1) \times {fps \over timescale} \rceil$
+${frame \over fps} < {\lfloor time \times timescale \rfloor + 1 \over timescale} - first\_timestamps$
 
-$frame \leq \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 1) \times {fps \over timescale} \rceil - 1$
+$frame < ({\lfloor time \times timescale \rfloor + 1 \over timescale} - first\_timestamps) \times fps$
 
-$frame = \lceil (\lfloor (time - first\_timestamps) \times timescale \rfloor + 1) \times {fps \over timescale} \rceil - 1$
+$frame < \lceil ({\lfloor time \times timescale \rfloor + 1 \over timescale} - first\_timestamps) \times fps \rceil$
 
+$frame \leq \lceil ({\lfloor time \times timescale \rfloor + 1 \over timescale} - first\_timestamps) \times fps \rceil - 1$
+
+$frame = \lceil ({\lfloor time \times timescale \rfloor + 1 \over timescale} - first\_timestamps) \times fps \rceil - 1$
 
 
 
 
 # time_to_frame for TimeType.START
 
-$time = \text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale}$
+$time = {\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) \times {1\over timescale} < time$
+${\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) \over timescale} < time$
 
-$\text{roundingMethod}((frame - 1) \times {timescale \over fps}) < (time - first\_timestamps) \times timescale$
+$\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) < time \times timescale$
 
 
 ## Explanation for rounding method
 
-$\text{round}((frame - 1) \times {timescale \over fps}) < (time - first\_timestamps) \times timescale$
+$\text{round}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) < time \times timescale$
 
-$(frame - 1) \times {timescale \over fps} + 0.5 < \lceil (time - first\_timestamps) \times timescale\rceil$
+$({(frame - 1) \over fps} + first\_timestamps) \times timescale + 0.5 < \lceil time \times timescale \rceil$
 
-$(frame - 1) \times {timescale \over fps} < \lceil (time - first\_timestamps) \times timescale \rceil - 0.5$
+$({(frame - 1) \over fps} + first\_timestamps) \times timescale < \lceil time \times timescale \rceil - 0.5$
 
-$frame - 1 < (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale}$
+${(frame - 1) \over fps} + first\_timestamps < {\lceil time \times timescale \rceil - 0.5 \over timescale}$
 
-$frame < (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} + 1$
+${(frame - 1) \over fps} < {\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps$
 
-$frame < \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil$
+$frame - 1 < ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps$
 
-$frame \leq \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
+$frame < ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps + 1$
 
-$frame = \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} + 1 \rceil - 1$
+$frame < \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps + 1 \rceil$
+
+$frame \leq \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps + 1 \rceil - 1$
+
+$frame = \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps + 1 \rceil - 1$
 
 
 ## Explanation for floor method
 
-$\lfloor (frame - 1) \times {timescale \over fps} \rfloor < (time - first\_timestamps) \times timescale$
+$\lfloor ({(frame - 1) \over fps} + first\_timestamps) \times timescale) \rfloor < time \times timescale$
 
-$(frame - 1) \times {timescale \over fps} < \lceil (time - first\_timestamps) \times timescale\rceil$
+$({(frame - 1) \over fps} + first\_timestamps) \times timescale) < \lceil time \times timescale \rceil$
 
-$frame - 1 < \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale}$
+${(frame - 1) \over fps} + first\_timestamps < {\lceil time \times timescale \rceil \over timescale}$
 
-$frame < \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} + 1$
+${(frame - 1) \over fps} < {\lceil time \times timescale \rceil \over timescale} - first\_timestamps$
 
-$frame < \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} + 1 \rceil$
+$frame - 1 < ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps$
 
-$frame \leq \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} + 1 \rceil - 1$
+$frame < ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps + 1$
 
-$frame = \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} + 1 \rceil - 1$
+$frame < \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps + 1 \rceil$
+
+$frame \leq \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps + 1 \rceil - 1$
+
+$frame = \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps + 1 \rceil - 1$
 
 
 
@@ -230,41 +242,49 @@ $frame = \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times
 
 # time_to_frame for TimeType.END
 
-$time = \text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale}$
+$time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-$\text{roundingMethod}(frame \times {timescale \over fps}) \times {1\over timescale} < time$
+${\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale} < time$
 
-$\text{roundingMethod}(frame \times {timescale \over fps}) < (time - first\_timestamps) \times timescale$
+$\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) < time \times timescale$
 
 ## Explanation for rounding method
 
-$\text{round}(frame \times {timescale \over fps}) < (time - first\_timestamps) \times timescale$
+$\text{round}(({frame \over fps} + first\_timestamps) \times timescale) < time \times timescale$
 
-$frame \times {timescale \over fps} + 0.5 < \lceil (time - first\_timestamps) \times timescale \rceil$
+$({frame \over fps} + first\_timestamps) \times timescale + 0.5 < \lceil time \times timescale \rceil$
 
-$frame \times {timescale \over fps} < \lceil (time - first\_timestamps) \times timescale \rceil - 0.5$
+$({frame \over fps} + first\_timestamps) \times timescale < \lceil time \times timescale \rceil - 0.5$
 
-$frame < (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale}$
+${frame \over fps} + first\_timestamps < {\lceil time \times timescale \rceil - 0.5 \over timescale}$
 
-$frame < \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil$
+${frame \over fps} < {\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps$
 
-$frame \leq \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
+$frame < ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps$
 
-$frame = \lceil (\lceil (time - first\_timestamps) \times timescale \rceil - 0.5) \times {fps \over timescale} \rceil - 1$
+$frame < \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps \rceil$
+
+$frame \leq \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps \rceil - 1$
+
+$frame = \lceil ({\lceil time \times timescale \rceil - 0.5 \over timescale} - first\_timestamps) \times fps \rceil - 1$
 
 ## Explanation for floor method
 
-$\lfloor frame \times {timescale \over fps} \rfloor < (time - first\_timestamps) \times timescale$
+$\lfloor({frame \over fps} + first\_timestamps) \times timescale \rfloor < time \times timescale$
 
-$frame \times {timescale \over fps} < \lceil (time - first\_timestamps) \times timescale \rceil$
+$({frame \over fps} + first\_timestamps) \times timescale < \lceil time \times timescale \rceil$
 
-$frame < \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale}$
+${frame \over fps} + first\_timestamps < {\lceil time \times timescale \rceil \over timescale}$
 
-$frame < \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} \rceil$
+${frame \over fps} < {\lceil time \times timescale \rceil \over timescale} - first\_timestamps$
 
-$frame \leq \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} \rceil - 1$
+$frame < ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps$
 
-$frame = \lceil \lceil (time - first\_timestamps) \times timescale \rceil \times {fps \over timescale} \rceil - 1$
+$frame < \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps \rceil$
+
+$frame \leq \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps \rceil - 1$
+
+$frame = \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_timestamps) \times fps \rceil - 1$
 
 
 
