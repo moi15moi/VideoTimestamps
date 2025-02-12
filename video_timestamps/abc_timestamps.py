@@ -31,7 +31,6 @@ class ABCTimestamps(ABC):
         fps (Fraction): The frames per second of the video.
         time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
             Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-        first_pts (int): PTS (Presentation Time Stamp) of the first frame of the video.
         first_timestamps (int): Time (in seconds) of the first frame of the video.
     """
 
@@ -48,11 +47,6 @@ class ABCTimestamps(ABC):
     @property
     @abstractmethod
     def time_scale(self) -> Fraction:
-        pass
-
-    @property
-    @abstractmethod
-    def first_pts(self) -> int:
         pass
 
     @property
