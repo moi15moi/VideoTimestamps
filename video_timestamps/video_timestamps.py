@@ -30,7 +30,6 @@ class VideoTimestamps(ABCTimestamps):
             If False, use the first pts.
             In general, you want this parameter to be False to have the best precision.
             You only want it true when the video is VFR.
-        first_pts (int): PTS (Presentation Time Stamp) of the first frame of the video.
         first_timestamps (int): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
     """
@@ -71,9 +70,9 @@ class VideoTimestamps(ABCTimestamps):
 
         self.__approximate_pts_from_last_pts = approximate_pts_from_last_pts
         if self.approximate_pts_from_last_pts:
-            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.pts_list[-1])
+            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.timestamps[-1])
         else:
-            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.first_pts)
+            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.timestamps[0])
 
 
     @classmethod
@@ -144,10 +143,6 @@ class VideoTimestamps(ABCTimestamps):
     @property
     def time_scale(self) -> Fraction:
         return self.__time_scale
-
-    @property
-    def first_pts(self) -> int:
-        return self.pts_list[0]
 
     @property
     def first_timestamps(self) -> Fraction:
@@ -298,8 +293,8 @@ class VideoTimestamps(ABCTimestamps):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, VideoTimestamps):
             return False
-        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
-            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
+        return (self.rounding_method, self.fps, self.time_scale, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
         )
 
 
@@ -309,7 +304,6 @@ class VideoTimestamps(ABCTimestamps):
                 self.rounding_method,
                 self.fps,
                 self.time_scale,
-                self.first_pts,
                 self.first_timestamps,
                 tuple(self.pts_list),
                 tuple(self.timestamps),
