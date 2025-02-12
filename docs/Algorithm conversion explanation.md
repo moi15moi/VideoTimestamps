@@ -1,3 +1,18 @@
+# Table of contents
+1. [Introduction](#introduction)
+2. [frame_to_time](#frame_to_time)
+    1. [frame_to_time_exact](#frame_to_time_exact)
+    2. [frame_to_time_start](#frame_to_time_start)
+    3. [frame_to_time_end](#frame_to_time_end)
+3. [time_to_frame](#time_to_frame)
+    1. [time_to_frame_exact](#time_to_frame_exact)
+    2. [time_to_frame_start](#time_to_frame_start)
+    3. [time_to_frame_end](#time_to_frame_end)
+4. [Acknowledgments](#acknowledgments)
+
+
+## Introduction <a name="introduction"></a>
+
 To understand how ``frame_to_time`` and ``time_to_frame`` works, we need to fully understand how TimeType works.
 
 Here is an example of timestamps and their TimeType with a $fps = 30$:
@@ -60,7 +75,7 @@ The interval for each type of timing are defined like this:
 
 
 
-# frame_to_time
+# frame_to_time <a name="frame_to_time"></a>
 
 A lot of people think that the time can be calculated like this: $time= frame \times {1 \over fps}$, but this is only a approximation. Actually, videos use this formula: $pts\_time= pts \times timebase$. So, the "real" name for $time$ is $pts\_time$, but note that, in some case (especially with .avi file), a video stream may not contains any $pts$. In those case, in general, player fallback to $dts$.
 
@@ -97,21 +112,21 @@ We choosed that the maximum precision that a user could need is nanoseconds.
 
 
 
-# frame_to_time for TimeType.EXACT
+# frame_to_time for TimeType.EXACT <a name="frame_to_time_exact"></a>
 $\text{EXACT : } [\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}[$
 
 The lower bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
 The upper bound is: $time = {\text{roundingMethod}(({(frame + 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-# frame_to_time for TimeType.START
+# frame_to_time for TimeType.START <a name="frame_to_time_start"></a>
 $\text{START : } ]\text{PreviousFrameTimestamps} , \text{CurrentFrameTimestamps}]$
 
 The lower bound is: $time = {\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
 The upper bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
-# frame_to_time for TimeType.END
+# frame_to_time for TimeType.END <a name="frame_to_time_end"></a>
 $\text{END : } ]\text{CurrentFrameTimestamps}, \text{NextFrameTimestamps}]$
 
 The lower bound is: $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
@@ -121,8 +136,9 @@ The upper bound is: $time = {\text{roundingMethod}(({(frame + 1) \over fps} + fi
 
 
 
+# time_to_frame <a name="time_to_frame"></a>
 
-# time_to_frame for TimeType.EXACT
+# time_to_frame for TimeType.EXACT <a name="time_to_frame_exact"></a>
 
 ``time_to_frame`` need to be exactly the inverse of ``frame_to_time``.
 Since there are rounding operation, we cannot directly isolate it. To do so, we need to use the interval to our advantage. Here is a example::
@@ -184,7 +200,7 @@ $frame = \lceil ({\lfloor time \times timescale \rfloor + 1 \over timescale} - f
 
 
 
-# time_to_frame for TimeType.START
+# time_to_frame for TimeType.START <a name="time_to_frame_start"></a>
 
 $time = {\text{roundingMethod}(({(frame - 1) \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
@@ -240,7 +256,7 @@ $frame = \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_
 
 
 
-# time_to_frame for TimeType.END
+# time_to_frame for TimeType.END <a name="time_to_frame_end"></a>
 
 $time = {\text{roundingMethod}(({frame \over fps} + first\_timestamps) \times timescale) \over timescale}$
 
@@ -290,5 +306,5 @@ $frame = \lceil ({\lceil time \times timescale \rceil \over timescale} - first\_
 
 
 
-## Acknowledgments
+## Acknowledgments <a name="acknowledgments"></a>
 Thanks to [arch1t3cht](https://github.com/arch1t3cht) who helped me understand the math behind this conversion.
