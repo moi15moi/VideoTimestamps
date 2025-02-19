@@ -19,7 +19,8 @@ class FPSTimestamps(ABCTimestamps):
         time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
             Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
         fps (Fraction): The frames per second of the video.
-        first_timestamps (int): Time (in seconds) of the first frame of the video.
+        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
+            Warning: The first_timestamps is not rounded, so it isn't really be first_timestamps.
     """
 
     def __init__(
