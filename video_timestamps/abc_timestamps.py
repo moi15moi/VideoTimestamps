@@ -31,7 +31,8 @@ class ABCTimestamps(ABC):
         fps (Fraction): The frames per second of the video.
         time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
             Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-        first_timestamps (int): Time (in seconds) of the first frame of the video.
+        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
+            Warning: Depending on the subclass, the first_timestamps may not be rounded, so it won't really be first_timestamps.
     """
 
     @property
@@ -99,14 +100,17 @@ class ABCTimestamps(ABC):
                 raise ValueError("The input_unit needs to be above or equal to 0.")
 
             time_in_second = time * Fraction(1, 10 ** input_unit)
+        
+        first_pts = self.rounding_method(self.first_timestamps * self.time_scale)
+        first_timestamps = first_pts / self.time_scale
 
-        if time_in_second < self.first_timestamps and time_type == TimeType.EXACT:
-            raise ValueError(f"You cannot specify a time under the first timestamps {self.first_timestamps} with the TimeType.EXACT.")
-        if time_in_second <= self.first_timestamps:
+        if time_in_second < first_timestamps and time_type == TimeType.EXACT:
+            raise ValueError(f"You cannot specify a time under the first timestamps {first_timestamps} with the TimeType.EXACT.")
+        if time_in_second <= first_timestamps:
             if time_type == TimeType.START:
                 return 0
             elif time_type == TimeType.END:
-                raise ValueError(f"You cannot specify a time under or equals the first timestamps {self.first_timestamps} with the TimeType.END.")
+                raise ValueError(f"You cannot specify a time under or equals the first timestamps {first_timestamps} with the TimeType.END.")
 
         frame = self._time_to_frame(time_in_second, time_type)
         return frame

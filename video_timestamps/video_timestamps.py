@@ -31,7 +31,7 @@ class VideoTimestamps(ABCTimestamps):
             Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
             By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
             For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
-        first_timestamps (int): Time (in seconds) of the first frame of the video.
+        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
     """
 
