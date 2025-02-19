@@ -26,12 +26,12 @@ class VideoTimestamps(ABCTimestamps):
         rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
             It will be used to approximate the timestamps after the video duration.
             Note: If None, it will try to guess it from the PTS and fps.
-        approximate_pts_from_last_pts (bool): If True, use the last pts to guess pts over the video duration.
-            If False, use the first pts.
-            In general, you want this parameter to be False to have the best precision.
-            You only want it true when the video is VFR.
-        first_pts (int): PTS (Presentation Time Stamp) of the first frame of the video.
-        first_timestamps (int): Time (in seconds) of the first frame of the video.
+        last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
+            where last_pts is the final presentation timestamp in pts_list.
+            Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
+            By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
+            For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
+        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
     """
 
@@ -42,7 +42,7 @@ class VideoTimestamps(ABCTimestamps):
         normalize: bool = True,
         fps: Optional[Fraction] = None,
         rounding_method: Optional[RoundingMethod] = None,
-        approximate_pts_from_last_pts: bool = False,
+        last_timestamps: Optional[Fraction] = None
     ):
         # Validate the timestamps
         if len(pts_list) <= 1:
@@ -69,11 +69,11 @@ class VideoTimestamps(ABCTimestamps):
         else:
             self.__rounding_method = rounding_method
 
-        self.__approximate_pts_from_last_pts = approximate_pts_from_last_pts
-        if self.approximate_pts_from_last_pts:
-            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.pts_list[-1])
+        if last_timestamps is None:
+            self.__last_timestamps = self.timestamps[-1]
         else:
-            self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.first_pts)
+            self.__last_timestamps = last_timestamps
+        self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.last_timestamps)
 
 
     @classmethod
@@ -83,8 +83,8 @@ class VideoTimestamps(ABCTimestamps):
         index: int = 0,
         normalize: bool = True,
         rounding_method: Optional[RoundingMethod] = None,
-        approximate_pts_from_last_pts: bool = False,
         use_ffprobe_to_guess_fps: bool = True,
+        last_timestamps: Optional[Fraction] = None
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
 
@@ -98,12 +98,13 @@ class VideoTimestamps(ABCTimestamps):
             rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
                 It will be used to approximate the timestamps after the video duration.
                 Note: If None, it will try to guess it from the PTS and fps.
-            approximate_pts_from_last_pts (bool): If True, use the last pts to guess pts over the video duration.
-                If False, use the first pts.
-                In general, you want this parameter to be False to have the best precision.
-                You only want it true when the video is VFR.
             use_ffprobe_to_guess_fps (bool): If True, use ffprobe to guess the video fps.
                 If False, the fps will be approximate from the first and last frame PTS.
+            last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
+                where last_pts is the final presentation timestamp in pts_list.
+                Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
+                By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
+                For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
 
         Returns:
             An VideoTimestamps instance representing the video file.
@@ -128,7 +129,7 @@ class VideoTimestamps(ABCTimestamps):
             normalize,
             fps,
             rounding_method,
-            approximate_pts_from_last_pts
+            last_timestamps
         )
         return timestamps
 
@@ -146,10 +147,6 @@ class VideoTimestamps(ABCTimestamps):
         return self.__time_scale
 
     @property
-    def first_pts(self) -> int:
-        return self.pts_list[0]
-
-    @property
     def first_timestamps(self) -> Fraction:
         return self.timestamps[0]
 
@@ -162,8 +159,8 @@ class VideoTimestamps(ABCTimestamps):
         return self.__timestamps
 
     @property
-    def approximate_pts_from_last_pts(self) -> bool:
-        return self.__approximate_pts_from_last_pts
+    def last_timestamps(self) -> Fraction:
+        return self.__last_timestamps
 
     @staticmethod
     def normalize(pts_list: list[int]) -> list[int]:
@@ -234,10 +231,7 @@ class VideoTimestamps(ABCTimestamps):
     ) -> int:
 
         if time > self.timestamps[-1]:
-            if self.approximate_pts_from_last_pts:
-                return len(self.timestamps) - 1 + self.__fps_timestamps.time_to_frame(time, time_type, None)
-            else:
-                return self.__fps_timestamps.time_to_frame(time, time_type, None)
+            return len(self.timestamps) - 1 + self.__fps_timestamps.time_to_frame(time, time_type, None)
 
         if time_type == TimeType.START:
             return bisect_left(self.timestamps, time)
@@ -258,10 +252,7 @@ class VideoTimestamps(ABCTimestamps):
 
         def get_time_at_frame(requested_frame: int) -> Fraction:
             if requested_frame > len(self.timestamps) - 1:
-                if self.approximate_pts_from_last_pts:
-                    return self.__fps_timestamps.frame_to_time(requested_frame - len(self.timestamps) + 1, TimeType.EXACT, None, False)
-                else:
-                    return self.__fps_timestamps.frame_to_time(requested_frame, TimeType.EXACT, None, False)
+                return self.__fps_timestamps.frame_to_time(requested_frame - len(self.timestamps) + 1, TimeType.EXACT, None, False)
             else:
                 return self.timestamps[requested_frame]
 
@@ -298,8 +289,8 @@ class VideoTimestamps(ABCTimestamps):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, VideoTimestamps):
             return False
-        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
-            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
+        return (self.rounding_method, self.fps, self.time_scale, self.first_timestamps, self.pts_list, self.timestamps, self.last_timestamps) == (
+            other.rounding_method, other.fps, other.time_scale, other.first_timestamps, other.pts_list, other.timestamps, other.last_timestamps
         )
 
 
@@ -309,10 +300,9 @@ class VideoTimestamps(ABCTimestamps):
                 self.rounding_method,
                 self.fps,
                 self.time_scale,
-                self.first_pts,
                 self.first_timestamps,
                 tuple(self.pts_list),
                 tuple(self.timestamps),
-                self.approximate_pts_from_last_pts,
+                self.last_timestamps
             )
         )
