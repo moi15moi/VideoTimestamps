@@ -20,12 +20,11 @@ def test_init_v2() -> None:
     time_scale = Fraction(1000)
     rounding_method = RoundingMethod.ROUND
 
-    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, approximate_pts_from_last_pts=True)
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
 
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(6, Fraction(2003, 1000))
-    assert timestamps.approximate_pts_from_last_pts is True
     assert timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
 
 
@@ -71,7 +70,6 @@ def test_init_from_file() -> None:
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(2, Fraction(100, 1000))
-    assert timestamps.approximate_pts_from_last_pts is False
     assert timestamps.pts_list == [0, 50, 100]
 
 
@@ -86,8 +84,8 @@ def test__eq__and__hash__() -> None:
         "2002\n"
         "2003\n"
     )
-    timestamps_1 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None, True)
-    timestamps_2 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None, True)
+    timestamps_1 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None)
+    timestamps_2 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None)
     assert timestamps_1 == timestamps_2
     assert hash(timestamps_1) == hash(timestamps_2)
 
@@ -103,7 +101,6 @@ def test__eq__and__hash__() -> None:
         RoundingMethod.ROUND,
         True,
         None,
-        True
     )
     assert timestamps_1 != timestamps_3
     assert hash(timestamps_1) != hash(timestamps_3)
@@ -114,7 +111,6 @@ def test__eq__and__hash__() -> None:
         RoundingMethod.ROUND,
         True,
         None,
-        True
     )
     assert timestamps_1 != timestamps_4
     assert hash(timestamps_1) != hash(timestamps_4)
@@ -125,7 +121,6 @@ def test__eq__and__hash__() -> None:
         RoundingMethod.FLOOR, # different
         True,
         None,
-        True
     )
     assert timestamps_1 != timestamps_5
     assert hash(timestamps_1) != hash(timestamps_5)
@@ -136,18 +131,6 @@ def test__eq__and__hash__() -> None:
         RoundingMethod.ROUND,
         True,
         Fraction(1), # different
-        True
     )
     assert timestamps_1 != timestamps_6
     assert hash(timestamps_1) != hash(timestamps_6)
-
-    timestamps_7 = TextFileTimestamps(
-        timestamps_str,
-        Fraction(1000),
-        RoundingMethod.ROUND,
-        True,
-        None,
-        False # different
-    )
-    assert timestamps_1 != timestamps_7
-    assert hash(timestamps_1) != hash(timestamps_7)
