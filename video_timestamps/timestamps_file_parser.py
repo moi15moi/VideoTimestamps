@@ -4,9 +4,16 @@ from re import compile
 from typing import Optional
 
 
+class RangeV1:
+    def __init__(self, start_frame: int, end_frame: int, fps: Fraction):
+        self.start_frame = start_frame
+        self.end_frame = end_frame
+        self.fps = fps
+
+
 class TimestampsFileParser:
     @staticmethod
-    def parse_file(file_content: TextIOBase) -> list[Fraction]:
+    def parse_file(file_content: TextIOBase) -> tuple[list[Fraction], Optional[Fraction]]:
         """Parse timestamps from a [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files) and return them.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
@@ -15,7 +22,9 @@ class TimestampsFileParser:
             file_content (TextIOBase): The timestamps content.
 
         Returns:
-            A list of each frame timestamps (in milliseconds).
+            A tuple containing these 3 informations:
+                1. A list of each frame timestamps (in milliseconds).
+                2. The fps (if supported by the timestamps file format).
         """
 
         regex_timestamps = compile("^# *time(?:code|stamp) *format v(\\d+).*")
@@ -26,14 +35,119 @@ class TimestampsFileParser:
 
         version = int(match.group(1))
 
-        if version == 2 or version == 4:
+        if version == 1:
+            timestamps, fps = TimestampsFileParser._parse_v1_file(file_content)
+        elif version == 2 or version == 4:
             timestamps = TimestampsFileParser._parse_v2_and_v4_file(file_content, version)
+            fps = None
         else:
             raise NotImplementedError(
                 f"The file uses version {version}, but this format is currently not supported."
             )
 
-        return timestamps
+        return timestamps, fps
+
+
+    @staticmethod
+    def _parse_v1_file(file_content: TextIOBase) -> tuple[list[Fraction], Fraction]:
+        """Create timestamps based on the timestamps v1 file provided.
+
+        Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L82-175
+
+        Parameters:
+            file_content (TextIOBase): The timestamps content
+
+        Returns:
+            A tuple containing these 2 informations:
+                1. A list of each frame timestamps (in milliseconds).
+                2. The fps.
+        """
+        timestamps: list[Fraction] = []
+        ranges_v1: list[RangeV1] = []
+        line: str = ""
+
+        file_lines = file_content.read().splitlines()
+        file_iterator = iter(file_lines)
+
+        for line in file_iterator:
+            if not line:
+                raise ValueError(
+                    "The timestamps file does not contain a valid 'Assume' line with the default number of frames per second."
+                )
+            line = line.strip(" \t")
+
+            if line and not line.startswith("#"):
+                break
+
+        if not line.lower().startswith("assume "):
+            raise ValueError(
+                "The timestamps file does not contain a valid 'Assume' line with the default number of frames per second."
+            )
+
+        line = line[7:].strip(" \t")
+        try:
+            default_fps = Fraction(line)
+        except ValueError:
+            raise ValueError(
+                "The timestamps file does not contain a valid 'Assume' line with the default number of frames per second."
+            )
+
+        for line in file_iterator:
+            line = line.strip(" \t")
+
+            if not line or line.startswith("#"):
+                continue
+
+            line_splitted = line.split(",")
+            if len(line_splitted) != 3:
+                raise ValueError(
+                    f'The timestamps file contain a invalid line. Here is it: "{line}"'
+                )
+            try:
+                start_frame = int(line_splitted[0])
+                end_frame = int(line_splitted[1])
+                fps = Fraction(line_splitted[2])
+            except ValueError:
+                raise ValueError(
+                    f'The timestamps file contain a invalid line. Here is it: "{line}"'
+                )
+
+            range_v1 = RangeV1(start_frame, end_frame, fps)
+
+            if range_v1.start_frame < 0 or range_v1.end_frame < 0:
+                raise ValueError("Cannot specify frame rate for negative frames.")
+            if range_v1.end_frame < range_v1.start_frame:
+                raise ValueError(
+                    "End frame must be greater than or equal to start frame."
+                )
+            if range_v1.fps <= 0:
+                raise ValueError("FPS must be greater than zero.")
+            elif range_v1.fps == 0:
+                # mkvmerge allow fps to 0, but we can ignore them, since they won't impact the timestamps
+                continue
+
+            ranges_v1.append(range_v1)
+
+        ranges_v1.sort(key=lambda x: x.start_frame)
+
+        time: Fraction = Fraction(0)
+        frame: int = 0
+        for range_v1 in ranges_v1:
+            if frame > range_v1.start_frame:
+                raise ValueError("Override ranges must not overlap.")
+
+            while frame < range_v1.start_frame:
+                timestamps.append(time)
+                time += Fraction(1000) / default_fps
+                frame += 1
+
+            while frame <= range_v1.end_frame:
+                timestamps.append(time)
+                time += Fraction(1000) / range_v1.fps
+                frame += 1
+
+        timestamps.append(time)
+        return timestamps, default_fps
 
 
     @staticmethod
