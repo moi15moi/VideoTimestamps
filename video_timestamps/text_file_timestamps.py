@@ -24,12 +24,9 @@ class TextFileTimestamps(VideoTimestamps):
         rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
             It will be used to approximate the timestamps after the video duration.
             Note: If None, it will try to guess it from the PTS and fps.
-        approximate_pts_from_last_pts (bool): If True, use the last pts to guess pts over the video duration.
-            If False, use the first pts.
-            In general, you want this parameter to be False to have the best precision.
-            You only want it true when the video is VFR.
-        first_pts (int): PTS (Presentation Time Stamp) of the first frame of the video.
-        first_timestamps (int): Time (in seconds) of the first frame of the video.
+        last_timestamps (Fraction): Time (in seconds) of the last frame of the video.
+            Warning: The last_timestamps is not rounded, so it isn't really be last_timestamps.
+        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
     """
 
@@ -40,7 +37,6 @@ class TextFileTimestamps(VideoTimestamps):
         rounding_method: RoundingMethod,
         normalize: bool = True,
         fps: Optional[Fraction] = None,
-        approximate_pts_from_last_pts: bool = False,
     ):
         if isinstance(path_to_timestamps_file_or_content, Path):
             with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
@@ -49,29 +45,8 @@ class TextFileTimestamps(VideoTimestamps):
             file = StringIO(path_to_timestamps_file_or_content)
             timestamps = TimestampsFileParser.parse_file(file)
 
+
+
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
-
-        super().__init__(pts_list, time_scale, normalize, fps, rounding_method, approximate_pts_from_last_pts)
-
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, TextFileTimestamps):
-            return False
-        return (self.rounding_method, self.fps, self.time_scale, self.first_pts, self.first_timestamps, self.pts_list, self.timestamps, self.approximate_pts_from_last_pts) == (
-            other.rounding_method, other.fps, other.time_scale, other.first_pts, other.first_timestamps, other.pts_list, other.timestamps, other.approximate_pts_from_last_pts
-        )
-
-
-    def __hash__(self) -> int:
-        return hash(
-            (
-                self.rounding_method,
-                self.fps,
-                self.time_scale,
-                self.first_pts,
-                self.first_timestamps,
-                tuple(self.pts_list),
-                tuple(self.timestamps),
-                self.approximate_pts_from_last_pts,
-            )
-        )
+        
+        super().__init__(pts_list, time_scale, normalize, fps, rounding_method, Fraction(timestamps[-1], pow(10, 3)))
