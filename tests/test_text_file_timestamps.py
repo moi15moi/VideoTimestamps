@@ -29,6 +29,38 @@ def test_init_v2() -> None:
     assert timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
 
 
+def test_empty_line_v2() -> None:
+    timestamps_str = (
+        "# timecode format v2\n"
+        "\n"
+        "1000\n"
+        "1500\n"
+        "2000\n"
+    )
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, normalize=False)
+
+    assert timestamps.pts_list == [1000, 1500, 2000]
+
+
+def test_single_carriage_return_v2() -> None:
+    timestamps_str = (
+        "# timecode format v2\r\n"
+        "3\r"
+        "4\r\n"
+        "10\r\n"
+        "20\r\n"
+    )
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, normalize=False)
+
+    assert timestamps.pts_list == [3, 4, 10, 20]
+
+
 def test_init_from_file() -> None:
     timestamp_file_path = dir_path.joinpath("files", "timestamps.txt")
     time_scale = Fraction(1000)
