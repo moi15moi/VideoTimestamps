@@ -58,7 +58,7 @@ class TimestampsFileParser:
         timestamps: list[Fraction] = []
         previous_timestamp: Optional[Fraction] = None
 
-        for line in file_content:
+        for line in file_content.read().splitlines():
             line = line.strip(" \t")
 
             if not line or line.startswith("#"):
