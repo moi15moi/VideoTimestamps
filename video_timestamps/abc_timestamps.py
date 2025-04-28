@@ -16,9 +16,7 @@ class ABCTimestamps(ABC):
     Depending of the software you use to create the video, the PTS (Presentation Time Stamp)
     may be rounded of floored.
     In general, the PTS are floored, so you should use RoundingMethod.FLOOR.
-    But, Matroska (.mkv) file are an exception because they are rounded, so you should use RoundingMethod.ROUND.
-
-             file are an exception !!!
+    But, Matroska (.mkv) file are an exception because they are rounded.
         If you want to be compatible with mkv, use RoundingMethod.ROUND.
         By default, they only have a precision to milliseconds instead of nanoseconds like most format.
             For more detail see:
