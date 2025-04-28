@@ -11,7 +11,7 @@ __all__ = ["TextFileTimestamps"]
 
 class TextFileTimestamps(VideoTimestamps):
     """Create a Timestamps object from a mkv [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files).
-    We only support the v2 and v4 format.
+    We only support the v1, v2 and v4 format.
 
     See `ABCTimestamps` for more details.
 
