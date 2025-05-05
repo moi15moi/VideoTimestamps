@@ -32,7 +32,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt update
-        sudo apt install ffmpeg 
+        sudo apt install ffmpeg
 
     - name: Install platform-specific requirements (macOS)
       if: runner.os == 'macOS'
@@ -44,9 +44,25 @@ jobs:
       run: |
         choco install ffmpeg --no-progress --yes
 
-    - name: Run tests
+    - name: Download ffmpeg build
+      if: runner.os == 'Windows'
+      run: curl -L -o ffmpeg.7z https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essentials.7z
+
+    - name: Extract ffmpeg
+      if: runner.os == 'Windows'
+      run: 7z x ffmpeg.7z -o"${{ github.workspace }}\ffmpeg" -y
+
+    - name: Locate ffprobe
+      id: ffprobe_path
+      if: runner.os == 'Windows'
       run: |
-        pytest
+        $ffprobe = Get-ChildItem -Recurse "${{ github.workspace }}\ffmpeg" -Filter ffprobe.exe | Select-Object -First 1
+        echo "path=$($ffprobe.FullName)" >> "$env:GITHUB_OUTPUT"
+
+    - name: Run tests
+      env:
+        CUSTOM_FFPROBE_PATH: ${{ runner.os == 'Windows' && steps.ffprobe_path.outputs.path || '' }}
+      run: pytest
 
     - name: Typecheck with mypy
       run: |
@@ -57,6 +73,8 @@ jobs:
         ruff check
 
     - name: Generate coverage report
+      env:
+        CUSTOM_FFPROBE_PATH: ${{ runner.os == 'Windows' && steps.ffprobe_path.outputs.path || '' }}
       run: |
         coverage run -m pytest
         coverage xml
