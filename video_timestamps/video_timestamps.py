@@ -1,9 +1,9 @@
 from __future__ import annotations
 from .abc_timestamps import ABCTimestamps
+from .best_source import get_pts
 from .fps_timestamps import FPSTimestamps
 from .rounding_method import RoundingMethod
 from .time_type import TimeType
-from .ffprobe.ffprobe import FFprobe
 from bisect import bisect_left, bisect_right
 from fractions import Fraction
 from pathlib import Path
@@ -83,13 +83,10 @@ class VideoTimestamps(ABCTimestamps):
         index: int = 0,
         normalize: bool = True,
         rounding_method: Optional[RoundingMethod] = None,
-        use_ffprobe_to_guess_fps: bool = True,
+        use_bestsource_to_guess_fps: bool = True,
         last_timestamps: Optional[Fraction] = None
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
-
-        Note:
-            This method requires the ``ffprobe`` programs to be available.
 
         Parameters:
             video_path (Path): A video path.
@@ -98,7 +95,7 @@ class VideoTimestamps(ABCTimestamps):
             rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
                 It will be used to approximate the timestamps after the video duration.
                 Note: If None, it will try to guess it from the PTS and fps.
-            use_ffprobe_to_guess_fps (bool): If True, use ffprobe to guess the video fps.
+            use_bestsource_to_guess_fps (bool): If True, use bestsource to guess the video fps.
                 If False, the fps will be approximate from the first and last frame PTS.
             last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
@@ -113,15 +110,13 @@ class VideoTimestamps(ABCTimestamps):
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
 
-        if not FFprobe.is_ffprobe_installed():
-            raise OSError("FFprobe isn't in your environment variable.")
-
-        pts_list, time_base = FFprobe.get_pts(video_path, index)
+        pts_list, time_base, fps_bestsource = get_pts(str(video_path.resolve()), index)
         time_scale = 1 / time_base
 
-        fps = None
-        if use_ffprobe_to_guess_fps:
-            fps = FFprobe.get_fps(video_path, index)
+        if use_bestsource_to_guess_fps:
+            fps = fps_bestsource
+        else:
+            fps = None
 
         timestamps = VideoTimestamps(
             pts_list,
