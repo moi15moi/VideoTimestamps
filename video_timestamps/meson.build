@@ -16,12 +16,17 @@ py.install_sources(
     subdir: 'video_timestamps'
 )
 
+symbolic_link_args = []
+if cc.has_link_argument('-Wl,-Bsymbolic')
+    # We need these link. See: https://ffmpeg.org/platform.html#Advanced-linking-configuration + https://github.com/mesonbuild/meson-python/discussions/765
+    symbolic_link_args += ['-Wl,-Bsymbolic']
+endif
+
 py.extension_module(
     'best_source',
     'best_source.cpp',
     install: true,
     dependencies : [pybind11_dep, bestsource_dep, libavutil_dep],
-    # We need these link. See: https://ffmpeg.org/platform.html#Advanced-linking-configuration + https://github.com/mesonbuild/meson-python/discussions/765
-    link_args: ['-Wl,-Bsymbolic'],
+    link_args: symbolic_link_args,
     subdir: 'video_timestamps'
 )
