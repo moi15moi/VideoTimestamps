@@ -11,11 +11,15 @@
 #include <algorithm> 
 #include "videosource.h"
 #include "tracklist.h"
+#include "bsshared.h"
 extern "C" {
 #include <libavutil/avutil.h>
+#include <libavutil/log.h>
 }
 
 pybind11::tuple get_pts(const std::string &filename, int index) {
+
+    SetFFmpegLogLevel(AV_LOG_ERROR);
 
 	std::map<std::string, std::string> opts;
 	BestTrackList tracklist(filename, &opts);
