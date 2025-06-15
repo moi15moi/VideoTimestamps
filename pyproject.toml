@@ -62,3 +62,6 @@ exclude_also = [
 
 [tool.ruff.lint]
 exclude = ["__init__.py"]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=subprojects/"
