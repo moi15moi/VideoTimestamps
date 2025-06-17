@@ -2,7 +2,7 @@ project(
     'VideoTimestamps',
     'cpp',
     version: '0.2.0',
-    default_options: ['cpp_std=c++20'],
+    default_options: ['cpp_std=c++20', 'buildtype=release'],
 )
 
 cc = meson.get_compiler('cpp')
