@@ -56,7 +56,7 @@ pybind11::tuple get_pts(const std::string &filename, int index) {
 
 
     std::map<std::string, std::string> bsopts;
-    std::unique_ptr<BestVideoSource> bs = std::make_unique<BestVideoSource>(filename, "", 0, index, 0, 1, 3, filename, &bsopts);
+    std::unique_ptr<BestVideoSource> bs = std::make_unique<BestVideoSource>(filename, "", 0, index, 0, 0, 3, filename, &bsopts);
     BSVideoProperties properties = bs->GetVideoProperties();
 
     std::vector<int64_t> pts_list;
