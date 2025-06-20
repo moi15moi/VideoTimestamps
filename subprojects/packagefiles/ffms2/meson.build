@@ -6,27 +6,30 @@ project(
 mod = import('unstable-external_project')
 
 
-libavformat_dep = dependency('libavformat')
-libavcodec_dep = dependency('libavcodec')
-libswscale_dep = dependency('libswscale')
-libavutil_dep = dependency('libavutil')
-libswresample_dep = dependency('libswresample')
+ffmpeg_proj = subproject('ffmpeg')
+libavformat = ffmpeg_proj.get_variable('libavformat')
+libavcodec = ffmpeg_proj.get_variable('libavcodec')
+libswscale = ffmpeg_proj.get_variable('libswscale')
+libavutil = ffmpeg_proj.get_variable('libavutil')
+libswresample = ffmpeg_proj.get_variable('libswresample')
 
-# sh -c 'cd C:/Users/moi15moi/Documents/GitHub/VideoTimestamps/subprojects/ffms2 && ./autogen.sh'
-#run_command('sh', '-c', 'cd ' + meson.current_source_dir() + ' && ./autogen.sh', check: true)
 
-#run_command('sh', '-c', 'cd', meson.current_source_dir(), '&&', './autogen.sh', check: true)
 run_command('./autogen.sh', check: true)
-
-message('Jeremie test')
 
 p = mod.add_project('configure',
     configure_options : ['--prefix=@PREFIX@',
-                       '--libdir=@LIBDIR@',
-                       '--incdir=@INCLUDEDIR@',
-                       '--enable-foo',
+                       '--libdir=@PREFIX@/@LIBDIR@',
+                       '--includedir=@PREFIX@/@INCLUDEDIR@',
+                       '--bindir=@PREFIX@/@BINDIR@',
+                       '--enable-static',
+                       '--disable-shared',
+                       '--with-pic',
+                       '--disable-dependency-tracking',
                       ],
-  #depends: [libavformat_dep, libavcodec_dep, libswscale_dep, libavutil_dep, libswresample_dep]
+  env: {
+    'LDFLAGS': '-Wl,-Bsymbolic',
+  },
+  depends: [libavformat, libavcodec, libswscale, libavutil, libswresample]
 )
 
 libffms2_dep = p.dependency('ffms2')
