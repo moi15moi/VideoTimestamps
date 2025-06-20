@@ -28,22 +28,6 @@ jobs:
     - name: Install Python requirements
       run: pip install --upgrade --upgrade-strategy eager .[dev]
 
-    - name: Install platform-specific requirements (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt update
-        sudo apt install ffmpeg 
-
-    - name: Install platform-specific requirements (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install ffmpeg
-
-    - name: Install platform-specific requirements (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        choco install ffmpeg --no-progress --yes
-
     - name: Run tests
       run: |
         pytest

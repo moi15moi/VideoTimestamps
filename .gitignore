@@ -6,4 +6,11 @@ dist/
 .idea/
 .vscode/
 venv/
+.venv/
 .coverage
+*.bsindex
+
+# Meson
+/subprojects/*
+!/subprojects/*.wrap
+!/subprojects/packagefiles
