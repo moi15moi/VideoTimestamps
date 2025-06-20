@@ -26,7 +26,7 @@ py.extension_module(
     'best_source',
     'best_source.cpp',
     install: true,
-    dependencies : [pybind11_dep, bestsource_dep, libavutil_dep, libffms2_dep],
+    dependencies : [pybind11_dep, bestsource_dep, libavutil_dep, ffms2_dep],
     link_args: symbolic_link_args,
     subdir: 'video_timestamps'
 )

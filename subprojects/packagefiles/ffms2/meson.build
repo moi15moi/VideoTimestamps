@@ -1,36 +1,45 @@
-project(
-    'ffms2',
-    'cpp',
-)
+project('ffms2', 'cpp', version: '5.0.0')
 
-mod = import('unstable-external_project')
+deps = []
 
+deps += dependency('zlib')
+deps += dependency('libavformat', version: '>=60')
+deps += dependency('libavcodec', version: '>=60')
+deps += dependency('libswscale')
+deps += dependency('libavutil')
+deps += dependency('libswresample')
 
-ffmpeg_proj = subproject('ffmpeg')
-libavformat = ffmpeg_proj.get_variable('libavformat')
-libavcodec = ffmpeg_proj.get_variable('libavcodec')
-libswscale = ffmpeg_proj.get_variable('libswscale')
-libavutil = ffmpeg_proj.get_variable('libavutil')
-libswresample = ffmpeg_proj.get_variable('libswresample')
+args = ['-D_FILE_OFFSET_BITNS=64', '-DFFMS_EXPORTS', '-D__STDC_CONSTANT_MACROS']
+usage_args = []
 
+if get_option('default_library') == 'static'
+    usage_args += '-DFFMS_STATIC'
+endif
 
-run_command('./autogen.sh', check: true)
+ffms2_sources = [
+    'src/core/audiosource.cpp',
+    #'src/core/audiosource.h',
+    'src/core/ffms.cpp',
+    'src/core/filehandle.cpp',
+    #'src/core/filehandle.h',
+    'src/core/indexing.cpp',
+    #'src/core/indexing.h',
+    'src/core/track.cpp',
+    #'src/core/track.h',
+    'src/core/utils.cpp',
+    #'src/core/utils.h',
+    'src/core/videosource.cpp',
+    #'src/core/videosource.h',
+    'src/core/videoutils.cpp',
+    #'src/core/videoutils.h',
+    'src/core/zipfile.cpp',
+    #'src/core/zipfile.h',
+]
 
-p = mod.add_project('configure',
-    configure_options : ['--prefix=@PREFIX@',
-                       '--libdir=@PREFIX@/@LIBDIR@',
-                       '--includedir=@PREFIX@/@INCLUDEDIR@',
-                       '--bindir=@PREFIX@/@BINDIR@',
-                       '--enable-static',
-                       '--disable-shared',
-                       '--with-pic',
-                       '--disable-dependency-tracking',
-                      ],
-  env: {
-    'LDFLAGS': '-Wl,-Bsymbolic',
-  },
-  depends: [libavformat, libavcodec, libswscale, libavutil, libswresample]
-)
+deps_inc = include_directories('include')
 
-libffms2_dep = p.dependency('ffms2')
-meson.override_dependency('libffms2', libffms2_dep)
+ffms2 = library('ffms2', ffms2_sources, include_directories: deps_inc, dependencies: deps,
+                cpp_args: args + usage_args)
+ffms2_dep = declare_dependency(link_with: ffms2,
+                               include_directories: deps_inc,
+                               compile_args: usage_args)
