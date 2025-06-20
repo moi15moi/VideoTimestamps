@@ -33,4 +33,4 @@ p = mod.add_project('configure',
 )
 
 libffms2_dep = p.dependency('ffms2')
-meson.override_dependency('libffms2', libffms2_dep)
+meson.override_dependency('ffms2', libffms2_dep)

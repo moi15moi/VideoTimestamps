@@ -12,6 +12,7 @@
 #include "videosource.h"
 #include "tracklist.h"
 #include "bsshared.h"
+#include <ffms.h>
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
@@ -78,6 +79,40 @@ pybind11::tuple get_pts(const std::string &filename, int index) {
     pybind11::object fps = fraction_class(properties.FPS.Num, properties.FPS.Den);
 
     return pybind11::make_tuple(pts_list, time_base, fps);
+}
+
+
+pybind11::tuple ffms2_get_pts(const std::string &filename, int TrackNumber) {
+
+    int Threads = 1;
+    int SeekMode = FFMS_SEEK_NORMAL;
+    FFMS_ErrorInfo ErrInfo; 
+	VideoSource = FFMS_CreateVideoSource(filename.string().c_str(), TrackNumber, Index, Threads, SeekMode, &ErrInfo);
+	if (!VideoSource)
+        throw std::invalid_argument(std::format("Failed to open video track: {}", ErrInfo.Buffer));    
+
+	FFMS_Track *FrameData = FFMS_GetTrackFromVideo(VideoSource);
+	if (FrameData == nullptr)
+        throw std::invalid_argument("failed to get frame data");    
+
+	const FFMS_TrackTimeBase *TimeBase = FFMS_GetTimeBase(FrameData);
+	if (TimeBase == nullptr)
+        throw std::invalid_argument("failed to get track time base");    
+
+	std::vector<int> TimecodesVector;
+	for (int CurFrameNum = 0; CurFrameNum < VideoInfo->NumFrames; CurFrameNum++) {
+		const FFMS_FrameInfo *CurFrameData = FFMS_GetFrameInfo(FrameData, CurFrameNum);
+		if (!CurFrameData)
+			throw VideoOpenError("Couldn't get info about frame " + std::to_string(CurFrameNum));
+
+		// keyframe?
+		if (CurFrameData->KeyFrame)
+			KeyFramesList.push_back(CurFrameNum);
+
+		// calculate timestamp and add to timecodes vector
+		int Timestamp = (int)((CurFrameData->PTS * TimeBase->Num) / TimeBase->Den);
+		TimecodesVector.push_back(Timestamp);
+	}
 }
 
 PYBIND11_MODULE(best_source, m) {
