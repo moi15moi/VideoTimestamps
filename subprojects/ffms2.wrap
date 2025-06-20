@@ -1,0 +1,9 @@
+[wrap-git]
+url = https://github.com/FFMS/ffms2.git
+revision = 5.0
+depth = 1
+patch_directory=ffms2
+diff_files = ffms2/0001.patch
+
+[provide]
+dependency_names = libffms2

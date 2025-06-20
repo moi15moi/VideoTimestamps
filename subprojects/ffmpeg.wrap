@@ -7,4 +7,6 @@ depth = 1
 [provide]
 libavformat = libavformat_dep
 libavcodec = libavcodec_dep
+libswscale = libswscale_dep
 libavutil = libavutil_dep
+libswresample = libswresample_dep
