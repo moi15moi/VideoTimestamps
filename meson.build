@@ -10,5 +10,6 @@ py = import('python').find_installation(pure: false)
 pybind11_dep = dependency('pybind11')
 bestsource_dep = dependency('bestsource')
 libavutil_dep = dependency('libavutil')
+ffms2_dep = dependency('ffms2')
 
 subdir('video_timestamps')

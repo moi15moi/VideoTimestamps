@@ -12,6 +12,7 @@
 #include "videosource.h"
 #include "tracklist.h"
 #include "bsshared.h"
+#include <ffms.h>
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
@@ -80,6 +81,81 @@ pybind11::tuple get_pts(const std::string &filename, int index) {
     return pybind11::make_tuple(pts_list, time_base, fps);
 }
 
+
+pybind11::tuple ffms2_get_pts(const std::string &filename, int TrackNumber) {
+    FFMS_Init(0, 0);
+
+    char errmsg[1024];
+    FFMS_ErrorInfo errinfo;
+    errinfo.Buffer      = errmsg;
+    errinfo.BufferSize  = sizeof(errmsg);
+    errinfo.ErrorType   = FFMS_ERROR_SUCCESS;
+    errinfo.SubType     = FFMS_ERROR_SUCCESS;
+    
+    FFMS_Indexer* indexer = FFMS_CreateIndexer(filename.c_str(), &errinfo);
+    if (!indexer) {
+        /* handle error (print errinfo.Buffer somewhere) */
+    }
+
+    // FFMS_GetNumTracks
+    // FFMS_GetTrackType
+
+    auto index = std::unique_ptr<FFMS_Index, void(*)(FFMS_Index*)>(
+        FFMS_DoIndexing2(indexer, FFMS_IEH_ABORT, &errinfo),
+        FFMS_DestroyIndex
+    );
+
+    if (!index) {
+        /* handle error (you should know what to do by now) */
+    } 
+    int Threads = 1;
+    int SeekMode = FFMS_SEEK_NORMAL;
+    FFMS_ErrorInfo ErrInfo; 
+    auto video_source = std::unique_ptr<FFMS_VideoSource, void(*)(FFMS_VideoSource*)>(
+        FFMS_CreateVideoSource(filename.c_str(), TrackNumber, index.get(), Threads, SeekMode, &ErrInfo),
+        FFMS_DestroyVideoSource
+    );
+
+	if (!video_source)
+        throw std::invalid_argument(std::format("Failed to open video track: {}", ErrInfo.Buffer));    
+
+	FFMS_Track *track = FFMS_GetTrackFromVideo(video_source.get());
+	if (track == nullptr)
+        throw std::invalid_argument("failed to get frame data");    
+
+
+
+
+    const FFMS_VideoProperties *videoprops = FFMS_GetVideoProperties(video_source.get());
+
+    
+
+    std::vector<int64_t> pts_list;
+	for (int CurFrameNum = 0; CurFrameNum < videoprops->NumFrames; CurFrameNum++) {
+		const FFMS_FrameInfo *CurFrameData = FFMS_GetFrameInfo(track, CurFrameNum);
+		if (!CurFrameData)
+			throw std::invalid_argument(std::format("Couldn't get info about frame {}", CurFrameNum));
+
+        pts_list.push_back(CurFrameData->PTS);
+	}
+
+
+
+
+
+	const FFMS_TrackTimeBase *TimeBase = FFMS_GetTimeBase(track);
+	if (TimeBase == nullptr)
+        throw std::invalid_argument("failed to get track time base");    
+
+
+    pybind11::object fraction_class = pybind11::module_::import("fractions").attr("Fraction");
+    pybind11::object time_base = fraction_class(TimeBase->Num, TimeBase->Den);
+    pybind11::object fps = fraction_class(videoprops->FPSNumerator, videoprops->FPSDenominator);
+
+    return pybind11::make_tuple(pts_list, time_base, fps);
+}
+
 PYBIND11_MODULE(best_source, m) {
     m.def("get_pts", &get_pts, pybind11::arg("filename"), pybind11::arg("index"));
+    m.def("ffms2_get_pts", &ffms2_get_pts, pybind11::arg("filename"), pybind11::arg("index"));
 }

@@ -13,3 +13,5 @@ venv/
 # Meson
 /subprojects/*
 !/subprojects/*.wrap
+/subprojects/nasm.wrap
+!/subprojects/packagefiles
