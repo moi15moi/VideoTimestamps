@@ -24,9 +24,7 @@ p = mod.add_project('configure',
         '--disable-shared',
         '--with-pic',
     ],
-    env: {
-        'LDFLAGS': '-Wl,-Bsymbolic',
-    },
+    verbose: true,
     depends: [libavformat, libavcodec, libswscale, libavutil, libswresample]
 )
 
