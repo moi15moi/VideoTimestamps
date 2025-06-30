@@ -1,6 +1,6 @@
 from __future__ import annotations
 from fractions import Fraction
-from video_timestamps.video_provider.abc_video_provider import ABCVideoProvider
+from .abc_video_provider import ABCVideoProvider
 
 __all__ = ['BestSourceVideoProvider']
 

@@ -49,7 +49,7 @@ setup = [
 install = ['--skip-subprojects']
 
 [tool.mypy]
-exclude = "build"
+exclude = ["build", "subprojects"]
 files = ["."]
 warn_unused_configs = true
 strict = true
