@@ -97,7 +97,7 @@ jobs:
 
     - name: Create virtual environment
       run: |
-        export SSL_CERT_FILE=/ucrt64/etc/ssl/certs/ca-bundle.crt
+        export SSL_CERT_FILE=/mingw64/etc/ssl/certs/ca-bundle.crt
         python3 -m venv .venv
         source .venv/bin/activate
         pip install meson pybind11
