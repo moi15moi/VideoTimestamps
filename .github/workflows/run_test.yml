@@ -59,3 +59,75 @@ jobs:
       with:
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
+
+  run-tests-msys2:
+    name: "Test (Windows MSYS2)"
+    runs-on: windows-latest
+
+    env:
+      CC: clang
+      CXX: clang++
+
+    defaults:
+      run:
+        shell: "msys2 {0}"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: mingw64
+        update: false
+        install: >-
+          autoconf
+          automake
+          libtool
+          make
+          git
+          gettext
+          zlib
+          mingw-w64-x86_64-python
+          mingw-w64-x86_64-python-pip
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-clang
+          mingw-w64-x86_64-ca-certificates 
+
+    - name: Create virtual environment
+      run: |
+        export SSL_CERT_FILE=/ucrt64/etc/ssl/certs/ca-bundle.crt
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install meson pybind11
+        meson --version
+        ninja --version
+        pip install --upgrade --upgrade-strategy eager --no-build-isolation --editable .[dev]
+
+    - name: print meson log
+      if: always()
+      run: cat build/cp312/meson-logs/meson-log.txt
+
+    - name: Run tests
+      run: |
+        pytest
+
+    - name: Typecheck with mypy
+      run: |
+        mypy
+
+    - name: Check code with ruff
+      run: |
+        ruff check
+
+    - name: Generate coverage report
+      run: |
+        coverage run -m pytest
+        coverage xml
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
