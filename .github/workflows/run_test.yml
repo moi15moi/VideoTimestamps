@@ -103,7 +103,7 @@ jobs:
         pip install meson pybind11
         meson --version
         ninja --version
-        pip install --upgrade --upgrade-strategy eager --no-build-isolation --editable .[dev]
+        pip install .[dev]
 
     - name: print meson log
       if: always()
