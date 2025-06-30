@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/vapoursynth/bestsource
+revision = R12
+clone-recursive = true
+
+[provide]
+bestsource = bestsource_dep
