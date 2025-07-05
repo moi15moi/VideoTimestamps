@@ -88,9 +88,15 @@ jobs:
           zlib
           mingw-w64-x86_64-python3
           mingw-w64-x86_64-python-pip
+          mingw-w64-x86_64-python-pipx
           mingw-w64-x86_64-ninja
           mingw-w64-x86_64-clang
-          mingw-w64-x86_64-ca-certificates 
+          mingw-w64-x86_64-ca-certificates
+
+    - name: Run cibuildwheel
+      run: |
+        export SSL_CERT_FILE=/mingw64/etc/ssl/certs/ca-bundle.crt
+        pipx run cibuildwheel
 
     - name: Create virtual environment
       run: |
