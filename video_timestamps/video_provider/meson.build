@@ -39,5 +39,6 @@ py.extension_module(
     install: true,
     dependencies : [pybind11_dep, libavformat_dep, libavcodec_dep, libswscale_dep, libavutil_dep, libswresample_dep, ffms2_dep],
     link_args: symbolic_link_args,
+    cpp_args: ['-DFFMS_STATIC'],
     subdir: 'video_timestamps/video_provider'
 )
