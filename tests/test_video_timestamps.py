@@ -2,7 +2,7 @@ import os
 import pytest
 from fractions import Fraction
 from pathlib import Path
-from video_timestamps import RoundingMethod, VideoTimestamps
+from video_timestamps import ABCVideoProvider, BestSourceVideoProvider, FFMS2VideoProvider, RoundingMethod, VideoTimestamps
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -63,9 +63,10 @@ def test__init__fps() -> None:
     assert timestamps.fps == Fraction(2, Fraction(3500, 90000))
 
 
-def test_from_video() -> None:
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_from_video(video_provider: ABCVideoProvider) -> None:
     video_file_path = dir_path.joinpath("files", "test_video.mkv")
-    timestamps = VideoTimestamps.from_video_file(video_file_path)
+    timestamps = VideoTimestamps.from_video_file(video_file_path, video_provider=video_provider)
     assert timestamps.pts_list[:10] == [0, 42, 83, 125, 167, 209, 250, 292, 334, 375]
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.fps == Fraction(24000, 1001)
