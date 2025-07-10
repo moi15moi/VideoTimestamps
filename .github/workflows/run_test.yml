@@ -73,6 +73,7 @@ jobs:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: "${{ matrix.py_build }}-*"
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
+        CIBW_ENVIRONMENT: ${{ runner.os == 'macOS' && 'MACOSX_DEPLOYMENT_TARGET=10.15' || '' }}
 
     - name: Upload wheel
       uses: actions/upload-artifact@v4
