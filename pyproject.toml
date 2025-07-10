@@ -54,12 +54,6 @@ files = ["."]
 warn_unused_configs = true
 strict = true
 
-[tool.coverage.paths]
-source = [
-    "video_timestamps",
-    "tests"
-]
-
 [tool.coverage.report]
 exclude_also = [
   # Don't complain about abstract methods, they aren't run:

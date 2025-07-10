@@ -148,7 +148,7 @@ jobs:
 
     - name: Run coverage
       run: |
-        coverage run -m pytest
+        coverage run --source=video_timestamps,tests -m pytest
 
     - name: Generate coverage report
       run: |
