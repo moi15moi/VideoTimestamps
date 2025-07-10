@@ -63,6 +63,7 @@ jobs:
         path-type: inherit
         install: >-
           mingw-w64-clang-aarch64-autotools
+          mingw-w64-clang-aarch64-toolchain
 
     - name: Install platform-specific requirements (macOS)
       if: runner.os == 'macOS'
