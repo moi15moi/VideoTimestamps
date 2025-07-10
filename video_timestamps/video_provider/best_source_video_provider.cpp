@@ -7,7 +7,6 @@
 #include <filesystem>
 #include <memory>
 #include <stdexcept>
-#include <format>
 #include <algorithm> 
 #include "videosource.h"
 #include "tracklist.h"
@@ -29,7 +28,7 @@ public:
         std::map<std::string, std::string> opts;
         BestTrackList tracklist(filename, &opts);
         if (index >=tracklist.GetNumTracks()) {
-            throw std::invalid_argument(std::format("The index {} is not in the file {}.", index, filename));    
+            throw std::invalid_argument("The index " + std::to_string(index) + " is not in the file " + filename + ".");
         }
 
         BestTrackList::TrackInfo info = tracklist.GetTrackInfo(index);
@@ -56,7 +55,7 @@ public:
                     break;
             }
 
-            throw std::invalid_argument(std::format("The index {} is not a video stream. It is an \"{}\" stream.", index, steam_media_type));    
+            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");    
         }
 
 
