@@ -45,6 +45,7 @@ setup = [
   "--wrap-mode=forcefallback",
   "-Dbestsource:enable_plugin=false",
   "-Dffmpeg:tests=disabled",
+  "-Dffmpeg:lzma=disabled",
 ]
 install = ['--skip-subprojects']
 
