@@ -12,7 +12,7 @@ libswscale = ffmpeg_proj.get_variable('libswscale')
 libavutil = ffmpeg_proj.get_variable('libavutil')
 libswresample = ffmpeg_proj.get_variable('libswresample')
 
-run_command('./autogen.sh', check: true)
+run_command('sh', '-l', 'autogen.sh', check: true)
 
 p = mod.add_project('configure',
     configure_options : [
