@@ -47,19 +47,22 @@ jobs:
         python-version: "3.13"
 
     - name: Install platform-specific requirements (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && runner.arch == 'X86'
       uses: msys2/setup-msys2@v2
       with:
-        msystem: mingw64
+        msystem: CLANG64
         path-type: inherit
         install: >-
-          mingw-w64-x86_64-autotools
-          git
-          gettext
-          zlib
-          mingw-w64-x86_64-ninja
-          mingw-w64-x86_64-clang
-          mingw-w64-x86_64-ca-certificates
+          mingw-w64-clang-x86_64-autotools
+
+    - name: Install platform-specific requirements (Windows)
+      if: runner.os == 'Windows' && runner.arch == 'ARM64'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANGARM64
+        path-type: inherit
+        install: >-
+          mingw-w64-clang-aarch64-autotools
 
     - name: Install platform-specific requirements (macOS)
       if: runner.os == 'macOS'
