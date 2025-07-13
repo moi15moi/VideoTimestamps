@@ -108,10 +108,8 @@ jobs:
         exclude:
           - os: windows-11-arm
             python-version: "3.9"
-            py_build: "cp39"
           - os: windows-11-arm
             python-version: "3.10"
-            py_build: "cp310"
 
     steps:
     - name: Checkout code
