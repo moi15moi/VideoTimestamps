@@ -35,7 +35,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["meson @ git+https://github.com/moi15moi/meson.git@fix", "meson-python", "pybind11==2.13.6"]
+requires = ["meson @ git+https://github.com/moi15moi/meson.git@fix", "meson-python", pybind11 @ git+https://github.com/moi15moi/pybind11.git@Fix]
 build-backend = "mesonpy"
 
 [tool.meson-python.args]
