@@ -1,5 +1,5 @@
 # VideoTimestamps
-[![VideoTimestamps - CI Build Status](https://github.com/moi15moi/VideoTimestamps/workflows/Run%20Tests/badge.svg)](https://github.com/moi15moi/VideoTimestamps/actions/workflows/run_test.yml)
+[![VideoTimestamps - CI Build Status](https://github.com/moi15moi/VideoTimestamps/actions/workflows/run_test.yml/badge.svg?branch=main)](https://github.com/moi15moi/VideoTimestamps/actions/workflows/run_test.yml?query=branch:main)
 [![VideoTimestamps - Version](https://img.shields.io/pypi/v/videotimestamps.svg)](https://pypi.org/project/VideoTimestamps)
 [![VideoTimestamps - Python Version](https://img.shields.io/pypi/pyversions/videotimestamps.svg)](https://pypi.org/project/VideoTimestamps)
 [![VideoTimestamps - Coverage](https://img.shields.io/codecov/c/github/moi15moi/VideoTimestamps)](https://app.codecov.io/github/moi15moi/VideoTimestamps)
