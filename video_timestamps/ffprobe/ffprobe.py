@@ -1,9 +1,10 @@
 import json
 from fractions import Fraction
+from os.path import isfile
 from pathlib import Path
 from shutil import which
 from subprocess import CompletedProcess, run
-from typing import Any
+from typing import Any, Optional
 
 __all__ = ["FFprobe"]
 
@@ -14,29 +15,53 @@ class FFprobe:
     the user to interact with FFprobe.
     """
 
-    PROGRAM_NAME = "ffprobe"
+    _custom_ffprobe_path: Optional[str] = None
+
+    @staticmethod
+    def set_custom_ffprobe_path(path: str) -> None:
+        """Set the a custom ffprobe path
+
+        Parameters:
+            path (str): The path to ffprobe.
+        """
+        if not isfile(path):
+            raise FileNotFoundError(f"The file `{path}` doesn't exist.")
+        FFprobe._custom_ffprobe_path = path
+
+
+    @staticmethod
+    def get_ffprobe_path() -> Optional[str]:
+        """
+        Get the `ffprobe` path.
+
+        Returns:
+            Returns the currently set `ffprobe` path or looks it up in the system PATH.
+        """
+        return FFprobe._custom_ffprobe_path or which("ffprobe")
+
 
     @staticmethod
     def is_ffprobe_installed() -> bool:
         """
-        Checks if the `ffprobe` program is installed and available in the system's PATH.
+        Checks if the `ffprobe` program is installed and available in the system's PATH
+        or a custom path is set.
 
         Returns:
-            True if `ffprobe` is installed, False otherwise.
+            True if `ffprobe` is available, False otherwise.
         """
-        return which("ffprobe") is not None
+        return FFprobe.get_ffprobe_path() is not None
 
 
     @staticmethod
     def verify_if_ffprobe_is_installed() -> None:
         """
-        Verifies if the `ffprobe` program is installed. Raises an error if not found.
+        Verifies if the `ffprobe` program is available. Raises an error if not found.
 
         Raises:
-            Exception: If `ffprobe` is not found in the system's PATH.
+            Exception: If `ffprobe` is not found in the system's PATH and/or the custom path isn't valid.
         """
         if not FFprobe.is_ffprobe_installed():
-            raise Exception("ffprobe is not in the environment variable.")
+            raise Exception("ffprobe is not available in the system PATH or as a custom path.")
 
 
     @staticmethod
@@ -51,7 +76,7 @@ class FFprobe:
         """
 
         if cmd_output.returncode != 0:
-            raise OSError(f"{FFprobe.PROGRAM_NAME} reported an error: '{cmd_output.stderr}'.")
+            raise OSError(f"ffprobe reported an error: '{cmd_output.stderr}'.")
 
 
     @staticmethod
@@ -66,7 +91,8 @@ class FFprobe:
         """
 
         FFprobe.verify_if_ffprobe_is_installed()
-        output = run(cmd, capture_output=True, text=True, encoding="utf-8")
+        full_cmd = [FFprobe.get_ffprobe_path()] + cmd
+        output = run(full_cmd, capture_output=True, text=True, encoding="utf-8")
         FFprobe.verify_if_command_fails(output)
 
         return output
@@ -86,7 +112,6 @@ class FFprobe:
         """
 
         cmd = [
-            FFprobe.PROGRAM_NAME,
             "-hide_banner",
             "-select_streams",
             str(index),
@@ -139,7 +164,6 @@ class FFprobe:
         """
 
         cmd = [
-            FFprobe.PROGRAM_NAME,
             "-hide_banner",
             "-select_streams",
             str(index),
