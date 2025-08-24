@@ -1,13 +1,4 @@
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/complex.h>
-#include <pybind11/functional.h>
-#include <pybind11/chrono.h>
-#include <stdio.h>
-#include <filesystem>
-#include <memory>
-#include <stdexcept>
-#include <algorithm> 
 #include "abc_video_provider.hpp"
 
 PYBIND11_MODULE(abc_video_provider, m) {

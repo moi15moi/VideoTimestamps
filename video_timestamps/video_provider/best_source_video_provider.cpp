@@ -1,26 +1,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/complex.h>
-#include <pybind11/functional.h>
-#include <pybind11/chrono.h>
-#include <stdio.h>
-#include <filesystem>
-#include <memory>
-#include <stdexcept>
-#include <algorithm> 
-#include "videosource.h"
-#include "tracklist.h"
-#include "bsshared.h"
+#include <videosource.h>
+#include <tracklist.h>
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
 }
-
 #include "abc_video_provider.hpp"
 
 class BestSourceVideoProvider: public ABCVideoProvider {
 public:
-
     pybind11::tuple get_pts(const std::string &filename, int index) {
 
         SetFFmpegLogLevel(AV_LOG_ERROR);
@@ -86,7 +75,6 @@ public:
 };
 
 PYBIND11_MODULE(best_source_video_provider, m) {
-    // TODO
     pybind11::module_::import("video_timestamps.video_provider.abc_video_provider");
 
     pybind11::class_<BestSourceVideoProvider, ABCVideoProvider>(m, "BestSourceVideoProvider")
