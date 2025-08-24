@@ -37,6 +37,7 @@ py.extension_module(
     'ffms2_video_provider',
     'ffms2_video_provider.cpp',
     install: true,
+    # We need to list dependencies of ffms2 manually. Workaround of https://github.com/mesonbuild/meson/issues/14767
     dependencies : [pybind11_dep, libavformat_dep, libavcodec_dep, libswscale_dep, libavutil_dep, libswresample_dep, ffms2_dep],
     link_args: symbolic_link_args,
     subdir: 'video_timestamps/video_provider'
