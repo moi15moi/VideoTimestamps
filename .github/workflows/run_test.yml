@@ -78,6 +78,8 @@ jobs:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: "${{ matrix.py_build }}-*"
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
+        # Disable LZMA on macOS 13+, since it requires a deployment target >= 13.0.
+        # Without this, builds fail because MACOSX_DEPLOYMENT_TARGET is set lower.
         CIBW_CONFIG_SETTINGS: setup-args=-Dffmpeg:lzma=disabled
 
     - name: Upload wheel
