@@ -14,8 +14,5 @@ It also help to convert a frame to a time in milliseconds and vice-versa.
 pip install VideoTimestamps
 ```
 
-## Dependencies
--  [ffprobe](https://ffmpeg.org/download.html)
-
 ## How to use it?
 See the [example file](./examples/get_timestamps.py).

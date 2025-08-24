@@ -3,7 +3,7 @@ from .abc_timestamps import ABCTimestamps
 from .fps_timestamps import FPSTimestamps
 from .rounding_method import RoundingMethod
 from .time_type import TimeType
-from .ffprobe.ffprobe import FFprobe
+from .video_provider import ABCVideoProvider, FFMS2VideoProvider
 from bisect import bisect_left, bisect_right
 from fractions import Fraction
 from pathlib import Path
@@ -83,13 +83,11 @@ class VideoTimestamps(ABCTimestamps):
         index: int = 0,
         normalize: bool = True,
         rounding_method: Optional[RoundingMethod] = None,
-        use_ffprobe_to_guess_fps: bool = True,
-        last_timestamps: Optional[Fraction] = None
+        use_video_provider_to_guess_fps: bool = True,
+        last_timestamps: Optional[Fraction] = None,
+        video_provider: ABCVideoProvider = FFMS2VideoProvider()
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
-
-        Note:
-            This method requires the ``ffprobe`` programs to be available.
 
         Parameters:
             video_path (Path): A video path.
@@ -98,14 +96,15 @@ class VideoTimestamps(ABCTimestamps):
             rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
                 It will be used to approximate the timestamps after the video duration.
                 Note: If None, it will try to guess it from the PTS and fps.
-            use_ffprobe_to_guess_fps (bool): If True, use ffprobe to guess the video fps.
-                If False, the fps will be approximate from the first and last frame PTS.
+            use_video_provider_to_guess_fps (bool): If True, use the video_provider to guess the video fps.
+                If not specified, the fps will be approximate from the first and last frame PTS.
             last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
-
+            video_provider: (ABCVideoProvider): The video provider to use to get the information about the video timestamps/fps.
+                
         Returns:
             An VideoTimestamps instance representing the video file.
         """
@@ -113,15 +112,13 @@ class VideoTimestamps(ABCTimestamps):
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
 
-        if not FFprobe.is_ffprobe_installed():
-            raise OSError("FFprobe isn't in your environment variable.")
-
-        pts_list, time_base = FFprobe.get_pts(video_path, index)
+        pts_list, time_base, fps_from_video_provider = video_provider.get_pts(str(video_path.resolve()), index)
         time_scale = 1 / time_base
 
-        fps = None
-        if use_ffprobe_to_guess_fps:
-            fps = FFprobe.get_fps(video_path, index)
+        if use_video_provider_to_guess_fps:
+            fps = fps_from_video_provider
+        else:
+            fps = None
 
         timestamps = VideoTimestamps(
             pts_list,
