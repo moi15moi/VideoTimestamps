@@ -57,6 +57,20 @@ def test_frame_to_time_invalid_output_unit(timestamp: ABCTimestamps) -> None:
         VideoTimestamps([0, 1001, 2002, 3003, 4004, 5005], Fraction(24000)),
     ],
 )
+def test_frame_to_time_output_unit_too_low(timestamp: ABCTimestamps) -> None:
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamp.frame_to_time(1, TimeType.START, 1)
+    assert str(exc_info.value) == "The frame 1 cannot be represented exactly at output_unit=1. The conversion gave the time 0 which correspond to the frame 0 which is different then 1. Try using a finer output_unit then 0."
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        FPSTimestamps(RoundingMethod.ROUND, Fraction(24000), Fraction(24000, 1001)),
+        VideoTimestamps([0, 1001, 2002, 3003, 4004, 5005], Fraction(24000)),
+    ],
+)
 def test_time_to_frame_invalid_input_unit(timestamp: ABCTimestamps) -> None:
 
     with pytest.raises(ValueError) as exc_info:
