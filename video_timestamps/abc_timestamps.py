@@ -98,7 +98,7 @@ class ABCTimestamps(ABC):
                 raise ValueError("The input_unit needs to be above or equal to 0.")
 
             time_in_second = time * Fraction(1, 10 ** input_unit)
-        
+
         first_pts = self.rounding_method(self.first_timestamps * self.time_scale)
         first_timestamps = first_pts / self.time_scale
 
@@ -189,7 +189,7 @@ class ABCTimestamps(ABC):
             time_output = RoundingMethod.ROUND(time * 10 ** output_unit)
         else:
             time_output = floor(time * Fraction(10) ** output_unit)
-        
+
         result_frame = self.time_to_frame(time_output, time_type, output_unit)
 
         if frame != result_frame:
@@ -198,7 +198,7 @@ class ABCTimestamps(ABC):
                 f"The conversion gave the time {time_output} which correspond to the frame {result_frame} which is different then {frame}. "
                 f"Try using a finer output_unit then {time_output}."
             )
-        
+
         return time_output
 
 
@@ -326,6 +326,65 @@ class ABCTimestamps(ABC):
         """
 
         return self.frame_to_time(self.time_to_frame(time, time_type, input_unit), time_type, output_unit, center_time)
+
+
+    def time_to_time(
+        self,
+        time: int,
+        time_type: TimeType,
+        input_unit: int,
+        output_unit: int,
+    ) -> int:
+        """
+        Converts a given time value from one unit to another, ensuring that
+        the resulting value corresponds to the same frame.
+
+        Parameters:
+            time (int): The input time value expressed in `input_unit`.
+            time_type (TimeType): The type of timing to use for conversion.
+            input_unit (int): The unit of the `time` parameter.
+                - Must be a non-negative integer.
+                - Common values:
+                    - 3: milliseconds
+                    - 6: microseconds
+                    - 9: nanoseconds
+            output_unit (int): The unit of the output time value.
+                - Must be a non-negative integer.
+                - Common values:
+                    - 3: milliseconds
+                    - 6: microseconds
+                    - 9: nanoseconds
+
+        Returns:
+            The converted time value expressed in `output_unit`.
+        """
+        if input_unit < 0:
+            raise ValueError("The input_unit needs to be above or equal to 0.")
+
+        if output_unit < 0:
+            raise ValueError("The output_unit needs to be above or equal to 0.")
+
+        if input_unit == output_unit:
+            return time
+        elif input_unit < output_unit:
+            return RoundingMethod.ROUND(time * 10 ** (output_unit - input_unit)) # Just to make mypy happy, round the result, but it is impossible to get a float from this
+        else:
+            frame = self.time_to_frame(time, time_type, input_unit)
+            time_output = Fraction(time, 10 ** (input_unit - output_unit))
+
+            # Try with round first because we want to get the closest result
+            time_output_round = RoundingMethod.ROUND(time_output)
+            frame_round = self.time_to_frame(time_output_round, time_type, output_unit)
+            if frame_round == frame:
+                return time_output_round
+
+            # Try with the opposite of round
+            time_output_other = floor(time_output) if time_output_round == ceil(time_output) else ceil(time_output)
+            frame_other = self.time_to_frame(time_output_other, time_type, output_unit)
+            if frame_other == frame:
+                return time_output_other
+
+            raise ValueError(f"It is not possible to convert the time {time} from {input_unit} to {output_unit} accurately.")
 
 
     @abstractmethod
