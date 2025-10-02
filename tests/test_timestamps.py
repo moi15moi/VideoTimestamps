@@ -1204,3 +1204,29 @@ def test_move_time_to_frame(timestamp: ABCTimestamps) -> None:
     assert timestamp.move_time_to_frame(50, TimeType.EXACT, 3, 3) == 42
     # Test without specifying the input_unit
     assert timestamp.move_time_to_frame(Fraction(50, 1000), TimeType.EXACT, 3) == 42
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
+        VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
+        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
+    ],
+)
+def test_time_to_time(timestamp: ABCTimestamps) -> None:
+
+    # Case 1: Same input and output unit, no conversion needed
+    assert timestamp.time_to_time(83, TimeType.START, 3, 3) == 83
+
+    # Case 2: Input unit smaller (milliseconds to microseconds)
+    assert timestamp.time_to_time(83, TimeType.START, 3, 6) == 83000
+
+    # Case 3: Input unit larger (microseconds to milliseconds)
+    assert timestamp.time_to_time(83411, TimeType.START, 6, 3) == 83
+    assert timestamp.time_to_time(83412, TimeType.START, 6, 3) == 84
+
+    # Case 4: Impossible conversion
+    with pytest.raises(ValueError) as exc_info:
+        timestamp.time_to_time(83412, TimeType.START, 6, 0)
+    assert str(exc_info.value) == "It is not possible to convert the time 83412 from 6 to 0 accurately."
