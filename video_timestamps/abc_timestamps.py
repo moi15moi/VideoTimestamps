@@ -184,11 +184,22 @@ class ABCTimestamps(ABC):
             return time
 
         if time_type == TimeType.EXACT:
-            return ceil(time * Fraction(10) ** output_unit)
+            time_output = ceil(time * Fraction(10) ** output_unit)
         elif center_time and not (time_type == TimeType.START and frame == 0):
-            return RoundingMethod.ROUND(time * 10 ** output_unit)
+            time_output = RoundingMethod.ROUND(time * 10 ** output_unit)
         else:
-            return floor(time * Fraction(10) ** output_unit)
+            time_output = floor(time * Fraction(10) ** output_unit)
+        
+        result_frame = self.time_to_frame(time_output, time_type, output_unit)
+
+        if frame != result_frame:
+            raise ValueError(
+                f"The frame {frame} cannot be represented exactly at output_unit={output_unit}. "
+                f"The conversion gave the time {time_output} which correspond to the frame {result_frame} which is different then {frame}. "
+                f"Try using a finer output_unit then {time_output}."
+            )
+        
+        return time_output
 
 
     def pts_to_frame(
