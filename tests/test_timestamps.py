@@ -1220,13 +1220,48 @@ def test_time_to_time(timestamp: ABCTimestamps) -> None:
     assert timestamp.time_to_time(83, TimeType.START, 3, 3) == 83
 
     # Case 2: Input unit smaller (milliseconds to microseconds)
-    assert timestamp.time_to_time(83, TimeType.START, 3, 6) == 83000
+    assert timestamp.time_to_time(83, TimeType.START, 6, 3) == 83000
 
     # Case 3: Input unit larger (microseconds to milliseconds)
-    assert timestamp.time_to_time(83411, TimeType.START, 6, 3) == 83
-    assert timestamp.time_to_time(83412, TimeType.START, 6, 3) == 84
+    assert timestamp.time_to_time(83411, TimeType.START, 3, 6) == 83
+    assert timestamp.time_to_time(83412, TimeType.START, 3, 6) == 84
 
     # Case 4: Impossible conversion
     with pytest.raises(ValueError) as exc_info:
-        timestamp.time_to_time(83412, TimeType.START, 6, 0)
+        timestamp.time_to_time(83412, TimeType.START, 0, 6)
     assert str(exc_info.value) == "It is not possible to convert the time 83412 from 6 to 0 accurately."
+
+    # Case 5: Fraction as input
+    assert timestamp.time_to_time(Fraction(3753, 90000), TimeType.START, 6) == 41700
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        FPSTimestamps(RoundingMethod.ROUND, Fraction(24000), Fraction(24000, 1001)),
+        VideoTimestamps([0, 1001, 2002, 3003, 4004, 5005], Fraction(24000)),
+    ],
+)
+def test_time_to_time_invalid_input_unit(timestamp: ABCTimestamps) -> None:
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamp.time_to_time(10, TimeType.EXACT, 0)
+    assert str(exc_info.value) == "If input_unit is none, the time needs to be a Fraction."
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamp.time_to_time(Fraction(10), TimeType.START, 0, 0)
+    assert str(exc_info.value) == "If you specify a input_unit, the time needs to be a int."
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
+        VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
+        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
+    ],
+)
+def test_pts_to_time(timestamp: ABCTimestamps) -> None:
+    assert timestamp.pts_to_time(1876, TimeType.START, 6, Fraction(45000)) == 41689
+    assert timestamp.pts_to_time(3753, TimeType.START, 6) == 41700
+    assert timestamp.pts_to_time(4000, TimeType.START, 6) == 44444

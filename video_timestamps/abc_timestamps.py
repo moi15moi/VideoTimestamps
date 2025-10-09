@@ -328,49 +328,89 @@ class ABCTimestamps(ABC):
         return self.frame_to_time(self.time_to_frame(time, time_type, input_unit), time_type, output_unit, center_time)
 
 
+    def pts_to_time(
+        self,
+        pts: int,
+        time_type: TimeType,
+        output_unit: int,
+        time_scale: Optional[Fraction] = None
+    ) -> int:
+        """Converts a given PTS into the corresponding frame number based on the specified time type.
+
+        Parameters:
+            pts (int): The Presentation Time Stamp value to convert.
+            time_type (TimeType): The type of timing to use for conversion.
+            time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
+                - If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
+
+        Returns:
+            The corresponding frame number for the given PTS.
+        """
+
+        if time_scale is None:
+            time = pts / self.time_scale
+        else:
+            time = pts / time_scale
+
+        return self.time_to_time(time, time_type, output_unit)
+
+
     def time_to_time(
         self,
-        time: int,
+        time: Union[int, Fraction],
         time_type: TimeType,
-        input_unit: int,
         output_unit: int,
+        input_unit: Optional[int] = None,
     ) -> int:
         """
         Converts a given time value from one unit to another, ensuring that
         the resulting value corresponds to the same frame.
 
         Parameters:
-            time (int): The input time value expressed in `input_unit`.
+            time (Union[int, Fraction]): The time value to convert.
+                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
+                - If `time` is a `Fraction`, the value is expected to be in seconds.
             time_type (TimeType): The type of timing to use for conversion.
-            input_unit (int): The unit of the `time` parameter.
-                - Must be a non-negative integer.
-                - Common values:
-                    - 3: milliseconds
-                    - 6: microseconds
-                    - 9: nanoseconds
             output_unit (int): The unit of the output time value.
                 - Must be a non-negative integer.
                 - Common values:
                     - 3: milliseconds
                     - 6: microseconds
                     - 9: nanoseconds
+            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
+                - Must be a non-negative integer if specified.
+                - Common values:
+                    - 3 means milliseconds
+                    - 6 means microseconds
+                    - 9 means nanoseconds
+                - If None, the `time` will be a `Fraction` representing seconds.
 
         Returns:
             The converted time value expressed in `output_unit`.
         """
-        if input_unit < 0:
-            raise ValueError("The input_unit needs to be above or equal to 0.")
+        if input_unit is None:
+            if not isinstance(time, Fraction):
+                raise ValueError("If input_unit is none, the time needs to be a Fraction.")
+        else:
+            if not isinstance(time, int):
+                raise ValueError("If you specify a input_unit, the time needs to be a int.")
+
+            if input_unit < 0:
+                raise ValueError("The input_unit needs to be above or equal to 0.")
 
         if output_unit < 0:
             raise ValueError("The output_unit needs to be above or equal to 0.")
 
-        if input_unit == output_unit:
+        if input_unit == output_unit and isinstance(time, int): # Just to make mypy happy, use isinstance so it doesn't report int | Fraction.
             return time
-        elif input_unit < output_unit:
-            return RoundingMethod.ROUND(time * 10 ** (output_unit - input_unit)) # Just to make mypy happy, round the result, but it is impossible to get a float from this
+        elif input_unit and input_unit < output_unit:
+            return RoundingMethod.ROUND(time * 10 ** (output_unit - input_unit)) # Just to make mypy happy, round the result, but it is impossible to get a float from this.
         else:
             frame = self.time_to_frame(time, time_type, input_unit)
-            time_output = Fraction(time, 10 ** (input_unit - output_unit))
+            if isinstance(time, int) and input_unit is not None: # Just to make mypy happy, verify if input_unit is not None even if it can't.
+                time_output = Fraction(time, 10 ** (input_unit - output_unit))
+            else:
+                time_output = time * Fraction(10 ** output_unit)
 
             # Try with round first because we want to get the closest result
             time_output_round = RoundingMethod.ROUND(time_output)
