@@ -355,6 +355,26 @@ class ABCTimestamps(ABC):
         return self.time_to_time(time, time_type, output_unit)
 
 
+    @overload
+    def time_to_time(
+        self,
+        time: int,
+        time_type: TimeType,
+        output_unit: int,
+        input_unit: int,
+    ) -> int:
+        ...
+
+    @overload
+    def time_to_time(
+        self,
+        time: Fraction,
+        time_type: TimeType,
+        output_unit: int,
+        input_unit: None = None,
+    ) -> int:
+        ...
+
     def time_to_time(
         self,
         time: Union[int, Fraction],
@@ -388,22 +408,15 @@ class ABCTimestamps(ABC):
         Returns:
             The converted time value expressed in `output_unit`.
         """
-        if input_unit is None:
-            if not isinstance(time, Fraction):
-                raise ValueError("If input_unit is none, the time needs to be a Fraction.")
-        else:
-            if not isinstance(time, int):
-                raise ValueError("If you specify a input_unit, the time needs to be a int.")
-
-            if input_unit < 0:
-                raise ValueError("The input_unit needs to be above or equal to 0.")
+        if input_unit is not None and input_unit < 0:
+            raise ValueError("The input_unit needs to be above or equal to 0.")
 
         if output_unit < 0:
             raise ValueError("The output_unit needs to be above or equal to 0.")
 
         if input_unit == output_unit and isinstance(time, int): # Just to make mypy happy, use isinstance so it doesn't report int | Fraction.
             return time
-        elif input_unit and input_unit < output_unit:
+        elif input_unit is not None and input_unit < output_unit:
             return RoundingMethod.ROUND(time * 10 ** (output_unit - input_unit)) # Just to make mypy happy, round the result, but it is impossible to get a float from this.
         else:
             frame = self.time_to_frame(time, time_type, input_unit)
