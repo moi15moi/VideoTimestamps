@@ -81,7 +81,7 @@ def main() -> None:
         ]
     )
 
-    # I don't know why, but this create a video without pts_time. This is usefull to test ffprobe
+    # I don't know why, but this create a video without pts_time. This is usefull to test bestsource/ffms2
     subprocess.check_call(
         [
             "ffmpeg",
