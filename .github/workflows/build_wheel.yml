@@ -1,0 +1,87 @@
+name: Build wheel
+
+on:
+  workflow_call:
+
+jobs:
+  build-wheel:
+    name: "Build wheel ${{ matrix.py_build }} ${{ matrix.arch }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-13, windows-latest, windows-11-arm]
+        arch: [auto64]
+        py_build: ["cp39", "cp310", "cp311", "cp312", "cp313"]
+        include:
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            py_build: "cp39"
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            py_build: "cp310"
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            py_build: "cp311"
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            py_build: "cp312"
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            py_build: "cp313"
+
+    defaults:
+      run:
+        shell: ${{ (matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm') && 'msys2 {0}' || 'bash' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Install platform-specific requirements X64 (Windows)
+      if: runner.os == 'Windows' && runner.arch == 'X64'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANG64
+        path-type: inherit
+        install: >-
+          mingw-w64-clang-x86_64-autotools
+          mingw-w64-clang-x86_64-toolchain
+
+    - name: Install platform-specific requirements ARM64 (Windows)
+      if: runner.os == 'Windows' && runner.arch == 'ARM64'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANGARM64
+        path-type: inherit
+        install: >-
+          mingw-w64-clang-aarch64-autotools
+          mingw-w64-clang-aarch64-toolchain
+
+    - name: Install platform-specific requirements (macOS)
+      if: runner.os == 'macOS'
+      run: brew install autoconf automake libtool
+
+    - name: Run cibuildwheel
+      run: |
+        pip install cibuildwheel delvewheel
+        cibuildwheel --output-dir dist
+      env:
+        CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_BUILD: "${{ matrix.py_build }}-*"
+        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
+        # Disable LZMA on macOS 13+, since it requires a deployment target >= 13.0.
+        # Without this, builds fail because MACOSX_DEPLOYMENT_TARGET is set lower.
+        CIBW_CONFIG_SETTINGS: setup-args=-Dffmpeg:lzma=disabled
+        MSYS2_ENV_CONV_EXCL: "*"
+
+    - name: Upload wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.py_build }}
+        path: dist
