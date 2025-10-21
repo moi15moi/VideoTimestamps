@@ -1,0 +1,5 @@
+[wrap-git]
+url = https://github.com/moi15moi/ffms2.git
+revision = Fix-458
+depth = 1
+patch_directory=ffms2

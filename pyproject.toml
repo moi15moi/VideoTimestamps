@@ -36,17 +36,21 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=77.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ["meson @ git+https://github.com/moi15moi/meson.git@fix", "meson-python", "pybind11>=3.0.1"]
+build-backend = "mesonpy"
 
-[tool.setuptools.dynamic]
-version = { attr = "video_timestamps._version.__version__" }
-
-[tool.setuptools.packages.find]
-include = ["video_timestamps*"]
+[tool.meson-python.args]
+# From https://mesonbuild.com/meson-python/how-to-guides/shared-libraries.html#static-library-from-subproject
+setup = [
+  "--default-library=static",
+  "--wrap-mode=forcefallback",
+  "-Dbestsource:enable_plugin=false",
+  "-Dffmpeg:tests=disabled",
+]
+install = ['--skip-subprojects']
 
 [tool.mypy]
-exclude = "build"
+exclude = ["build", "subprojects"]
 files = ["."]
 warn_unused_configs = true
 strict = true
@@ -59,3 +63,9 @@ exclude_also = [
 
 [tool.ruff.lint]
 exclude = ["__init__.py"]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=subprojects/"
+
+[tool.cibuildwheel.macos]
+environment = { MACOSX_DEPLOYMENT_TARGET="10.15" }
