@@ -52,6 +52,7 @@ jobs:
         install: >-
           mingw-w64-clang-x86_64-autotools
           mingw-w64-clang-x86_64-toolchain
+          mingw-w64-clang-x86_64-nasm
 
     - name: Install platform-specific requirements ARM64 (Windows)
       if: runner.os == 'Windows' && runner.arch == 'ARM64'
@@ -62,22 +63,43 @@ jobs:
         install: >-
           mingw-w64-clang-aarch64-autotools
           mingw-w64-clang-aarch64-toolchain
+          mingw-w64-clang-aarch64-nasm
 
     - name: Install platform-specific requirements (macOS)
       if: runner.os == 'macOS'
-      run: brew install autoconf automake libtool
+      run: brew install autoconf automake libtool nasm
 
     - name: Run cibuildwheel
       run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          export CIBW_ENVIRONMENT="PKG_CONFIG_PATH='/project/build_dependencies/usr/local/lib/pkgconfig'"
+        else
+          PKG_CONFIG_PATH="$(pwd)/build_dependencies/usr/local/lib/pkgconfig"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              PKG_CONFIG_PATH=$(cygpath -w "$(pwd)/build_dependencies/usr/local/lib/pkgconfig")
+          fi
+          export CIBW_ENVIRONMENT="PKG_CONFIG_PATH='$PKG_CONFIG_PATH' MACOSX_DEPLOYMENT_TARGET='10.15'"
+        fi
         pip install cibuildwheel delvewheel
         cibuildwheel --output-dir dist
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: "${{ matrix.py_build }}-*"
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
-        # Disable LZMA on macOS 13+, since it requires a deployment target >= 13.0.
-        # Without this, builds fail because MACOSX_DEPLOYMENT_TARGET is set lower.
-        CIBW_CONFIG_SETTINGS: setup-args=-Dffmpeg:lzma=disabled
+        CIBW_BEFORE_ALL_LINUX: |
+          if command -v yum >/dev/null 2>&1; then
+            yum install -y wget nasm meson
+          elif command -v apk >/dev/null 2>&1; then
+            apk add --no-cache wget nasm meson
+          else
+            echo "No supported package manager found" >&2
+            exit 1
+          fi
+          ./build_dependencies.sh
+        CIBW_BEFORE_ALL_WINDOWS: pip install meson && bash build_dependencies.sh
+        CIBW_BEFORE_ALL: |
+          pip install meson
+          ./build_dependencies.sh
         MSYS2_ENV_CONV_EXCL: "*"
 
     - name: Upload wheel
