@@ -20,25 +20,25 @@ py.extension_module(
     'abc_video_provider',
     'abc_video_provider.cpp',
     install: true,
-    dependencies : [pybind11_dep],
-    subdir: 'video_timestamps/video_provider'
+    dependencies : [nanobind_dep],
+    subdir: 'video_timestamps/video_provider',
 )
 
 py.extension_module(
     'best_source_video_provider',
     'best_source_video_provider.cpp',
     install: true,
-    dependencies : [pybind11_dep, bestsource_dep, libavutil_dep],
+    dependencies : [nanobind_dep, bestsource_dep, libavutil_dep],
     link_args: symbolic_link_args,
-    subdir: 'video_timestamps/video_provider'
+    subdir: 'video_timestamps/video_provider',
 )
 
 py.extension_module(
     'ffms2_video_provider',
     'ffms2_video_provider.cpp',
     install: true,
-    dependencies : [pybind11_dep, ffms2_dep],
+    dependencies : [nanobind_dep, ffms2_dep],
     cpp_args: ['-DFFMS_STATIC'],
     link_args: symbolic_link_args,
-    subdir: 'video_timestamps/video_provider'
+    subdir: 'video_timestamps/video_provider',
 )

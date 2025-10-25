@@ -1,11 +1,13 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 #include <ffms.h>
 #include "abc_video_provider.hpp"
 
 class FFMS2VideoProvider: public ABCVideoProvider {
 public:
-    pybind11::tuple get_pts(const std::string &filename, int index) {
+    nanobind::tuple get_pts(const std::string &filename, int index) {
         char errmsg[1024];
         FFMS_ErrorInfo errinfo;
         errinfo.Buffer      = errmsg;
@@ -82,18 +84,18 @@ public:
         if (!ffms2_time_base)
             throw std::runtime_error("ffms2 reported an error while calling FFMS_GetTimeBase");
 
-        pybind11::object fraction_class = pybind11::module_::import("fractions").attr("Fraction");
-        pybind11::object time_base = fraction_class(ffms2_time_base->Num, ffms2_time_base->Den) / fraction_class(1000, 1);
-        pybind11::object fps = fraction_class(videoprops->FPSNumerator, videoprops->FPSDenominator);
+        nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
+        nanobind::object time_base = fraction_class(ffms2_time_base->Num, ffms2_time_base->Den) / fraction_class(1000, 1);
+        nanobind::object fps = fraction_class(videoprops->FPSNumerator, videoprops->FPSDenominator);
 
-        return pybind11::make_tuple(pts_list, time_base, fps);
+        return nanobind::make_tuple(pts_list, time_base, fps);
     }
 };
 
-PYBIND11_MODULE(ffms2_video_provider, m) {
-    pybind11::module_::import("video_timestamps.video_provider.abc_video_provider");
+NB_MODULE(ffms2_video_provider, m) {
+    nanobind::module_::import_("video_timestamps.video_provider.abc_video_provider");
 
-    pybind11::class_<FFMS2VideoProvider, ABCVideoProvider>(m, "FFMS2VideoProvider")
-        .def(pybind11::init<>())
-        .def("get_pts", &FFMS2VideoProvider::get_pts, pybind11::arg("filename"), pybind11::arg("index"));
+    nanobind::class_<FFMS2VideoProvider, ABCVideoProvider>(m, "FFMS2VideoProvider")
+        .def(nanobind::init<>())
+        .def("get_pts", &FFMS2VideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"));
 }
