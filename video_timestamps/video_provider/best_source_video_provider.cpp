@@ -1,16 +1,18 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 #include <videosource.h>
 #include <tracklist.h>
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
 }
+#include <algorithm>
 #include "abc_video_provider.hpp"
 
 class BestSourceVideoProvider: public ABCVideoProvider {
 public:
-    pybind11::tuple get_pts(const std::string &filename, int index) {
+    nanobind::tuple get_pts(const std::string &filename, int index) {
 
         SetFFmpegLogLevel(AV_LOG_ERROR);
 
@@ -62,18 +64,18 @@ public:
 
         std::sort(pts_list.begin(), pts_list.end());
 
-        pybind11::object fraction_class = pybind11::module_::import("fractions").attr("Fraction");
-        pybind11::object time_base = fraction_class(properties.TimeBase.Num, properties.TimeBase.Den);
-        pybind11::object fps = fraction_class(properties.FPS.Num, properties.FPS.Den);
+        nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
+        nanobind::object time_base = fraction_class(properties.TimeBase.Num, properties.TimeBase.Den);
+        nanobind::object fps = fraction_class(properties.FPS.Num, properties.FPS.Den);
 
-        return pybind11::make_tuple(pts_list, time_base, fps);
+        return nanobind::make_tuple(pts_list, time_base, fps);
     }
 };
 
-PYBIND11_MODULE(best_source_video_provider, m) {
-    pybind11::module_::import("video_timestamps.video_provider.abc_video_provider");
+NB_MODULE(best_source_video_provider, m) {
+    nanobind::module_::import_("video_timestamps.video_provider.abc_video_provider");
 
-    pybind11::class_<BestSourceVideoProvider, ABCVideoProvider>(m, "BestSourceVideoProvider")
-        .def(pybind11::init<>())
-        .def("get_pts", &BestSourceVideoProvider::get_pts, pybind11::arg("filename"), pybind11::arg("index"));
+    nanobind::class_<BestSourceVideoProvider, ABCVideoProvider>(m, "BestSourceVideoProvider")
+        .def(nanobind::init<>())
+        .def("get_pts", &BestSourceVideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"));
 }
