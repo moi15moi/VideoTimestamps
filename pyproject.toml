@@ -36,7 +36,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["meson @ git+https://github.com/moi15moi/meson.git@fix", "meson-python", "pybind11>=3.0.1"]
+requires = ["meson", "meson-python", "pybind11>=3.0.1"]
 build-backend = "mesonpy"
 
 [tool.meson-python.args]
@@ -45,7 +45,6 @@ setup = [
   "--default-library=static",
   "--wrap-mode=forcefallback",
   "-Dbestsource:enable_plugin=false",
-  "-Dffmpeg:tests=disabled",
 ]
 install = ['--skip-subprojects']
 
