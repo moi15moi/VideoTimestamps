@@ -353,6 +353,84 @@ class ABCTimestamps(ABC):
             time = pts / time_scale
 
         return self.time_to_time(time, time_type, output_unit)
+    
+
+    @overload
+    def time_to_pts(
+        self,
+        time: int,
+        time_type: TimeType,
+        input_unit: int,
+        time_scale: Optional[Fraction] = None,
+    ) -> int:
+        ...
+
+    @overload
+    def time_to_pts(
+        self,
+        time: Fraction,
+        time_type: TimeType,
+        input_unit: None = None,
+        time_scale: Optional[Fraction] = None,
+    ) -> int:
+        ...
+
+    def time_to_pts(
+        self,
+        time: Union[int, Fraction],
+        time_type: TimeType,
+        input_unit: Optional[int] = None,
+        time_scale: Optional[Fraction] = None,
+    ) -> int:
+        """
+        Converts a given time value into the corresponding PTS, ensuring that
+        the resulting value corresponds to the same frame.
+
+        Parameters:
+            time (Union[int, Fraction]): The time value to convert.
+                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
+                - If `time` is a `Fraction`, the value is expected to be in seconds.
+            time_type (TimeType): The type of timing to use for conversion.
+            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
+                - Must be a non-negative integer if specified.
+                - Common values:
+                    - 3 means milliseconds
+                    - 6 means microseconds
+                    - 9 means nanoseconds
+                - If None, the `time` will be a `Fraction` representing seconds.
+            time_scale (Optional[Fraction]): The time scale to interpret the `pts` that will be returned by this function.
+                - If None, the `pts` that will be returned will uses the same time scale as the Timestamps object.
+
+        Returns:
+            The corresponding PTS for the given time.
+        """
+
+        if input_unit is None:
+            time_in_second = time
+        else:
+            time_in_second = time * Fraction(1, 10 ** input_unit)
+        
+        if time_scale is None:
+            output_time_scale = self.time_scale
+        else:
+            output_time_scale = time_scale
+
+        frame = self.time_to_frame(time, time_type, input_unit)
+        pts_output = time_in_second * output_time_scale
+
+        # Try with round first because we want to get the closest result
+        pts_output_round = RoundingMethod.ROUND(pts_output)
+        frame_round = self.pts_to_frame(pts_output_round, time_type, output_time_scale)
+        if frame_round == frame:
+            return pts_output_round
+
+        # Try with the opposite of round
+        pts_output_other = floor(pts_output) if pts_output_round == ceil(pts_output) else ceil(pts_output)
+        frame_other = self.pts_to_frame(pts_output_other, time_type, output_time_scale)
+        if frame_other == frame:
+            return pts_output_other
+
+        raise ValueError(f"It is not possible to convert the time {time_in_second} to a PTS with a timescale of {output_time_scale} accurately.")
 
 
     @overload

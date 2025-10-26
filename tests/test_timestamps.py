@@ -1240,10 +1240,29 @@ def test_time_to_time(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
+        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)),
     ],
 )
 def test_pts_to_time(timestamp: ABCTimestamps) -> None:
     assert timestamp.pts_to_time(1876, TimeType.START, 6, Fraction(45000)) == 41689
     assert timestamp.pts_to_time(3753, TimeType.START, 6) == 41700
     assert timestamp.pts_to_time(4000, TimeType.START, 6) == 44444
+
+
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
+        VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
+        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)),
+    ],
+)
+def test_time_to_pts(timestamp: ABCTimestamps) -> None:
+    assert timestamp.time_to_pts(41689, TimeType.START, 6, Fraction(45000)) == 1876
+    assert timestamp.time_to_pts(41700, TimeType.START, 6) == 3753
+    assert timestamp.time_to_pts(Fraction(41689, 1000000), TimeType.START, time_scale=Fraction(45000)) == 1876
+    assert timestamp.time_to_pts(41701, TimeType.START, 6) == 3754
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamp.time_to_pts(41700, TimeType.START, 6, Fraction(1))
+    assert str(exc_info.value) == f"It is not possible to convert the time {Fraction(41700, 1000000)} to a PTS with a timescale of {Fraction(1)} accurately."
