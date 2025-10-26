@@ -29,6 +29,11 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: aarch64
             py_build: "cp313"
+          # Add a single one to mark it as sdist builder
+          - os: macos-latest
+            arch: auto64
+            py_build: "cp313"
+            sdist: true
 
     defaults:
       run:
@@ -101,6 +106,13 @@ jobs:
           pip install meson
           ./build_dependencies.sh
         MSYS2_ENV_CONV_EXCL: "*"
+
+    - name: Build sdist
+      if: matrix.sdist == true
+      run: |
+        export PKG_CONFIG_PATH="$(pwd)/build_dependencies/usr/local/lib/pkgconfig"
+        pip install build
+        python -m build --sdist
 
     - name: Upload wheel
       uses: actions/upload-artifact@v4
