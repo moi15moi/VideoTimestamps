@@ -335,7 +335,9 @@ class ABCTimestamps(ABC):
         output_unit: int,
         time_scale: Optional[Fraction] = None
     ) -> int:
-        """Converts a given PTS into the corresponding frame number based on the specified time type.
+        """
+        Converts a given PTS into the corresponding time, ensuring that
+        the resulting value corresponds to the same frame.
 
         Parameters:
             pts (int): The Presentation Time Stamp value to convert.
@@ -344,7 +346,7 @@ class ABCTimestamps(ABC):
                 - If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
-            The corresponding frame number for the given PTS.
+            The corresponding time for the given PTS.
         """
 
         if time_scale is None:
