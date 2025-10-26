@@ -5,26 +5,23 @@ on:
     types: [published]
 
 jobs:
+  call-build-wheel:
+    uses: ./.github/workflows/build_wheel.yml
+
   publish-to-pypi:
     name: Publish Package to PyPI
     runs-on: ubuntu-latest
+    needs: call-build-wheel
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+    - name: Download wheel artifact
+      uses: actions/download-artifact@v5
       with:
-        python-version: '3.10'
+        path: dist
 
-    - name: "Install build"
-      run: >-
-        pip install build
-
-    - name: Build package
-      run: >-
-        python -m build
-  
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
