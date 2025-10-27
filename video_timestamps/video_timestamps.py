@@ -28,6 +28,8 @@ class VideoTimestamps(ABCTimestamps):
 
         Parameters:
             pts_list: A list containing the Presentation Time Stamps (PTS) for all frames.
+
+                The last pts correspond to the pts of the last frame + it's duration. 
             time_scale: Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
@@ -107,7 +109,6 @@ class VideoTimestamps(ABCTimestamps):
             last_timestamps: If not provided, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
-                By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
             video_provider: The video provider to use to get the information about the video timestamps/fps.
                 
@@ -158,6 +159,7 @@ class VideoTimestamps(ABCTimestamps):
         """
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
+                The last pts correspond to the pts of the last frame + it's duration. 
         """
         return self.__pts_list
 
