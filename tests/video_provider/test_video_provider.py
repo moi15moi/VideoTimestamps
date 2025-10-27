@@ -48,18 +48,10 @@ def test_get_pts_file_without_pts(video_provider: ABCVideoProvider) -> None:
     video_file_path = dir_path.joinpath("files", "video_without_pts_time.avi")
     pts_list, time_base, fps = video_provider.get_pts(str(video_file_path), 0)
 
-    if isinstance(video_provider, FFMS2VideoProvider):
-        assert len(pts_list) == 500
-        assert pts_list[:10] == [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
-        assert pts_list[-10:] == [980, 982, 984, 986, 988, 990, 992, 994, 996, 998]
-        assert time_base == Fraction(1001, 48000)
-        assert fps == Fraction(24000, 1001)
-    elif isinstance(video_provider, BestSourceVideoProvider):
-        assert len(pts_list) == 0
-        assert time_base == Fraction(1001, 48000)
-        assert fps == Fraction(24000, 1001)
-    else:
-        assert False
+    assert pts_list[:10] == [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+    assert pts_list[-10:] == [980, 982, 984, 986, 988, 990, 992, 994, 996, 998]
+    assert time_base == Fraction(1001, 48000)
+    assert fps == Fraction(24000, 1001)
 
 
 @pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
