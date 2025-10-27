@@ -75,10 +75,13 @@ build_ffms2() {
     cd "$BUILD_DIR"
 
     echo "Downloading and extracting ffms2..."
-    wget -O ffms2.tar.gz https://github.com/FFMS/ffms2/archive/refs/heads/master.tar.gz
+    # We need this branch to get the video duration
+    # I opened a PR with this change (https://github.com/FFMS/ffms2/pull/464), but it still didn't get merged and likely won't be anytime soon,
+    # so let's just use the PR branch for the moment.
+    wget -O ffms2.tar.gz https://github.com/moi15moi/ffms2/archive/refs/heads/Add-First/Last/LastEnd-PTS.tar.gz
     tar -xf ffms2.tar.gz
 
-    cd ffms2-master
+    cd ffms2-Add-First-Last-LastEnd-PTS
 
     NOCONFIGURE=1 ./autogen.sh
     if ! ./configure --prefix=$ABS_BUILD_PATH/usr/local \
