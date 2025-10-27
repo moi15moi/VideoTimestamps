@@ -137,6 +137,40 @@ def main() -> None:
         ]
     )
 
+    # Create a video with only 10 frames
+    subprocess.check_call(
+        [
+            "ffmpeg",
+            "-y",
+            "-r",
+            f"{fps}",
+            "-i",
+            os.path.join(dir_path, "img", "test_video_%04d.png"),
+            "-f",
+            "lavfi",
+            "-i",
+            "anullsrc",
+            "-frames:v", "10", # only first 10 frames
+            "-pix_fmt",
+            "yuv420p",
+            "-shortest",
+            os.path.join(dir_path, "test_video_10_frames_temp.mkv"),
+        ]
+    )
+
+    subprocess.check_call(
+        [
+            "mkvmerge",
+            "--output",
+            os.path.join(dir_path, "test_video_10_frames.mkv"),
+            "--timestamps",
+            f"0:{os.path.join(dir_path, 'timestamps_test_video_10_frames.txt')}",
+            os.path.join(dir_path, "test_video_10_frames_temp.mkv"),
+        ]
+    )
+
+    os.remove(os.path.join(dir_path, "test_video_10_frames_temp.mkv"))
+
     # If img folder exist, delete it
     if os.path.isdir(os.path.join(dir_path, "img")):
         shutil.rmtree(os.path.join(dir_path, "img"))

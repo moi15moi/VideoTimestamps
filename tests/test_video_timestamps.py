@@ -166,7 +166,7 @@ def test__eq__and__hash__() -> None:
         True,
         None,
         RoundingMethod.FLOOR,
-        Fraction(10) # different
+        Fraction(0.0834) # different
     )
     assert video_1 != video_7
     assert hash(video_1) != hash(video_7)
