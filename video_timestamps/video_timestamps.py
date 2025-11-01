@@ -61,7 +61,10 @@ class VideoTimestamps(ABCTimestamps):
         self.__time_scale = time_scale
 
         if normalize:
+            first_pts = self.pts_list[0]
             self.__pts_list = VideoTimestamps.normalize(self.pts_list)
+            if last_timestamps is not None:
+                last_timestamps -= Fraction(first_pts, self.time_scale)
 
         self.__timestamps = [pts / self.time_scale for pts in self.pts_list]
 
