@@ -13,7 +13,7 @@ class ABCVideoProvider:
         Returns:
             A tuple containing these 3 informations:
 
-                1. A list of each pts sorted.
+                1. A list of each frame's pts. The last pts correspond to the pts of the last frame + it's duration.
                 2. The time_base.
                 3. The fps.
         """
