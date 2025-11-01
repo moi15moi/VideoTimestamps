@@ -76,6 +76,8 @@ class VideoTimestamps(ABCTimestamps):
         if last_timestamps is None:
             self.__last_timestamps = self.timestamps[-1]
         else:
+            if self.rounding_method(last_timestamps * self.time_scale) != self.pts_list[-1]:
+                raise ValueError(f"The specified `last_timestamps`, {last_timestamps} doesn't correspond to the last PTS {self.pts_list[-1]}. When rounded, `last_timestamps` must be equal to the last pts.")
             self.__last_timestamps = last_timestamps
         self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.last_timestamps)
 
