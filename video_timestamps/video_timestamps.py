@@ -34,6 +34,7 @@ class VideoTimestamps(ABCTimestamps):
             For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
         first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
+        nbr_frames (int): Number of frames in the video.
     """
 
     def __init__(
@@ -163,6 +164,10 @@ class VideoTimestamps(ABCTimestamps):
     @property
     def last_timestamps(self) -> Fraction:
         return self.__last_timestamps
+    
+    @property
+    def nbr_frames(self) -> int:
+        return len(self.__pts_list) - 1
 
     @staticmethod
     def normalize(pts_list: list[int]) -> list[int]:
