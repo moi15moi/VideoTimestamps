@@ -18,6 +18,7 @@ class VideoTimestamps(ABCTimestamps):
 
     Attributes:
         pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
+            The last pts correspond to the pts of the last frame + it's duration. 
         time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
             Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
         normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
@@ -101,7 +102,6 @@ class VideoTimestamps(ABCTimestamps):
             last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
-                By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
             video_provider: (ABCVideoProvider): The video provider to use to get the information about the video timestamps/fps.
                 
