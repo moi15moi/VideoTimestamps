@@ -178,6 +178,14 @@ class VideoTimestamps(ABCTimestamps):
             Time (in seconds) of the last frame of the video.
         """
         return self.__last_timestamps
+    
+    @property
+    def nbr_frames(self) -> int:
+        """
+        Returns:
+            Number of frames in the video.
+        """
+        return len(self.__pts_list) - 1
 
     @staticmethod
     def normalize(pts_list: list[int]) -> list[int]:

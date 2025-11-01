@@ -67,10 +67,10 @@ class TextFileTimestamps(VideoTimestamps):
 
         if isinstance(path_to_timestamps_file_or_content, Path):
             with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
-                timestamps, fps_from_file = TimestampsFileParser.parse_file(f)
+                timestamps, fps_from_file, version = TimestampsFileParser.parse_file(f)
         else:
             file = StringIO(path_to_timestamps_file_or_content)
-            timestamps, fps_from_file = TimestampsFileParser.parse_file(file)
+            timestamps, fps_from_file, version = TimestampsFileParser.parse_file(file)
 
         if fps_from_file:
             if fps:
@@ -83,3 +83,24 @@ class TextFileTimestamps(VideoTimestamps):
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
         
         super().__init__(pts_list, time_scale, normalize, fps, rounding_method, Fraction(timestamps[-1], pow(10, 3)))
+
+        self.__version = version
+
+    @property
+    def version(self) -> int:
+        """
+        Returns:
+            The version of the timestamps file (1, 2 or 4).
+        """
+        return self.__version
+
+    @property
+    def nbr_frames(self) -> int:
+        """
+        Returns:
+            The number of frames of the timestamps file. Note that you cannot use this property with v1 timestamps file.
+        """
+        if self.version in (2, 4):
+            return super().nbr_frames
+        else:
+            raise ValueError("V1 timestamps file doesn't specify a number of frames.")
