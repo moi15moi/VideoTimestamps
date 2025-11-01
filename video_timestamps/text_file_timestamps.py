@@ -29,6 +29,8 @@ class TextFileTimestamps(VideoTimestamps):
             Warning: The last_timestamps is not rounded, so it isn't really be last_timestamps.
         first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
         timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
+        nbr_frames (int): The number of frames of the timestamps file. Note that you cannot use this property with V1 timestamps file.
+        version (int): The version of the timestamps file.
     """
 
     def __init__(
@@ -41,10 +43,10 @@ class TextFileTimestamps(VideoTimestamps):
     ):
         if isinstance(path_to_timestamps_file_or_content, Path):
             with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
-                timestamps, fps_from_file = TimestampsFileParser.parse_file(f)
+                timestamps, fps_from_file, version = TimestampsFileParser.parse_file(f)
         else:
             file = StringIO(path_to_timestamps_file_or_content)
-            timestamps, fps_from_file = TimestampsFileParser.parse_file(file)
+            timestamps, fps_from_file, version = TimestampsFileParser.parse_file(file)
 
         if fps_from_file:
             if fps:
@@ -57,3 +59,16 @@ class TextFileTimestamps(VideoTimestamps):
         pts_list = [rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
         
         super().__init__(pts_list, time_scale, normalize, fps, rounding_method, Fraction(timestamps[-1], pow(10, 3)))
+
+        self.__version = version
+
+    @property
+    def version(self) -> int:
+        return self.__version
+
+    @property
+    def nbr_frames(self) -> int:
+        if self.version in (2, 4):
+            return super().nbr_frames
+        else:
+            raise ValueError("V1 timestamps file doesn't specify a number of frames.")
