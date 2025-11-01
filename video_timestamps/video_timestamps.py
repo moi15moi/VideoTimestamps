@@ -50,12 +50,12 @@ class VideoTimestamps(ABCTimestamps):
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
         """
-        # Validate the timestamps
+        # Validate the PTS
         if len(pts_list) <= 1:
-            raise ValueError("There must be at least 2 timestamps.")
+            raise ValueError("There must be at least 2 pts.")
 
         if any(pts_list[i] >= pts_list[i + 1] for i in range(len(pts_list) - 1)):
-            raise ValueError("Timestamps must be in non-decreasing order.")
+            raise ValueError("PTS must be in non-decreasing order.")
 
         self.__pts_list = pts_list
         self.__time_scale = time_scale
