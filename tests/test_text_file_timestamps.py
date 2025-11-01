@@ -1,4 +1,5 @@
 import os
+import pytest
 from fractions import Fraction
 from pathlib import Path
 from video_timestamps import RoundingMethod, TextFileTimestamps, TimeType
@@ -111,6 +112,11 @@ def test_init_v1() -> None:
     assert timestamps.pts_list == [0, 33, 67, 100, 133, 167, 233, 300, 367, 433, 500, 567, 600, 633, 658, 683, 708, 733]
     # 7 * 1/30 + 6 * 1/15 + 4 * 1/40 = 11/15
     assert timestamps.last_timestamps == Fraction(11, 15)
+    assert timestamps.version == 1
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamps.nbr_frames
+    assert str(exc_info.value) == "V1 timestamps file doesn't specify a number of frames."
 
 
 def test_init_v2() -> None:
@@ -133,6 +139,9 @@ def test_init_v2() -> None:
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(6, Fraction(2003, 1000))
     assert timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
+    assert timestamps.version == 2
+
+    assert timestamps.nbr_frames == 6
 
 
 def test_empty_line_v2() -> None:
