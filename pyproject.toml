@@ -23,6 +23,7 @@ classifiers=[
 dynamic = ["version"]
 
 [project.urls]
+Documentation = "https://moi15moi.github.io/VideoTimestamps/"
 Source = "https://github.com/moi15moi/VideoTimestamps/"
 Tracker = "https://github.com/moi15moi/VideoTimestamps/issues/"
 
