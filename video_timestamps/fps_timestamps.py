@@ -11,16 +11,6 @@ __all__ = ["FPSTimestamps"]
 
 class FPSTimestamps(ABCTimestamps):
     """Create a Timestamps object from a fps.
-
-    See `ABCTimestamps` for more details.
-
-    Attributes:
-        rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-        time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
-            Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-        fps (Fraction): The frames per second of the video.
-        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
-            Warning: The first_timestamps is not rounded, so it isn't really be first_timestamps.
     """
 
     def __init__(
@@ -30,6 +20,17 @@ class FPSTimestamps(ABCTimestamps):
         fps: Union[int, float, Fraction, Decimal],
         first_timestamps: Fraction = Fraction(0)
     ):
+        """Initialize the FPSTimestamps object.
+
+        To understand why the `rounding_method` and the `time_scale` are needed, see the detailed explanation in the 
+        [Algorithm conversion explanation](../Algorithm conversion explanation.md#frame_to_time) section.
+
+        Parameters:
+            rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            time_scale (Fraction): Unit of time (in seconds) in terms of which frame PTS are represented.
+            fps (Union[int, float, Fraction, Decimal]): Frames per second (must be > 0).
+            first_timestamps (Fraction): The first timestamp of the video. By default, 0.
+        """
         if time_scale <= 0:
             raise ValueError("Parameter ``time_scale`` must be higher than 0.")
 
@@ -63,7 +64,7 @@ class FPSTimestamps(ABCTimestamps):
         time: Fraction,
         time_type: TimeType,
     ) -> int:
-
+        # To understand this, refer to docs/Algorithm conversion explanation.md
         if time_type == TimeType.START:
             if self.rounding_method == RoundingMethod.ROUND:
                 frame = ceil(((ceil(time * self.time_scale) - Fraction(1, 2)) / self.time_scale - self.first_timestamps) * self.fps + Fraction(1)) - 1
@@ -91,7 +92,7 @@ class FPSTimestamps(ABCTimestamps):
         time_type: TimeType,
         center_time: bool,
     ) -> Fraction:
-
+        # To understand this, refer to docs/Algorithm conversion explanation.md
         if time_type == TimeType.START:
             upper_bound = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
 

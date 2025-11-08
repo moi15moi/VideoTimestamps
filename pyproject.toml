@@ -33,6 +33,9 @@ dev = [
   "pillow>=10.0.0",
   "pytest>=8.0.0",
   "ruff>=0.8.4",
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings[python]",
 ]
 
 [build-system]

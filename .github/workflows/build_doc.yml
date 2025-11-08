@@ -1,0 +1,39 @@
+name: Build the documentation
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build-doc:
+    name: Build the documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: install deps (ubuntu)
+      run: |
+        sudo apt-get update
+        sudo apt-get install autoconf automake wget nasm
+
+    - name: Install meson
+      run: pip install meson meson-python
+
+    - name: Build dependencies
+      run: ./build_dependencies.sh
+        
+    - name: Build project
+      run: pip install --no-build-isolation --editable .[dev] -Csetup-args="--pkg-config-path=$(pwd)/build_dependencies/usr/local/lib/pkgconfig"
+
+    - name: Run mkdocs
+      run: mkdocs gh-deploy --force
