@@ -18,8 +18,13 @@ def round_method(number: Fraction) -> int:
         return ceil(number - Fraction(1, 2))
 
 class RoundingMethod(Enum):
+    """Method used to adjust presentation timestamps (PTS).
+    """
     FLOOR = floor_method
+    """Floor"""
+
     ROUND = round_method
+    """Round half up"""
 
     def __call__(self, number: Fraction) -> int:
         method: CallType = self.value

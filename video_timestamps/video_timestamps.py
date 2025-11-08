@@ -13,26 +13,6 @@ __all__ = ["VideoTimestamps"]
 
 class VideoTimestamps(ABCTimestamps):
     """Create a Timestamps object from a video file.
-
-    See `ABCTimestamps` for more details.
-
-    Attributes:
-        pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
-        time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
-            Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-        normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
-        fps (Fraction): The frames per second of the video.
-            If not specified, the fps will be approximate from the first and last frame PTS.
-        rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-            It will be used to approximate the timestamps after the video duration.
-            Note: If None, it will try to guess it from the PTS and fps.
-        last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
-            where last_pts is the final presentation timestamp in pts_list.
-            Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
-            By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
-            For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
-        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
-        timestamps (list[Fraction]): A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
     """
 
     def __init__(
@@ -44,6 +24,30 @@ class VideoTimestamps(ABCTimestamps):
         rounding_method: Optional[RoundingMethod] = None,
         last_timestamps: Optional[Fraction] = None
     ):
+        """Initialize the VideoTimestamps object.
+
+        Parameters:
+            pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
+            time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
+
+                Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
+            normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
+            fps (Optional[RoundingMethod]): The frames per second of the video.
+
+                If None, the fps will be approximate from the first and last PTS.
+
+                It will be used to approximate the timestamps over the video duration.
+            rounding_method (Optional[RoundingMethod]): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+                
+                If None, it will try to guess it from the PTS and fps. Note that this is only reliable with CFR video.
+
+                It will be used to approximate the timestamps over the video duration.
+            last_timestamps (Optional[Fraction]): If not provided, this value defaults to last_pts/timescale,
+                where last_pts is the final presentation timestamp in pts_list.
+                Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
+                By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
+                For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
+        """
         # Validate the timestamps
         if len(pts_list) <= 1:
             raise ValueError("There must be at least 2 timestamps.")
@@ -93,14 +97,16 @@ class VideoTimestamps(ABCTimestamps):
             video_path (Path): A video path.
             index (int): Index of the video stream.
             normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
-            rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-                It will be used to approximate the timestamps after the video duration.
-                Note: If None, it will try to guess it from the PTS and fps.
+            rounding_method (Optional[RoundingMethod]): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+                
+                If None, it will try to guess it from the PTS and fps. Note that this is only reliable with CFR video.
+
+                It will be used to approximate the timestamps over the video duration.
             use_video_provider_to_guess_fps (bool): If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
-            last_timestamps (Fraction): If not provided by the user, this value defaults to last_pts/timescale,
+            last_timestamps (Optional[Fraction]): If not provided, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
-                Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration.
+                Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
             video_provider: (ABCVideoProvider): The video provider to use to get the information about the video timestamps/fps.
@@ -149,14 +155,26 @@ class VideoTimestamps(ABCTimestamps):
 
     @property
     def pts_list(self) -> list[int]:
+        """
+        Returns:
+            A list containing the Presentation Time Stamps (PTS) for all frames.
+        """
         return self.__pts_list
 
     @property
     def timestamps(self) -> list[Fraction]:
+        """
+        Returns:
+            A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
+        """
         return self.__timestamps
 
     @property
     def last_timestamps(self) -> Fraction:
+        """
+        Returns:
+            Time (in seconds) of the last frame of the video.
+        """
         return self.__last_timestamps
 
     @staticmethod
@@ -177,7 +195,7 @@ class VideoTimestamps(ABCTimestamps):
     def guess_rounding_method(pts_list: list[int], time_scale: Fraction, fps: Fraction) -> RoundingMethod:
         """Guess the rounding method that have been used to generate the PTS.
         It only works with Constant Frame Rate (CFR) videos.
-        If it fails to guess the RoundingMethod, it will return RoundingMethod.FLOOR, since it is the most common.
+        If it fails to guess the [`RoundingMethod`][video_timestamps.rounding_method.RoundingMethod], it will return [`RoundingMethod.FLOOR`][video_timestamps.rounding_method.RoundingMethod.FLOOR], since it is the most common.
 
         Parameters:
             pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.

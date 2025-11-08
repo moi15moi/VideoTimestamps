@@ -15,42 +15,56 @@ class ABCTimestamps(ABC):
 
     Depending of the software you use to create the video, the PTS (Presentation Time Stamp)
     may be rounded of floored.
-    In general, the PTS are floored, so you should use RoundingMethod.FLOOR.
+    
+    In general, the PTS are floored, so you should use [`RoundingMethod.FLOOR`][video_timestamps.rounding_method.RoundingMethod.FLOOR].
+    
     But, Matroska (.mkv) file are an exception because they are rounded.
-        If you want to be compatible with mkv, use RoundingMethod.ROUND.
-        By default, they only have a precision to milliseconds instead of nanoseconds like most format.
-            For more detail see:
-                1- https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.description.timestamp_scale
-                2- https://matroska.org/technical/notes.html#timestampscale-rounding
-
-    Attributes:
-        rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-            See the comment above about floor vs round.
-        fps (Fraction): The frames per second of the video.
-        time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
-            Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-        first_timestamps (Fraction): Time (in seconds) of the first frame of the video.
-            Warning: Depending on the subclass, the first_timestamps may not be rounded, so it won't really be first_timestamps.
+    If you want to be compatible with mkv, use [`RoundingMethod.ROUND`][video_timestamps.rounding_method.RoundingMethod.ROUND].
+    By default, they only have a precision to milliseconds instead of nanoseconds like most format.
+    
+    For more detail see:
+        1. [mkvmerge timestamp scale documentation](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.description.timestamp_scale)
+        2. [Matroska timestamp scale rounding notes](https://www.matroska.org/technical/notes.html#timestampscale-rounding)
     """
 
     @property
     @abstractmethod
     def rounding_method(self) -> RoundingMethod:
+        """
+        Returns:
+            The rounding method used to round/floor the PTS (Presentation Time Stamp).
+        """
         pass
 
     @property
     @abstractmethod
     def fps(self) -> Fraction:
+        """
+        Returns:
+            The framerate of the video.
+        """
         pass
 
     @property
     @abstractmethod
     def time_scale(self) -> Fraction:
+        """
+        Returns:
+            Unit of time (in seconds) in terms of which frame PTS are represented.
+
+                **Important**: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
+        """
         pass
 
     @property
     @abstractmethod
     def first_timestamps(self) -> Fraction:
+        """
+        Returns:
+            Time (in seconds) of the first frame of the video.
+
+                **Warning**: Depending on the subclass, the first_timestamps may not be rounded, so it won't really be first_timestamps.
+        """
         pass
 
     @abstractmethod
@@ -71,19 +85,31 @@ class ABCTimestamps(ABC):
 
         Parameters:
             time (Union[int, Fraction]): The time value to convert.
-                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
-                - If `time` is a `Fraction`, the value is expected to be in seconds.
+
+                - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
+
+                - If `time` is a Fraction, the value is expected to be in seconds.
             time_type (TimeType): The type of timing to use for conversion.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
-                - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3 means milliseconds
-                    - 6 means microseconds
-                    - 9 means nanoseconds
-                - If None, the `time` will be a `Fraction` representing seconds.
+            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+                Must be a non-negative integer if specified.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the `time` will be a Fraction representing seconds.
 
         Returns:
             The corresponding frame number for the given time.
+
+        Examples:
+            >>> timestamps.time_to_frame(50, TimeType.START, 3)
+            2
+            >>> timestamps.time_to_frame(Fraction(50/1000), TimeType.START)   
+            2
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         if input_unit is None:
@@ -156,17 +182,29 @@ class ABCTimestamps(ABC):
             frame (int): The frame number to convert.
             time_type (TimeType): The type of timing to use for conversion.
             output_unit (Optional[int]): The unit of the output time value.
-                - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3: milliseconds
-                    - 6: microseconds
-                    - 9: nanoseconds
-                - If None, the output will be a Fraction representing seconds.
+                Must be a non-negative integer if specified.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the output will be a Fraction representing seconds.
             center_time (bool): If True, the output time will represent the time at the center of two frames.
-                This option is only applicable when `time_type` is either `TimeType.START` or `TimeType.END`.
+                This option is only applicable when `time_type` is either [`TimeType.START`][video_timestamps.time_type.TimeType.START] or [`TimeType.END`][video_timestamps.time_type.TimeType.END].
 
         Returns:
             The corresponding time for the given frame number.
+
+        Examples:
+            >>> timestamps.frame_to_time(2, TimeType.START, 3)
+            83
+            >>> timestamps.frame_to_time(2, TimeType.START)
+            7507/90000
+            >>> timestamps.frame_to_time(2, TimeType.START, 3, True)
+            63
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         if output_unit is not None and output_unit < 0:
@@ -214,10 +252,15 @@ class ABCTimestamps(ABC):
             pts (int): The Presentation Time Stamp value to convert.
             time_type (TimeType): The type of timing to use for conversion.
             time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
-                - If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
+                If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
             The corresponding frame number for the given PTS.
+
+        Examples:
+            >>> timestamps.pts_to_frame(7507, TimeType.START, Fraction(90000))
+            2
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         if time_scale is None:
@@ -241,10 +284,15 @@ class ABCTimestamps(ABC):
             frame (int): The frame number to convert.
             time_type (TimeType): The type of timing to use for conversion.
             time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
-                - If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
+                If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
             The corresponding PTS for the given frame number.
+
+        Examples:
+            >>> timestamps.frame_to_pts(2, TimeType.START, Fraction(90000))
+            7507
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         time = self.frame_to_time(frame, time_type)
@@ -301,28 +349,43 @@ class ABCTimestamps(ABC):
 
         Parameters:
             time (Union[int, Fraction]): The time value to convert.
-                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
-                - If `time` is a `Fraction`, the value is expected to be in seconds.
+
+                - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
+
+                - If `time` is a Fraction, the value is expected to be in seconds.
             time_type (TimeType): The type of timing to use for conversion.
             output_unit (Optional[int]): The unit of the output time value.
-                - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3: milliseconds
-                    - 6: microseconds
-                    - 9: nanoseconds
-                - If None, the output will be a Fraction representing seconds.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
-                - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3 means milliseconds
-                    - 6 means microseconds
-                    - 9 means nanoseconds
-                - If None, the `time` will be a `Fraction` representing seconds.
+                Must be a non-negative integer if specified.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the output will be a Fraction representing seconds.
+            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+                Must be a non-negative integer if specified.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the `time` will be a Fraction representing seconds.
             center_time (bool): If True, the output time will represent the time at the center of two frames.
-                This option is only applicable when `time_type` is either `TimeType.START` or `TimeType.END`.
+                This option is only applicable when `time_type` is either [`TimeType.START`][video_timestamps.time_type.TimeType.START] or [`TimeType.END`][video_timestamps.time_type.TimeType.END].
 
         Returns:
             The output represents `time` moved to the frame time.
+
+        Examples:
+            >>> timestamps.move_time_to_frame(50, TimeType.START, 3, 3)
+            83
+            >>> timestamps.move_time_to_frame(50, TimeType.START, 9, 3)
+            83411111
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         return self.frame_to_time(self.time_to_frame(time, time_type, input_unit), time_type, output_unit, center_time)
@@ -343,10 +406,17 @@ class ABCTimestamps(ABC):
             pts (int): The Presentation Time Stamp value to convert.
             time_type (TimeType): The type of timing to use for conversion.
             time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
-                - If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
+                If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
             The corresponding time for the given PTS.
+
+        Examples:
+            >>> timestamps.pts_to_time(7507, TimeType.START, 3, Fraction(90000))
+            83
+            >>> timestamps.pts_to_time(7507, TimeType.START, 9, Fraction(90000))
+            83411111
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         if time_scale is None:
@@ -390,21 +460,33 @@ class ABCTimestamps(ABC):
 
         Parameters:
             time (Union[int, Fraction]): The time value to convert.
-                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
-                - If `time` is a `Fraction`, the value is expected to be in seconds.
+
+                - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
+
+                - If `time` is a Fraction, the value is expected to be in seconds.
             time_type (TimeType): The type of timing to use for conversion.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
-                - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3 means milliseconds
-                    - 6 means microseconds
-                    - 9 means nanoseconds
-                - If None, the `time` will be a `Fraction` representing seconds.
+            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+                Must be a non-negative integer if specified.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the `time` will be a `Fraction` representing seconds.
             time_scale (Optional[Fraction]): The time scale to interpret the `pts` that will be returned by this function.
                 - If None, the `pts` that will be returned will uses the same time scale as the Timestamps object.
 
         Returns:
             The corresponding PTS for the given time.
+
+        Examples:
+            >>> timestamps.time_to_pts(83, TimeType.START, 3, Fraction(90000))
+            7470
+            >>> timestamps.time_to_pts(83411111, TimeType.START, 9, Fraction(90000))
+            7507
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
 
         if input_unit is None:
@@ -468,25 +550,39 @@ class ABCTimestamps(ABC):
 
         Parameters:
             time (Union[int, Fraction]): The time value to convert.
-                - If `time` is an `int`, the unit of the value is specified by `input_unit`.
-                - If `time` is a `Fraction`, the value is expected to be in seconds.
+
+                - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
+
+                - If `time` is a Fraction, the value is expected to be in seconds.
             time_type (TimeType): The type of timing to use for conversion.
             output_unit (int): The unit of the output time value.
-                - Must be a non-negative integer.
-                - Common values:
-                    - 3: milliseconds
-                    - 6: microseconds
-                    - 9: nanoseconds
+                Must be a non-negative integer.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
             input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
                 - Must be a non-negative integer if specified.
-                - Common values:
-                    - 3 means milliseconds
-                    - 6 means microseconds
-                    - 9 means nanoseconds
-                - If None, the `time` will be a `Fraction` representing seconds.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+
+                If None, the `time` will be a `Fraction` representing seconds.
 
         Returns:
             The converted time value expressed in `output_unit`.
+
+        Examples:
+            >>> timestamps.time_to_time(83411111, TimeType.START, 3, 9)
+            83
+            >>> timestamps.time_to_time(83411112, TimeType.START, 3, 9)
+            84
+            # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
         if input_unit is not None and input_unit < 0:
             raise ValueError("The input_unit needs to be above or equal to 0.")

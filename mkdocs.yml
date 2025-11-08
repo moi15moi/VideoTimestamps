@@ -1,0 +1,53 @@
+site_name: VideoTimestamps
+
+site_description: >
+  VideoTimestamps documentation.
+
+site_author: moi15moi
+
+repo_url: https://github.com/moi15moi/VideoTimestamps
+repo_name: moi15moi/VideoTimestamps
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js
+
+plugins:
+  - search
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            members_order: source
+
+nav:
+  - Home: index.md
+  - Reference:
+    - Timestamps:
+      - ABCTimestamps: reference/abc_timestamps.md        
+      - FPSTimestamps: reference/fps_timestamps.md
+      - VideoTimestamps: reference/video_timestamps.md
+      - TextFileTimestamps: reference/text_file_timestamps.md
+    - TimeType: reference/time_type.md
+    - RoundingMethod: reference/rounding_method.md
+    - VideoProvider:
+      - ABCVideoProvider: reference/video_provider/abc_video_provider.md
+      - FFMS2VideoProvider: reference/video_provider/ffms2_video_provider.md
+      - BestSourceVideoProvider: reference/video_provider/best_source_video_provider.md
+    - TimeUnitConverter: reference/time_unit_converter.md
+  - Proof:
+    - FPSTimestamps conversion explanation: Algorithm conversion explanation.md
