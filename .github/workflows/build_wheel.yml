@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest, windows-11-arm]
+        os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest, windows-11-arm]
         arch: [auto64]
         py_build: ["cp310-* cp311-* cp312-* cp313-* cp314-*"]
         include:
