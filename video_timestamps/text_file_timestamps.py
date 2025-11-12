@@ -31,7 +31,7 @@ class TextFileTimestamps(VideoTimestamps):
             time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-            rounding_method (Optional[RoundingMethod]): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
             normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
             fps (Optional[RoundingMethod]): The frames per second of the video. Only used with V2 and V4 timestamps file.
 
