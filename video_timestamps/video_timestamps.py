@@ -28,6 +28,8 @@ class VideoTimestamps(ABCTimestamps):
 
         Parameters:
             pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
+
+                The last pts correspond to the pts of the last frame + it's duration. 
             time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
@@ -48,18 +50,21 @@ class VideoTimestamps(ABCTimestamps):
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
         """
-        # Validate the timestamps
+        # Validate the PTS
         if len(pts_list) <= 1:
-            raise ValueError("There must be at least 2 timestamps.")
+            raise ValueError("There must be at least 2 pts.")
 
         if any(pts_list[i] >= pts_list[i + 1] for i in range(len(pts_list) - 1)):
-            raise ValueError("Timestamps must be in non-decreasing order.")
+            raise ValueError("PTS must be in non-decreasing order.")
 
         self.__pts_list = pts_list
         self.__time_scale = time_scale
 
         if normalize:
+            first_pts = self.pts_list[0]
             self.__pts_list = VideoTimestamps.normalize(self.pts_list)
+            if last_timestamps is not None:
+                last_timestamps -= Fraction(first_pts, self.time_scale)
 
         self.__timestamps = [pts / self.time_scale for pts in self.pts_list]
 
@@ -76,6 +81,8 @@ class VideoTimestamps(ABCTimestamps):
         if last_timestamps is None:
             self.__last_timestamps = self.timestamps[-1]
         else:
+            if self.rounding_method(last_timestamps * self.time_scale) != self.pts_list[-1]:
+                raise ValueError(f"The specified `last_timestamps`, {last_timestamps} doesn't correspond to the last PTS {self.pts_list[-1]}. When rounded, `last_timestamps` must be equal to the last pts.")
             self.__last_timestamps = last_timestamps
         self.__fps_timestamps = FPSTimestamps(self.rounding_method, self.time_scale, self.fps, self.last_timestamps)
 
@@ -107,7 +114,6 @@ class VideoTimestamps(ABCTimestamps):
             last_timestamps (Optional[Fraction]): If not provided, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
-                By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
             video_provider: (ABCVideoProvider): The video provider to use to get the information about the video timestamps/fps.
                 
@@ -158,6 +164,7 @@ class VideoTimestamps(ABCTimestamps):
         """
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
+                The last pts correspond to the pts of the last frame + it's duration. 
         """
         return self.__pts_list
 
@@ -176,6 +183,14 @@ class VideoTimestamps(ABCTimestamps):
             Time (in seconds) of the last frame of the video.
         """
         return self.__last_timestamps
+    
+    @property
+    def nbr_frames(self) -> int:
+        """
+        Returns:
+            Number of frames in the video.
+        """
+        return len(self.__pts_list) - 1
 
     @staticmethod
     def normalize(pts_list: list[int]) -> list[int]:

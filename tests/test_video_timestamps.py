@@ -42,20 +42,19 @@ def test__init__() -> None:
 def test__init__validate() -> None:
     with pytest.raises(ValueError) as exc_info:
         VideoTimestamps([0], Fraction(1000))
-    assert str(exc_info.value) == "There must be at least 2 timestamps."
+    assert str(exc_info.value) == "There must be at least 2 pts."
 
     with pytest.raises(ValueError) as exc_info:
         VideoTimestamps([0, 42, 20], Fraction(1000))
-    assert str(exc_info.value) == "Timestamps must be in non-decreasing order."
+    assert str(exc_info.value) == "PTS must be in non-decreasing order."
 
     with pytest.raises(ValueError) as exc_info:
         VideoTimestamps([20, 20], Fraction(1000))
-    assert str(exc_info.value) == "Timestamps must be in non-decreasing order."
+    assert str(exc_info.value) == "PTS must be in non-decreasing order."
 
     with pytest.raises(ValueError) as exc_info:
         VideoTimestamps([0, 40, 50, 50], Fraction(1000))
-    assert str(exc_info.value) == "Timestamps must be in non-decreasing order."
-
+    assert str(exc_info.value) == "PTS must be in non-decreasing order."
 
 
 def test__init__fps() -> None:
@@ -166,7 +165,7 @@ def test__eq__and__hash__() -> None:
         True,
         None,
         RoundingMethod.FLOOR,
-        Fraction(10) # different
+        Fraction(0.0834) # different
     )
     assert video_1 != video_7
     assert hash(video_1) != hash(video_7)
