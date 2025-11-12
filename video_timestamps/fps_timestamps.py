@@ -29,10 +29,10 @@ class FPSTimestamps(ABCTimestamps):
         It will be the equivalent.
 
         Parameters:
-            rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-            time_scale (Fraction): Unit of time (in seconds) in terms of which frame PTS are represented.
-            fps (Union[int, float, Fraction, Decimal]): Frames per second (must be > 0).
-            first_timestamps (Fraction): The first timestamp of the video. By default, 0.
+            rounding_method: The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            time_scale: Unit of time (in seconds) in terms of which frame PTS are represented.
+            fps: Frames per second (must be > 0).
+            first_timestamps: The first timestamp of the video. By default, 0.
         """
         if time_scale <= 0:
             raise ValueError("Parameter ``time_scale`` must be higher than 0.")

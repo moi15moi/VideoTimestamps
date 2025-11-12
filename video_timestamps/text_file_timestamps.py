@@ -50,15 +50,15 @@ class TextFileTimestamps(VideoTimestamps):
         ```
 
         Parameters:
-            path_to_timestamps_file_or_content (Union[str, Path]): If is it a Path, the path to the timestamps file.
+            path_to_timestamps_file_or_content: If is it a Path, the path to the timestamps file.
 
                 If it is a str, a timestamps file content.
-            time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
+            time_scale: Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-            rounding_method (RoundingMethod): The rounding method used to round/floor the PTS (Presentation Time Stamp).
-            normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
-            fps (Optional[RoundingMethod]): The frames per second of the video. Only used with V2 and V4 timestamps file.
+            rounding_method: The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            normalize: If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
+            fps: The frames per second of the video. Only used with V2 and V4 timestamps file.
 
                 If None, the fps will be approximate from the first and last PTS.
 

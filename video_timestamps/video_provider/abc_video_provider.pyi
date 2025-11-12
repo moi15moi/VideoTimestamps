@@ -7,8 +7,8 @@ class ABCVideoProvider:
     def get_pts(self, filename: str, index: int) -> tuple[list[int], Fraction, Fraction]:
         """
         Parameters:
-            filename (str): A video path.
-            index (int): Index of the video stream.
+            filename: A video path.
+            index: Index of the video stream.
 
         Returns:
             A tuple containing these 3 informations:

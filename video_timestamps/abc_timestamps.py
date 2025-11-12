@@ -84,13 +84,13 @@ class ABCTimestamps(ABC):
         """Converts a given time value into the corresponding frame number based on the specified time type.
 
         Parameters:
-            time (Union[int, Fraction]): The time value to convert.
+            time: The time value to convert.
 
                 - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
 
                 - If `time` is a Fraction, the value is expected to be in seconds.
-            time_type (TimeType): The type of timing to use for conversion.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+            time_type: The type of timing to use for conversion.
+            input_unit: The unit of the `time` parameter when it is an int.
                 Must be a non-negative integer if specified.
 
                 Common values:
@@ -179,9 +179,9 @@ class ABCTimestamps(ABC):
         """Converts a given frame number into the corresponding time value based on the specified time type.
 
         Parameters:
-            frame (int): The frame number to convert.
-            time_type (TimeType): The type of timing to use for conversion.
-            output_unit (Optional[int]): The unit of the output time value.
+            frame: The frame number to convert.
+            time_type: The type of timing to use for conversion.
+            output_unit: The unit of the output time value.
                 Must be a non-negative integer if specified.
 
                 Common values:
@@ -191,7 +191,7 @@ class ABCTimestamps(ABC):
                 - 9 means nanoseconds
 
                 If None, the output will be a Fraction representing seconds.
-            center_time (bool): If True, the output time will represent the time at the center of two frames.
+            center_time: If True, the output time will represent the time at the center of two frames.
                 This option is only applicable when `time_type` is either [`TimeType.START`][video_timestamps.time_type.TimeType.START] or [`TimeType.END`][video_timestamps.time_type.TimeType.END].
 
         Returns:
@@ -249,9 +249,9 @@ class ABCTimestamps(ABC):
         """Converts a given PTS into the corresponding frame number based on the specified time type.
 
         Parameters:
-            pts (int): The Presentation Time Stamp value to convert.
-            time_type (TimeType): The type of timing to use for conversion.
-            time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
+            pts: The Presentation Time Stamp value to convert.
+            time_type: The type of timing to use for conversion.
+            time_scale: The time scale to interpret the `pts` parameter.
                 If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
@@ -281,9 +281,9 @@ class ABCTimestamps(ABC):
         """Converts a given frame number into the corresponding PTS based on the specified time type.
 
         Parameters:
-            frame (int): The frame number to convert.
-            time_type (TimeType): The type of timing to use for conversion.
-            time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
+            frame: The frame number to convert.
+            time_type: The type of timing to use for conversion.
+            time_scale: The time scale to interpret the `pts` parameter.
                 If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
@@ -348,13 +348,13 @@ class ABCTimestamps(ABC):
         It is something close to using "CTRL + 3" and "CTRL + 4" on Aegisub.
 
         Parameters:
-            time (Union[int, Fraction]): The time value to convert.
+            time: The time value to convert.
 
                 - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
 
                 - If `time` is a Fraction, the value is expected to be in seconds.
-            time_type (TimeType): The type of timing to use for conversion.
-            output_unit (Optional[int]): The unit of the output time value.
+            time_type: The type of timing to use for conversion.
+            output_unit: The unit of the output time value.
                 Must be a non-negative integer if specified.
 
                 Common values:
@@ -364,7 +364,7 @@ class ABCTimestamps(ABC):
                 - 9 means nanoseconds
 
                 If None, the output will be a Fraction representing seconds.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+            input_unit: The unit of the `time` parameter when it is an int.
                 Must be a non-negative integer if specified.
 
                 Common values:
@@ -374,7 +374,7 @@ class ABCTimestamps(ABC):
                 - 9 means nanoseconds
 
                 If None, the `time` will be a Fraction representing seconds.
-            center_time (bool): If True, the output time will represent the time at the center of two frames.
+            center_time: If True, the output time will represent the time at the center of two frames.
                 This option is only applicable when `time_type` is either [`TimeType.START`][video_timestamps.time_type.TimeType.START] or [`TimeType.END`][video_timestamps.time_type.TimeType.END].
 
         Returns:
@@ -403,9 +403,9 @@ class ABCTimestamps(ABC):
         the resulting value corresponds to the same frame.
 
         Parameters:
-            pts (int): The Presentation Time Stamp value to convert.
-            time_type (TimeType): The type of timing to use for conversion.
-            time_scale (Optional[Fraction]): The time scale to interpret the `pts` parameter.
+            pts: The Presentation Time Stamp value to convert.
+            time_type: The type of timing to use for conversion.
+            time_scale: The time scale to interpret the `pts` parameter.
                 If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
@@ -459,13 +459,13 @@ class ABCTimestamps(ABC):
         the resulting value corresponds to the same frame.
 
         Parameters:
-            time (Union[int, Fraction]): The time value to convert.
+            time: The time value to convert.
 
                 - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
 
                 - If `time` is a Fraction, the value is expected to be in seconds.
-            time_type (TimeType): The type of timing to use for conversion.
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an int.
+            time_type: The type of timing to use for conversion.
+            input_unit: The unit of the `time` parameter when it is an int.
                 Must be a non-negative integer if specified.
 
                 Common values:
@@ -475,7 +475,7 @@ class ABCTimestamps(ABC):
                 - 9 means nanoseconds
 
                 If None, the `time` will be a `Fraction` representing seconds.
-            time_scale (Optional[Fraction]): The time scale to interpret the `pts` that will be returned by this function.
+            time_scale: The time scale to interpret the `pts` that will be returned by this function.
                 - If None, the `pts` that will be returned will uses the same time scale as the Timestamps object.
 
         Returns:
@@ -549,13 +549,13 @@ class ABCTimestamps(ABC):
         the resulting value corresponds to the same frame.
 
         Parameters:
-            time (Union[int, Fraction]): The time value to convert.
+            time: The time value to convert.
 
                 - If `time` is an int, the unit of the value is specified by `input_unit` parameter.
 
                 - If `time` is a Fraction, the value is expected to be in seconds.
-            time_type (TimeType): The type of timing to use for conversion.
-            output_unit (int): The unit of the output time value.
+            time_type: The type of timing to use for conversion.
+            output_unit: The unit of the output time value.
                 Must be a non-negative integer.
 
                 Common values:
@@ -563,7 +563,7 @@ class ABCTimestamps(ABC):
                 - 3 means milliseconds
                 - 6 means microseconds
                 - 9 means nanoseconds
-            input_unit (Optional[int]): The unit of the `time` parameter when it is an `int`.
+            input_unit: The unit of the `time` parameter when it is an `int`.
                 - Must be a non-negative integer if specified.
 
                 Common values:

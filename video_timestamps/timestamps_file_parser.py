@@ -19,7 +19,7 @@ class TimestampsFileParser:
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
 
         Parameters:
-            file_content (TextIOBase): The timestamps content.
+            file_content: The timestamps content.
 
         Returns:
             A tuple containing these 3 informations:
@@ -55,7 +55,7 @@ class TimestampsFileParser:
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L82-175
 
         Parameters:
-            file_content (TextIOBase): The timestamps content
+            file_content: The timestamps content
 
         Returns:
             A tuple containing these 2 informations:
@@ -159,8 +159,8 @@ class TimestampsFileParser:
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L201-267
 
         Parameters:
-            file_content (TextIOBase): The timestamps content
-            version (int): The version of the timestamps (only 2 or 4 is allowed)
+            file_content: The timestamps content
+            version: The version of the timestamps (only 2 or 4 is allowed)
 
         Returns:
             A list of each frame timestamps (in milliseconds).

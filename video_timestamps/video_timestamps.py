@@ -27,22 +27,22 @@ class VideoTimestamps(ABCTimestamps):
         """Initialize the VideoTimestamps object.
 
         Parameters:
-            pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
-            time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
+            pts_list: A list containing the Presentation Time Stamps (PTS) for all frames.
+            time_scale: Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-            normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
-            fps (Optional[RoundingMethod]): The frames per second of the video.
+            normalize: If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
+            fps: The frames per second of the video.
 
                 If None, the fps will be approximate from the first and last PTS.
 
                 It will be used to approximate the timestamps over the video duration.
-            rounding_method (Optional[RoundingMethod]): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            rounding_method: The rounding method used to round/floor the PTS (Presentation Time Stamp).
                 
                 If None, it will try to guess it from the PTS and fps. Note that this is only reliable with CFR video.
 
                 It will be used to approximate the timestamps over the video duration.
-            last_timestamps (Optional[Fraction]): If not provided, this value defaults to last_pts/timescale,
+            last_timestamps: If not provided, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
@@ -94,22 +94,22 @@ class VideoTimestamps(ABCTimestamps):
         """Create timestamps based on the ``video_path`` provided.
 
         Parameters:
-            video_path (Path): A video path.
-            index (int): Index of the video stream.
-            normalize (bool): If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
-            rounding_method (Optional[RoundingMethod]): The rounding method used to round/floor the PTS (Presentation Time Stamp).
+            video_path: A video path.
+            index: Index of the video stream.
+            normalize: If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
+            rounding_method: The rounding method used to round/floor the PTS (Presentation Time Stamp).
                 
                 If None, it will try to guess it from the PTS and fps. Note that this is only reliable with CFR video.
 
                 It will be used to approximate the timestamps over the video duration.
-            use_video_provider_to_guess_fps (bool): If True, use the video_provider to guess the video fps.
+            use_video_provider_to_guess_fps: If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
-            last_timestamps (Optional[Fraction]): If not provided, this value defaults to last_pts/timescale,
+            last_timestamps: If not provided, this value defaults to last_pts/timescale,
                 where last_pts is the final presentation timestamp in pts_list.
                 Users should specify last_timestamps when they need precise results while requesting a frame or timestamp over the video duration (a.k.a over the last pts of ``pts_list``).
                 By default, since last_timestamps is derived from last_pts/timescale, rounding errors occur due to the inherent rounding of last_pts.
                 For constant frame rate (CFR) videos, you can set last_timestamps to (len(pts_list) - 1) / fps for more accurate timing.
-            video_provider: (ABCVideoProvider): The video provider to use to get the information about the video timestamps/fps.
+            video_provider: The video provider to use to get the information about the video timestamps/fps.
                 
         Returns:
             An VideoTimestamps instance representing the video file.
@@ -182,7 +182,7 @@ class VideoTimestamps(ABCTimestamps):
         """Shift the pts_list to make them start from 0. This way, frame 0 will start at pts 0.
 
         Parameters:
-            pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
+            pts_list: A list containing the Presentation Time Stamps (PTS) for all frames.
 
         Returns:
             The pts_list normalized.
@@ -198,10 +198,10 @@ class VideoTimestamps(ABCTimestamps):
         If it fails to guess the [`RoundingMethod`][video_timestamps.rounding_method.RoundingMethod], it will return [`RoundingMethod.FLOOR`][video_timestamps.rounding_method.RoundingMethod.FLOOR], since it is the most common.
 
         Parameters:
-            pts_list (list[int]): A list containing the Presentation Time Stamps (PTS) for all frames.
-            time_scale (Fraction): Unit of time (in seconds) in terms of which frame timestamps are represented.
+            pts_list: A list containing the Presentation Time Stamps (PTS) for all frames.
+            time_scale: Unit of time (in seconds) in terms of which frame timestamps are represented.
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
-            fps (Fraction): The frames per second of the video.
+            fps: The frames per second of the video.
 
         Returns:
             The guessed rounding method.

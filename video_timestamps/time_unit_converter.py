@@ -13,7 +13,7 @@ class TimeUnitConverter:
         Convert a time base to a time scale.
 
         Parameters:
-            time_base (Fraction): The time base to convert.
+            time_base: The time base to convert.
 
         Returns:
             The corresponding time scale.
@@ -27,7 +27,7 @@ class TimeUnitConverter:
         Convert a time scale to a time base.
 
         Parameters:
-            time_scale (Fraction): The time scale to convert.
+            time_scale: The time scale to convert.
 
         Returns:
             The corresponding time base.
@@ -41,7 +41,7 @@ class TimeUnitConverter:
         Convert a timestamp scale to a time scale.
 
         Parameters:
-            timestamp_scale (int): The timestamp scale (e.g., nanoseconds per tick).
+            timestamp_scale: The timestamp scale (e.g., nanoseconds per tick).
 
         Returns:
             The corresponding time scale.
@@ -55,7 +55,7 @@ class TimeUnitConverter:
         Convert a time scale to a timestamp scale.
 
         Parameters:
-            time_scale (Fraction): The time scale to convert.
+            time_scale: The time scale to convert.
 
         Returns:
             The corresponding timestamp scale.
@@ -79,7 +79,7 @@ class TimeUnitConverter:
         Convert a timestamp scale to a time base.
 
         Parameters:
-            timestamp_scale (int): The timestamp scale.
+            timestamp_scale: The timestamp scale.
 
         Returns:
             The corresponding time base.
@@ -93,7 +93,7 @@ class TimeUnitConverter:
         Convert a time base to a timestamp scale.
 
         Parameters:
-            time_base (Fraction): The time base to convert.
+            time_base: The time base to convert.
 
         Returns:
             The corresponding timestamp scale.
