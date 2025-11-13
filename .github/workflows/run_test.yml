@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'test_temp'
   pull_request:
 
 jobs:
