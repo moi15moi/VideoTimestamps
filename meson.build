@@ -12,6 +12,6 @@ py = import('python').find_installation(pure: false)
 nanobind_dep = dependency('nanobind')
 bestsource_dep = dependency('bestsource')
 libavutil_dep = dependency('libavutil')
-ffms2_dep = dependency('ffms2')
+ffms2_dep = dependency('ffms2', static: true)
 
 subdir('video_timestamps')

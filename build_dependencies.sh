@@ -82,10 +82,10 @@ build_ffms2() {
     cd "$BUILD_DIR"
 
     echo "Downloading and extracting ffms2..."
-    wget -O ffms2.tar.gz https://github.com/FFMS/ffms2/archive/refs/heads/master.tar.gz
+    wget -O ffms2.tar.gz https://github.com/moi15moi/ffms2/archive/refs/heads/Cflags.private.tar.gz
     tar -xf ffms2.tar.gz
 
-    cd ffms2-master
+    cd ffms2-Cflags.private
 
     NOCONFIGURE=1 ./autogen.sh
     if ! ./configure --prefix=$ABS_BUILD_PATH/usr/local \
