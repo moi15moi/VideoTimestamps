@@ -15,7 +15,7 @@ pip install VideoTimestamps
 ```
 
 ## How to use it?
-See the [example file](./examples/get_timestamps.py).
+See the [example file](./examples/get_timestamps.py) and/or read the [documentation](https://moi15moi.github.io/VideoTimestamps/).
 
 ## How to build the project from scratch?
 ### Unix
