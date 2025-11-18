@@ -9,6 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest, windows-11-arm]
         arch: [auto64]
