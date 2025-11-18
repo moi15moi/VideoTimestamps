@@ -38,7 +38,7 @@ build_ffmpeg() {
     # On MSYS2, we need to specify the os.
     target_os=""
     if [ -n "${MSYSTEM-}" ]; then
-        target_os="--target-os=mingw32"
+        target_os="--target-os=win32"
     fi
 
     # FFMPEG doesn't try to read the env var CC, so let's do it
