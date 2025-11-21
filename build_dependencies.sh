@@ -35,12 +35,6 @@ build_ffmpeg() {
 
     cd FFmpeg-n8.0
 
-    # On MSYS2, we need to specify the os.
-    target_os=""
-    if [ -n "${MSYSTEM-}" ]; then
-        target_os="--target-os=mingw32"
-    fi
-
     # FFMPEG doesn't try to read the env var CC, so let's do it
     cc=""
     if [ -n "${CC-}" ]; then
@@ -62,7 +56,6 @@ build_ffmpeg() {
                     --disable-doc \
                     --disable-autodetect \
                     --enable-libdav1d \
-                    $target_os \
                     $cc \
                     $cxx; then
         echo "configure failed! Showing config.log:"
