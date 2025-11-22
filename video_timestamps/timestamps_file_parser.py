@@ -13,7 +13,7 @@ class RangeV1:
 
 class TimestampsFileParser:
     @staticmethod
-    def parse_file(file_content: TextIOBase) -> tuple[list[Fraction], Optional[Fraction]]:
+    def parse_file(file_content: TextIOBase) -> tuple[list[Fraction], Optional[Fraction], int]:
         """Parse timestamps from a [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files) and return them.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
@@ -25,6 +25,7 @@ class TimestampsFileParser:
             A tuple containing these 3 informations:
                 1. A list of each frame timestamps (in milliseconds).
                 2. The fps (if supported by the timestamps file format).
+                3. The version of the timestamps file (1, 2 or 4).
         """
 
         regex_timestamps = compile("^# *time(?:code|stamp) *format v(\\d+).*")
@@ -45,7 +46,7 @@ class TimestampsFileParser:
                 f"The file uses version {version}, but this format is currently not supported."
             )
 
-        return timestamps, fps
+        return timestamps, fps, version
 
 
     @staticmethod

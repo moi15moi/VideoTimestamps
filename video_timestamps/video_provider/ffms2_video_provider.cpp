@@ -80,6 +80,9 @@ public:
             pts_list.push_back(frame_info->PTS);
         }
 
+        if (pts_list.size() > 0)
+            pts_list.push_back(videoprops->LastEndPTS);
+
         const FFMS_TrackTimeBase *ffms2_time_base = FFMS_GetTimeBase(track);
         if (!ffms2_time_base)
             throw std::runtime_error("ffms2 reported an error while calling FFMS_GetTimeBase");

@@ -54,7 +54,7 @@ public:
         BSVideoProperties properties = bs->GetVideoProperties();
 
         std::vector<int64_t> pts_list;
-        for (int n = 0; n < properties.NumFrames; n++) {
+        for (int64_t n = 0; n < properties.NumFrames; n++) {
             const BestVideoSource::FrameInfo &info = bs->GetFrameInfo(n);
             if (info.PTS == AV_NOPTS_VALUE) {
                 continue;
@@ -62,7 +62,8 @@ public:
             pts_list.push_back(info.PTS);
         }
 
-        std::sort(pts_list.begin(), pts_list.end());
+        if (pts_list.size() > 0)
+            pts_list.push_back(pts_list.front() + properties.Duration);
 
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
         nanobind::object time_base = fraction_class(properties.TimeBase.Num, properties.TimeBase.Den);
