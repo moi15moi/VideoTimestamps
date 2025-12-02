@@ -144,8 +144,6 @@ class ABCTimestamps(ABC):
     def _frame_to_time(
         self,
         frame: int,
-        time_type: TimeType,
-        center_time: bool,
     ) -> Fraction:
         pass
 
@@ -216,7 +214,28 @@ class ABCTimestamps(ABC):
         if time_type == TimeType.EXACT and center_time:
             raise ValueError("It doesn't make sense to use the time in the center of two frame for TimeType.EXACT.")
 
-        time = self._frame_to_time(frame, time_type, center_time)
+        if time_type == TimeType.START:
+            upper_bound = self._frame_to_time(frame)
+
+            if center_time and frame > 0:
+                lower_bound = self._frame_to_time(frame - 1)
+                time = (lower_bound + upper_bound) / 2
+            else:
+                time = upper_bound
+        elif time_type == TimeType.END:
+            upper_bound = self._frame_to_time(frame + 1)
+
+            if center_time:
+                lower_bound = self._frame_to_time(frame)
+                time = (lower_bound + upper_bound) / 2
+            else:
+                time = upper_bound
+        elif time_type == TimeType.EXACT:
+            time = self._frame_to_time(frame)
+
+        else:
+            raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
+
 
         if output_unit is None:
             return time

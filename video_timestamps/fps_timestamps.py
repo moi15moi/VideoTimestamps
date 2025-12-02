@@ -92,35 +92,9 @@ class FPSTimestamps(ABCTimestamps):
     def _frame_to_time(
         self,
         frame: int,
-        time_type: TimeType,
-        center_time: bool,
     ) -> Fraction:
         # To understand this, refer to docs/Algorithm conversion explanation.md
-        if time_type == TimeType.START:
-            upper_bound = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
-
-            if center_time and frame > 0:
-                lower_bound = self.rounding_method(((frame-1)/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
-                time = (lower_bound + upper_bound) / 2
-            else:
-                time = upper_bound
-
-        elif time_type == TimeType.END:
-            upper_bound = self.rounding_method(((frame+1)/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
-
-            if center_time:
-                lower_bound = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
-                time = (lower_bound + upper_bound) / 2
-            else:
-                time = upper_bound
-
-        elif time_type == TimeType.EXACT:
-            time = self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
-
-        else:
-            raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
-
-        return time
+        return self.rounding_method((frame/self.fps + self.first_timestamps) * self.time_scale) / self.time_scale
 
 
     def __eq__(self, other: object) -> bool:

@@ -271,44 +271,12 @@ class VideoTimestamps(ABCTimestamps):
     def _frame_to_time(
         self,
         frame: int,
-        time_type: TimeType,
-        center_time: bool,
     ) -> Fraction:
 
-        def get_time_at_frame(requested_frame: int) -> Fraction:
-            if requested_frame > len(self.timestamps) - 1:
-                return self.__fps_timestamps.frame_to_time(requested_frame - len(self.timestamps) + 1, TimeType.EXACT, None, False)
-            else:
-                return self.timestamps[requested_frame]
-
-        if time_type == TimeType.START:
-            if frame == 0:
-                return self.timestamps[0]
-
-            upper_bound = get_time_at_frame(frame)
-
-            if center_time:
-                lower_bound = get_time_at_frame(frame-1)
-                time = (lower_bound + upper_bound) / 2
-            else:
-                time = upper_bound
-
-        elif time_type == TimeType.END:
-            upper_bound = get_time_at_frame(frame+1)
-
-            if center_time:
-                lower_bound = get_time_at_frame(frame)
-                time = (lower_bound + upper_bound) / 2
-            else:
-                time = upper_bound
-
-        elif time_type == TimeType.EXACT:
-            time = get_time_at_frame(frame)
-
+        if frame > len(self.timestamps) - 1:
+            return self.__fps_timestamps._frame_to_time(frame - len(self.timestamps) + 1)
         else:
-            raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
-
-        return time
+            return self.timestamps[frame]
 
 
     def __eq__(self, other: object) -> bool:
