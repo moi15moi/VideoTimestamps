@@ -29,15 +29,6 @@ class ABCTimestamps(ABC):
 
     @property
     @abstractmethod
-    def rounding_method(self) -> RoundingMethod:
-        """
-        Returns:
-            The rounding method used to round/floor the PTS (Presentation Time Stamp).
-        """
-        pass
-
-    @property
-    @abstractmethod
     def fps(self) -> Fraction:
         """
         Returns:
@@ -125,8 +116,7 @@ class ABCTimestamps(ABC):
 
             time_in_second = time * Fraction(1, 10 ** input_unit)
 
-        first_pts = self.rounding_method(self.first_timestamps * self.time_scale)
-        first_timestamps = first_pts / self.time_scale
+        first_timestamps = self.frame_to_time(0, TimeType.EXACT)
 
         if time_in_second < first_timestamps and time_type == TimeType.EXACT:
             raise ValueError(f"You cannot specify a time under the first timestamps {first_timestamps} with the TimeType.EXACT.")
@@ -232,10 +222,8 @@ class ABCTimestamps(ABC):
                 time = upper_bound
         elif time_type == TimeType.EXACT:
             time = self._frame_to_time(frame)
-
         else:
             raise ValueError(f'The TimeType "{time_type}" isn\'t supported.')
-
 
         if output_unit is None:
             return time
@@ -622,13 +610,19 @@ class ABCTimestamps(ABC):
 
             # Try with round first because we want to get the closest result
             time_output_round = RoundingMethod.ROUND(time_output)
-            frame_round = self.time_to_frame(time_output_round, time_type, output_unit)
+            try:
+                frame_round = self.time_to_frame(time_output_round, time_type, output_unit)
+            except ValueError:
+                frame_round = None
             if frame_round == frame:
                 return time_output_round
 
             # Try with the opposite of round
             time_output_other = floor(time_output) if time_output_round == ceil(time_output) else ceil(time_output)
-            frame_other = self.time_to_frame(time_output_other, time_type, output_unit)
+            try:
+                frame_other = self.time_to_frame(time_output_other, time_type, output_unit)
+            except ValueError:
+                frame_other = None
             if frame_other == frame:
                 return time_output_other
 
