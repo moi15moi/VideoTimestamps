@@ -7,6 +7,56 @@ from video_timestamps import RoundingMethod, TextFileTimestamps, TimeType
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 
+def test_frame_to_time_3_frames_before_23976_fps_v1() -> None:
+    timestamps_str = "# timecode format v1\n" "Assume 23.976\n" "0,2,12.5\n"
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
+
+    assert timestamps.fps == Fraction("23.976")
+
+    # Frame 0 to 3 - 12.5 fps
+    assert timestamps.frame_to_time(0, TimeType.EXACT) == Fraction(0)
+    assert timestamps.frame_to_time(1, TimeType.EXACT) == Fraction(80, 1000)
+    assert timestamps.frame_to_time(2, TimeType.EXACT) == Fraction(160, 1000)
+    assert timestamps.frame_to_time(3, TimeType.EXACT) == Fraction(240, 1000)
+    # From here, we guess the ms from the last frame timestamps and fps
+    assert timestamps.frame_to_time(4, TimeType.EXACT) == Fraction(282, 1000)
+    assert timestamps.frame_to_time(5, TimeType.EXACT) == Fraction(323, 1000)
+    assert timestamps.frame_to_time(6, TimeType.EXACT) == Fraction(365, 1000)
+    assert timestamps.frame_to_time(7, TimeType.EXACT) == Fraction(407, 1000)
+    assert timestamps.frame_to_time(8, TimeType.EXACT) == Fraction(449, 1000)
+    assert timestamps.frame_to_time(9, TimeType.EXACT) == Fraction(490, 1000)
+    assert timestamps.frame_to_time(10, TimeType.EXACT) == Fraction(532, 1000)
+    assert timestamps.frame_to_time(11, TimeType.EXACT) == Fraction(574, 1000)
+
+
+def test_frame_to_time_2_frames_before_23976_fps_v1() -> None:
+    timestamps_str = "# timecode format v1\n" "Assume 23.976\n" "0,1,12.5\n"
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
+
+    assert timestamps.fps == Fraction("23.976")
+
+    # Frame 0 to 3 - 12.5 fps
+    assert timestamps.frame_to_time(0, TimeType.EXACT) == Fraction(0)
+    assert timestamps.frame_to_time(1, TimeType.EXACT) == Fraction(80, 1000)
+    # From here, we guess the ms from the last frame timestamps and fps
+    assert timestamps.frame_to_time(2, TimeType.EXACT) == Fraction(160, 1000)
+    assert timestamps.frame_to_time(3, TimeType.EXACT) == Fraction(202, 1000)
+    assert timestamps.frame_to_time(4, TimeType.EXACT) == Fraction(243, 1000)
+    assert timestamps.frame_to_time(5, TimeType.EXACT) == Fraction(285, 1000)
+    assert timestamps.frame_to_time(6, TimeType.EXACT) == Fraction(327, 1000)
+    assert timestamps.frame_to_time(7, TimeType.EXACT) == Fraction(369, 1000)
+    assert timestamps.frame_to_time(8, TimeType.EXACT) == Fraction(410, 1000)
+    assert timestamps.frame_to_time(9, TimeType.EXACT) == Fraction(452, 1000)
+    assert timestamps.frame_to_time(10, TimeType.EXACT) == Fraction(494, 1000)
+    assert timestamps.frame_to_time(11, TimeType.EXACT) == Fraction(535, 1000)
+
+
 def test_frame_to_time_v1() -> None:
     timestamps_str = "# timecode format v1\n" "Assume 30\n" "5,10,15\n"
     time_scale = Fraction(1000)
@@ -14,7 +64,7 @@ def test_frame_to_time_v1() -> None:
 
     timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
 
-    assert timestamps.pts_list == [0, 33, 67, 100, 133, 167, 233, 300, 367, 433, 500, 567]
+    assert timestamps._video_timestamps.pts_list == [0, 33, 67, 100, 133, 167, 233, 300, 367, 433, 500, 567]
     assert timestamps.fps == Fraction(30)
 
     # Frame 0 to 5 - 30 fps
@@ -36,6 +86,13 @@ def test_frame_to_time_v1() -> None:
     assert timestamps.frame_to_time(12, TimeType.EXACT) == Fraction(600, 1000) # 1700/3 + 1/30 * 1000 = 600
     assert timestamps.frame_to_time(13, TimeType.EXACT) == Fraction(633, 1000) # 1700/3 + 2/30 * 1000 = round(633.33) = 633
     assert timestamps.frame_to_time(14, TimeType.EXACT) == Fraction(667, 1000) # 1700/3 + 3/30 * 1000 = round(666.66) = 667
+    assert timestamps.frame_to_time(15, TimeType.EXACT) == Fraction(700, 1000) # 1700/3 + 4/30 * 1000 = 700
+    assert timestamps.frame_to_time(16, TimeType.EXACT) == Fraction(733, 1000) # 1700/3 + 5/30 * 1000 = round(733.33) = 733
+
+    # Small test for center_time
+    assert timestamps.frame_to_time(10, TimeType.END, center_time=True) == Fraction(5335, 10000)
+    assert timestamps.frame_to_time(11, TimeType.END, center_time=True) == Fraction(5835, 10000)
+    assert timestamps.frame_to_time(12, TimeType.END, center_time=True) == Fraction(6165, 10000)
 
 
 def test_time_to_frame_round_v1() -> None:
@@ -91,12 +148,18 @@ def test_time_to_frame_round_v1() -> None:
     assert timestamps.time_to_frame(Fraction(600, 1000), TimeType.EXACT) == 12
     assert timestamps.time_to_frame(Fraction(633, 1000), TimeType.EXACT) == 13
     assert timestamps.time_to_frame(Fraction(667, 1000), TimeType.EXACT) == 14
+    assert timestamps.time_to_frame(Fraction(700, 1000), TimeType.EXACT) == 15
+    assert timestamps.time_to_frame(Fraction(733, 1000), TimeType.EXACT) == 16
     assert timestamps.time_to_frame(599, TimeType.EXACT, 3) == 11
     assert timestamps.time_to_frame(600, TimeType.EXACT, 3) == 12 # 1700/3 + 1/30 * 1000 = 600
     assert timestamps.time_to_frame(632, TimeType.EXACT, 3) == 12
     assert timestamps.time_to_frame(633, TimeType.EXACT, 3) == 13 # 1700/3 + 2/30 * 1000 = round(633.33) = 633
     assert timestamps.time_to_frame(666, TimeType.EXACT, 3) == 13
     assert timestamps.time_to_frame(667, TimeType.EXACT, 3) == 14 # 1700/3 + 3/30 * 1000 = round(666.66) = 667
+    assert timestamps.time_to_frame(699, TimeType.EXACT, 3) == 14
+    assert timestamps.time_to_frame(700, TimeType.EXACT, 3) == 15 # 1700/3 + 4/30 * 1000 = round(666.66) = 667
+    assert timestamps.time_to_frame(732, TimeType.EXACT, 3) == 15
+    assert timestamps.time_to_frame(733, TimeType.EXACT, 3) == 16 # 1700/3 + 4/30 * 1000 = round(666.66) = 667
 
 
 def test_init_v1() -> None:
@@ -109,9 +172,10 @@ def test_init_v1() -> None:
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(30)
-    assert timestamps.pts_list == [0, 33, 67, 100, 133, 167, 233, 300, 367, 433, 500, 567, 600, 633, 658, 683, 708, 733]
+    assert timestamps._video_timestamps.pts_list == [0, 33, 67, 100, 133, 167, 233, 300, 367, 433, 500, 567, 600, 633, 658, 683, 708, 733]
     # 7 * 1/30 + 6 * 1/15 + 4 * 1/40 = 11/15
-    assert timestamps.last_timestamps == Fraction(11, 15)
+    assert timestamps._fps_timestamps is not None
+    assert timestamps._fps_timestamps.first_timestamps == Fraction(11, 15)
     assert timestamps.version == 1
 
     with pytest.raises(ValueError) as exc_info:
@@ -138,7 +202,7 @@ def test_init_v2() -> None:
     assert timestamps.time_scale == Fraction(1000)
     assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(6, Fraction(2003, 1000))
-    assert timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
+    assert timestamps._video_timestamps.pts_list == [0, 1000, 1500, 2000, 2001, 2002, 2003]
     assert timestamps.version == 2
 
     assert timestamps.nbr_frames == 6
@@ -157,7 +221,7 @@ def test_empty_line_v2() -> None:
 
     timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, normalize=False)
 
-    assert timestamps.pts_list == [1000, 1500, 2000]
+    assert timestamps._video_timestamps.pts_list == [1000, 1500, 2000]
 
 
 def test_single_carriage_return_v2() -> None:
@@ -173,9 +237,45 @@ def test_single_carriage_return_v2() -> None:
 
     timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, normalize=False)
 
-    assert timestamps.pts_list == [3, 4, 10, 20]
+    assert timestamps._video_timestamps.pts_list == [3, 4, 10, 20]
+
+def test_frame_to_time_over_video_duration_v2() -> None:
+    timestamps_str = (
+        "# timecode format v2\n"
+        "\n"
+        "1000\n"
+        "1500\n"
+        "2000\n"
+    )
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamps.frame_to_time(3, TimeType.EXACT)
+    assert str(exc_info.value) == "The frame 3 is over the video duration. The video contains 2 frames."
 
 
+def test_time_to_frame_over_video_duration_v2() -> None:
+    timestamps_str = (
+        "# timecode format v2\n"
+        "\n"
+        "1000\n"
+        "1500\n"
+        "2000\n"
+    )
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method, normalize=False)
+
+    with pytest.raises(ValueError) as exc_info:
+        timestamps.time_to_frame(2001, TimeType.EXACT, 3)
+    assert str(exc_info.value) == "Time 2001/1000 is over the video duration. The video duration is 2 seconds."
+
+
+test_time_to_frame_over_video_duration_v2()
 def test_init_from_file() -> None:
     timestamp_file_path = dir_path.joinpath("files", "timestamps.txt")
     time_scale = Fraction(1000)
@@ -184,9 +284,8 @@ def test_init_from_file() -> None:
     timestamps = TextFileTimestamps(timestamp_file_path, time_scale, rounding_method)
 
     assert timestamps.time_scale == Fraction(1000)
-    assert timestamps.rounding_method == RoundingMethod.ROUND
     assert timestamps.fps == Fraction(2, Fraction(100, 1000))
-    assert timestamps.pts_list == [0, 50, 100]
+    assert timestamps._video_timestamps.pts_list == [0, 50, 100]
 
 
 def test__eq__and__hash__() -> None:
@@ -200,8 +299,8 @@ def test__eq__and__hash__() -> None:
         "2002\n"
         "2003\n"
     )
-    timestamps_1 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None)
-    timestamps_2 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True, None)
+    timestamps_1 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True)
+    timestamps_2 = TextFileTimestamps(timestamps_str, Fraction(1000), RoundingMethod.ROUND, True)
     assert timestamps_1 == timestamps_2
     assert hash(timestamps_1) == hash(timestamps_2)
 
@@ -216,7 +315,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1000),
         RoundingMethod.ROUND,
         True,
-        None,
     )
     assert timestamps_1 != timestamps_3
     assert hash(timestamps_1) != hash(timestamps_3)
@@ -226,7 +324,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1001), # different
         RoundingMethod.ROUND,
         True,
-        None,
     )
     assert timestamps_1 != timestamps_4
     assert hash(timestamps_1) != hash(timestamps_4)
@@ -236,17 +333,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1000),
         RoundingMethod.FLOOR, # different
         True,
-        None,
     )
     assert timestamps_1 != timestamps_5
     assert hash(timestamps_1) != hash(timestamps_5)
-
-    timestamps_6 = TextFileTimestamps(
-        timestamps_str,
-        Fraction(1000),
-        RoundingMethod.ROUND,
-        True,
-        Fraction(1), # different
-    )
-    assert timestamps_1 != timestamps_6
-    assert hash(timestamps_1) != hash(timestamps_6)

@@ -2,7 +2,7 @@ import os
 import pytest
 from fractions import Fraction
 from pathlib import Path
-from video_timestamps import ABCVideoProvider, BestSourceVideoProvider, FFMS2VideoProvider, RoundingMethod, VideoTimestamps
+from video_timestamps import ABCVideoProvider, BestSourceVideoProvider, FFMS2VideoProvider, VideoTimestamps
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -12,19 +12,16 @@ def test__init__() -> None:
     time_scale = Fraction(1000)
     normalize = False
     fps = Fraction(24000, 1001)
-    rounding_method = RoundingMethod.ROUND
     timestamps = VideoTimestamps(
         pts_list,
         time_scale,
         normalize,
         fps,
-        rounding_method
     )
 
     assert timestamps.pts_list == pts_list
     assert timestamps.time_scale == time_scale
     assert timestamps.fps == fps
-    assert timestamps.rounding_method == rounding_method
     assert timestamps.timestamps == [
         Fraction(0, 1000),
         Fraction(42, 1000),
@@ -85,33 +82,9 @@ def test_normalize() -> None:
     assert timestamps.pts_list == [10, 20, 30]
 
 
-def test_guess_rounding_method_round() -> None:
-    pts_list = [0, 42, 83, 125, 167, 209, 250, 292, 334, 375]
-    time_scale = Fraction(1000)
-    fps = Fraction(24000, 1001)
-
-    assert VideoTimestamps.guess_rounding_method(pts_list, time_scale, fps) == RoundingMethod.ROUND
-
-
-def test_guess_rounding_method_floor() -> None:
-    pts_list = [0, 41, 83, 125, 166, 208, 250, 291, 333, 375]
-    time_scale = Fraction(1000)
-    fps = Fraction(24000, 1001)
-
-    assert VideoTimestamps.guess_rounding_method(pts_list, time_scale, fps) == RoundingMethod.FLOOR
-
-
-def test_guess_rounding_method_vfr() -> None:
-    pts_list = [0, 40, 60, 100, 110]
-    time_scale = Fraction(1000)
-    fps = Fraction(24000, 1001)
-
-    assert VideoTimestamps.guess_rounding_method(pts_list, time_scale, fps) == RoundingMethod.FLOOR
-
-
 def test__eq__and__hash__() -> None:
-    video_1 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None, RoundingMethod.FLOOR, None)
-    video_2 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None, RoundingMethod.FLOOR, None)
+    video_1 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None)
+    video_2 = VideoTimestamps([0, 42, 83], Fraction(1000), True, None)
     assert video_1 == video_2
     assert hash(video_1) == hash(video_2)
 
@@ -120,8 +93,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1000),
         True,
         None,
-        RoundingMethod.FLOOR,
-        None
     )
     assert video_1 != video_3
     assert hash(video_1) != hash(video_3)
@@ -131,8 +102,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1001), # different
         True,
         None,
-        RoundingMethod.FLOOR,
-        None
     )
     assert video_1 != video_4
     assert hash(video_1) != hash(video_4)
@@ -142,30 +111,6 @@ def test__eq__and__hash__() -> None:
         Fraction(1000),
         True,
         Fraction(1), # different
-        RoundingMethod.FLOOR,
-        None
     )
     assert video_1 != video_5
     assert hash(video_1) != hash(video_5)
-
-    video_6 = VideoTimestamps(
-        [0, 42, 83],
-        Fraction(1000),
-        True,
-        None,
-        RoundingMethod.ROUND, # different
-        None
-    )
-    assert video_1 != video_6
-    assert hash(video_1) != hash(video_6)
-
-    video_7 = VideoTimestamps(
-        [0, 42, 83],
-        Fraction(1000),
-        True,
-        None,
-        RoundingMethod.FLOOR,
-        Fraction(0.0834) # different
-    )
-    assert video_1 != video_7
-    assert hash(video_1) != hash(video_7)

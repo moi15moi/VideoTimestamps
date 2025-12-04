@@ -126,7 +126,6 @@ def test_time_to_frame_invalid_input_unit(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.ROUND, Fraction(24000), Fraction(24000, 1001)),
         VideoTimestamps([0, 1001, 2002, 3003, 4004, 5005], Fraction(24000)),
-        VideoTimestamps([0, 1001, 2002], Fraction(24000), fps=Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_time_round(timestamp: ABCTimestamps) -> None:
@@ -230,7 +229,6 @@ def test_frame_to_time_round(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.ROUND, Fraction(24000), Fraction(24000, 1001)),
         VideoTimestamps([0, 1001, 2002, 3003, 4004, 5005], Fraction(24000)),
-        VideoTimestamps([0, 1001, 2002], Fraction(24000), fps=Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_time_to_frame_round(timestamp: ABCTimestamps) -> None:
@@ -364,7 +362,6 @@ def test_time_to_frame_round(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_time_floor(timestamp: ABCTimestamps) -> None:
@@ -468,7 +465,6 @@ def test_frame_to_time_floor(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_time_to_frame_floor(timestamp: ABCTimestamps) -> None:
@@ -606,7 +602,6 @@ def test_time_to_frame_floor(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(-10000, 90000)),
         VideoTimestamps([-10000, -6247, -2493, 1261, 5015, 8768], Fraction(90000), False),
-        VideoTimestamps([-10000, -6247, -2493], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR, 2/Fraction(24000, 1001) - Fraction(10000, 90000)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_time_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None:
@@ -708,7 +703,6 @@ def test_frame_to_time_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(-10000, 90000)),
         VideoTimestamps([-10000, -6247, -2493, 1261, 5015, 8768], Fraction(90000), False),
-        VideoTimestamps([-10000, -6247, -2493], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR, 2/Fraction(24000, 1001) - Fraction(10000, 90000)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_time_to_frame_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None:
@@ -851,7 +845,6 @@ def test_time_to_frame_floor_first_pts_under_0(timestamp: ABCTimestamps) -> None
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(3753, 90000)),
         VideoTimestamps([3753, 7506, 11260, 15014, 18768, 22521], Fraction(90000), False),
-        VideoTimestamps([3753, 7506, 11260], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR, 2/Fraction(24000, 1001) + Fraction(3753, 90000)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_time_floor_first_pts_over_0(timestamp: ABCTimestamps) -> None:
@@ -954,7 +947,6 @@ def test_frame_to_time_floor_first_pts_over_0(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001), Fraction(3753, 90000)),
         VideoTimestamps([3753, 7506, 11260, 15014, 18768, 22521], Fraction(90000), False),
-        VideoTimestamps([3753, 7506, 11260], Fraction(90000), False, Fraction(24000, 1001), RoundingMethod.FLOOR, 2/Fraction(24000, 1001) + Fraction(3753, 90000)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_time_to_frame_floor_first_pts_over_0(timestamp: ABCTimestamps) -> None:
@@ -1054,7 +1046,6 @@ def test_time_to_frame_floor_first_pts_over_0(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_pts_floor(timestamp: ABCTimestamps) -> None:
@@ -1086,7 +1077,6 @@ def test_frame_to_pts_floor(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_frame_to_pts_floor_with_timescale(timestamp: ABCTimestamps) -> None:
@@ -1119,7 +1109,6 @@ def test_frame_to_pts_floor_with_timescale(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_pts_to_frame_floor(timestamp: ABCTimestamps) -> None:
@@ -1162,7 +1151,6 @@ def test_pts_to_frame_floor(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_pts_to_frame_floor_with_timescale(timestamp: ABCTimestamps) -> None:
@@ -1195,7 +1183,6 @@ def test_pts_to_frame_floor_with_timescale(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_move_time_to_frame(timestamp: ABCTimestamps) -> None:
@@ -1211,7 +1198,6 @@ def test_move_time_to_frame(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)), # Test VideoTimestamps over the video lenght
     ],
 )
 def test_time_to_time(timestamp: ABCTimestamps) -> None:
@@ -1240,7 +1226,6 @@ def test_time_to_time(timestamp: ABCTimestamps) -> None:
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
         VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)),
     ],
 )
 def test_pts_to_time(timestamp: ABCTimestamps) -> None:
@@ -1253,8 +1238,7 @@ def test_pts_to_time(timestamp: ABCTimestamps) -> None:
     "timestamp",
     [
         FPSTimestamps(RoundingMethod.FLOOR, Fraction(90000), Fraction(24000, 1001)),
-        VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768], Fraction(90000)),
-        VideoTimestamps([0, 3753, 7507], Fraction(90000), fps=Fraction(24000, 1001), last_timestamps=2/Fraction(24000, 1001)),
+        VideoTimestamps([0, 3753, 7507, 11261, 15015, 18768, 22522, 26276, 30030, 33783, 37537, 41291, 45045, 48798, 52552, 56306, 60060, 63813, 67567, 71321, 75075, 78828, 82582, 86336, 90090], Fraction(90000)),
     ],
 )
 def test_time_to_pts(timestamp: ABCTimestamps) -> None:
