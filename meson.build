@@ -3,7 +3,7 @@ project(
     'cpp',
     default_options: ['cpp_std=c++17', 'buildtype=release'],
     meson_version: '>=1.3.0',
-    version: '1.0.0rc2',
+    version: '1.0.0rc3',
 )
 
 cc = meson.get_compiler('cpp')
