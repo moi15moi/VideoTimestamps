@@ -1,2 +1,2 @@
-dav1d=1.5.1
+dav1d=1.5.2
 ffmpeg=n8.0
