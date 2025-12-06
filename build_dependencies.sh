@@ -4,11 +4,13 @@ build_dav1d() {
     echo "Building dav1d..."
     cd "$BUILD_DIR"
 
+    DAV1D_VERSION=$(grep '^dav1d=' "${SCRIPT_DIR}/dependencies.txt" | cut -d= -f2)
+
     echo "Downloading and extracting dav1d..."
-    wget -O dav1d.tar.gz https://code.videolan.org/videolan/dav1d/-/archive/1.5.1/dav1d-1.5.1.tar.gz?ref_type=tags
+    wget -O dav1d.tar.gz "https://code.videolan.org/videolan/dav1d/-/archive/${DAV1D_VERSION}/dav1d-${DAV1D_VERSION}.tar.gz?ref_type=tags"
     tar -xf dav1d.tar.gz
 
-    cd dav1d-1.5.1
+    cd "dav1d-${DAV1D_VERSION}"
 
     meson setup build \
         --prefix=$ABS_BUILD_PATH/usr/local \
@@ -29,11 +31,13 @@ build_ffmpeg() {
     echo "Building ffmpeg..."
     cd "$BUILD_DIR"
 
+    FFMPEG_VERSION=$(grep '^ffmpeg=' "${SCRIPT_DIR}/dependencies.txt" | cut -d= -f2)
+
     echo "Downloading and extracting ffmpeg..."
-    wget -O ffmpeg.tar.gz https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n8.0.tar.gz
+    wget -O ffmpeg.tar.gz "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/${FFMPEG_VERSION}.tar.gz"    
     tar -xf ffmpeg.tar.gz
 
-    cd FFmpeg-n8.0
+    cd "FFmpeg-${FFMPEG_VERSION}"
 
     # FFMPEG doesn't try to read the env var CC, so let's do it
     cc=""

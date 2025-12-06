@@ -2,5 +2,23 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "customManagers": [    
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^dependencies\\.txt$/"],
+      "matchStrings": ["dav1d=(?<currentValue>.*?)\\n"],
+      "datasourceTemplate": "gitlab-tags",
+      "registryUrlTemplate": "https://code.videolan.org",
+      "packageNameTemplate": "videolan/dav1d"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^dependencies\\.txt$/"],
+      "matchStrings": ["ffmpeg=(?<currentValue>.*?)\\n"],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "FFmpeg/FFmpeg",
+      "versioningTemplate": "regex:^n(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?<prerelease>[^.-]+)?$"
+    }
   ]
 }
