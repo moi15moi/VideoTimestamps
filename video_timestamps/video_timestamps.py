@@ -1,11 +1,13 @@
 from __future__ import annotations
 from .abc_timestamps import ABCTimestamps
+from .rounding_method import RoundingCallType, RoundingMethod
 from .time_type import TimeType
 from .video_provider import ABCVideoProvider, FFMS2VideoProvider
 from bisect import bisect_left, bisect_right
+from decimal import Decimal, localcontext
 from fractions import Fraction
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional, overload
 
 __all__ = ["VideoTimestamps"]
 
@@ -186,6 +188,80 @@ class VideoTimestamps(ABCTimestamps):
         return (self.fps, self.time_scale, self.first_timestamps, self.pts_list, self.timestamps) == (
             other.fps, other.time_scale, other.first_timestamps, other.pts_list, other.timestamps
         )
+
+    @overload
+    def export_timestamps(
+        self,
+        timestamps_filename: Path,
+        *,
+        use_fraction: Literal[True],
+    ) -> None:
+        ...
+
+    @overload
+    def export_timestamps(
+        self,
+        timestamps_filename: Path,
+        *,
+        precision: int,
+        precision_rounding: RoundingCallType,
+        use_fraction: Literal[False] = False,
+    ) -> None:
+        ...
+
+    def export_timestamps(
+        self,
+        timestamps_filename: Path,
+        *,
+        precision: Optional[int] = 9,
+        precision_rounding: Optional[RoundingCallType] = RoundingMethod.ROUND,
+        use_fraction: bool = False
+    ) -> None:
+        """Export the timestamps to [timestamp format v2 file](https://mkvtoolnix.download/doc/mkvmerge.html#d4e4659).
+
+        Parameters:
+            timestamps_filename: The file path where the timestamps will be saved.
+            precision: Number of decimal places for timestamps (default: 9).
+                The minimum value is 3. Note that for mkv file, you can always use 9 (the default value).
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
+            precision_rounding: Rounding method to use for timestamps (default: round).
+
+                Examples:
+
+                - Timestamp: 453.4 ms,  precision=3, precision_rounding=RoundingMethod.ROUND --> 453
+                - Timestamp: 453.4569 ms, precision=6, precision_rounding=RoundingMethod.ROUND --> 453.457
+            use_fraction: The timestamps produced will be represented has a fraction (ex: "30/2") instead of decimal (ex: "3.434").
+                Note that this is not a conform to the specification.
+        """
+        if precision is not None and precision < 3:
+            raise ValueError("The precision needs to be at least 3 (milliseconds).")
+
+        with localcontext() as ctx:
+            with open(timestamps_filename, "w", encoding="utf-8") as f:
+                f.write("# timestamp format v2\n")
+
+                for pts in self.pts_list:
+                    if use_fraction:
+                        time_ms = pts / self.time_scale * 1000
+                        f.write(f"{time_ms}\n")
+                    else:
+                        assert precision is not None # Make mypy happy
+                        assert precision_rounding is not None # Make mypy happy
+
+                        time_precision = precision_rounding(pts / self.time_scale * pow(10, precision))
+                        time_ms = Fraction(time_precision, pow(10, precision - 3))
+
+                        # Be sure that decimal.Context.prec is high enough to do the conversion
+                        num_digits = len(str(time_ms.numerator // time_ms.denominator))
+                        ctx.prec = (precision - 3) + num_digits
+
+                        time_ms_d = Decimal(time_ms.numerator) / Decimal(time_ms.denominator)
+                        f.write(f"{time_ms_d}\n")
 
 
     def __hash__(self) -> int:

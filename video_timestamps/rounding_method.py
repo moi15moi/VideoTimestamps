@@ -6,7 +6,7 @@ from typing import Callable
 __all__ = ["RoundingMethod"]
 
 
-CallType = Callable[[Fraction], int]
+RoundingCallType = Callable[[Fraction], int]
 
 def floor_method(number: Fraction) -> int:
     return floor(number)
@@ -27,5 +27,5 @@ class RoundingMethod(Enum):
     """Round half up"""
 
     def __call__(self, number: Fraction) -> int:
-        method: CallType = self.value
+        method: RoundingCallType = self.value
         return method(number)
