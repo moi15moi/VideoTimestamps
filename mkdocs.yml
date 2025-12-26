@@ -51,3 +51,5 @@ nav:
     - TimeUnitConverter: reference/time_unit_converter.md
   - Proof:
     - FPSTimestamps conversion explanation: Algorithm conversion explanation.md
+  - Utilities:
+    - Extract timestamps from video: Extract timestamps from video.md

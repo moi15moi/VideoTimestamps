@@ -1,6 +1,7 @@
 python_sources = [
     '__init__.py',
     'abc_timestamps.py',
+    'extract_timestamps.py',
     'fps_timestamps.py',
     'py.typed',
     'rounding_method.py',

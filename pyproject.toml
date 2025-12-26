@@ -22,6 +22,9 @@ classifiers=[
 ]
 dynamic = ["version"]
 
+[project.scripts]
+extracttimestamps = "video_timestamps.extract_timestamps:main"
+
 [project.urls]
 Documentation = "https://moi15moi.github.io/VideoTimestamps/"
 Source = "https://github.com/moi15moi/VideoTimestamps/"
