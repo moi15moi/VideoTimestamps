@@ -4,7 +4,7 @@ from .time_type import TimeType
 from abc import ABC, abstractmethod
 from fractions import Fraction
 from math import ceil, floor
-from typing import Optional, Union, overload
+from typing import overload
 
 from collections.abc import Callable
 
