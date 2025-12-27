@@ -1,13 +1,15 @@
 from __future__ import annotations
-from .abc_timestamps import ABCTimestamps
-from .rounding_method import RoundingCallType, RoundingMethod
-from .time_type import TimeType
-from .video_provider import ABCVideoProvider, FFMS2VideoProvider
+
 from bisect import bisect_left, bisect_right
 from decimal import Decimal, localcontext
 from fractions import Fraction
 from pathlib import Path
 from typing import Literal, overload
+
+from .abc_timestamps import ABCTimestamps
+from .rounding_method import RoundingCallType, RoundingMethod
+from .time_type import TimeType
+from .video_provider import ABCVideoProvider, FFMS2VideoProvider
 
 __all__ = ["VideoTimestamps"]
 

@@ -1,5 +1,7 @@
-import pytest
 from io import StringIO
+
+import pytest
+
 from video_timestamps.timestamps_file_parser import TimestampsFileParser
 
 

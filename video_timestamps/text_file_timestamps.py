@@ -1,12 +1,13 @@
-from .abc_timestamps import ABCTimestamps
-from .fps_timestamps import FPSTimestamps
-from .rounding_method import RoundingMethod
-from .timestamps_file_parser import TimestampsFileParser
-from .time_type import TimeType
-from .video_timestamps import VideoTimestamps
 from fractions import Fraction
 from io import StringIO
 from pathlib import Path
+
+from .abc_timestamps import ABCTimestamps
+from .fps_timestamps import FPSTimestamps
+from .rounding_method import RoundingMethod
+from .time_type import TimeType
+from .timestamps_file_parser import TimestampsFileParser
+from .video_timestamps import VideoTimestamps
 
 __all__ = ["TextFileTimestamps"]
 

@@ -1,9 +1,10 @@
-from .abc_timestamps import ABCTimestamps
-from .rounding_method import RoundingMethod
-from .time_type import TimeType
 from decimal import Decimal
 from fractions import Fraction
 from math import ceil, floor
+
+from .abc_timestamps import ABCTimestamps
+from .rounding_method import RoundingMethod
+from .time_type import TimeType
 
 __all__ = ["FPSTimestamps"]
 

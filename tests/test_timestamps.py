@@ -1,6 +1,8 @@
-import pytest
 from fractions import Fraction
 from math import ceil
+
+import pytest
+
 from video_timestamps import (
     ABCTimestamps,
     FPSTimestamps,

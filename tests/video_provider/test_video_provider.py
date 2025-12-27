@@ -1,8 +1,14 @@
 import os
-import pytest
 from fractions import Fraction
 from pathlib import Path
-from video_timestamps import ABCVideoProvider, BestSourceVideoProvider, FFMS2VideoProvider
+
+import pytest
+
+from video_timestamps import (
+    ABCVideoProvider,
+    BestSourceVideoProvider,
+    FFMS2VideoProvider
+)
 
 dir_path = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 

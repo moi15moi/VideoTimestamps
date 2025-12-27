@@ -1,10 +1,11 @@
 import os
-import subprocess
 import shutil
+import subprocess
 from datetime import timedelta
 from fractions import Fraction
-from PIL import Image, ImageDraw, ImageFont
 from textwrap import dedent
+
+from PIL import Image, ImageDraw, ImageFont
 
 
 def main() -> None:

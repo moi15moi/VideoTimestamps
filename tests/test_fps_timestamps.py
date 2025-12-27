@@ -1,5 +1,7 @@
-import pytest
 from fractions import Fraction
+
+import pytest
+
 from video_timestamps import FPSTimestamps, RoundingMethod
 
 

@@ -1,7 +1,7 @@
+from collections.abc import Callable
 from enum import Enum
 from fractions import Fraction
 from math import ceil, floor
-from collections.abc import Callable
 
 __all__ = ["RoundingMethod"]
 

@@ -1,7 +1,9 @@
 import os
-import pytest
 from fractions import Fraction
 from pathlib import Path
+
+import pytest
+
 from video_timestamps import RoundingMethod, TextFileTimestamps, TimeType
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
