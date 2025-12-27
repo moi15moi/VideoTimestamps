@@ -4,7 +4,9 @@ from .time_type import TimeType
 from abc import ABC, abstractmethod
 from fractions import Fraction
 from math import ceil, floor
-from typing import Callable, Optional, Union, overload
+from typing import Optional, Union, overload
+
+from collections.abc import Callable
 
 __all__ = ["ABCTimestamps"]
 
@@ -68,9 +70,9 @@ class ABCTimestamps(ABC):
 
     def time_to_frame(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
-        input_unit: Optional[int] = None
+        input_unit: int | None = None
     ) -> int:
         """Converts a given time value into the corresponding frame number based on the specified time type.
 
@@ -161,9 +163,9 @@ class ABCTimestamps(ABC):
         self,
         frame: int,
         time_type: TimeType,
-        output_unit: Optional[int] = None,
+        output_unit: int | None = None,
         center_time: bool = False,
-    ) -> Union[int, Fraction]:
+    ) -> int | Fraction:
         """Converts a given frame number into the corresponding time value based on the specified time type.
 
         Parameters:
@@ -251,7 +253,7 @@ class ABCTimestamps(ABC):
         self,
         pts: int,
         time_type: TimeType,
-        time_scale: Optional[Fraction] = None
+        time_scale: Fraction | None = None
     ) -> int:
         """Converts a given PTS into the corresponding frame number based on the specified time type.
 
@@ -283,7 +285,7 @@ class ABCTimestamps(ABC):
         self,
         frame: int,
         time_type: TimeType,
-        time_scale: Optional[Fraction] = None
+        time_scale: Fraction | None = None
     ) -> int:
         """Converts a given frame number into the corresponding PTS based on the specified time type.
 
@@ -323,10 +325,10 @@ class ABCTimestamps(ABC):
     @overload
     def move_time_to_frame(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
         output_unit: None,
-        input_unit: Optional[int] = None,
+        input_unit: int | None = None,
         center_time: bool = False
     ) -> Fraction:
         ...
@@ -334,22 +336,22 @@ class ABCTimestamps(ABC):
     @overload
     def move_time_to_frame(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
         output_unit: int,
-        input_unit: Optional[int] = None,
+        input_unit: int | None = None,
         center_time: bool = False
     ) -> int:
         ...
 
     def move_time_to_frame(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
-        output_unit: Optional[int] = None,
-        input_unit: Optional[int] = None,
+        output_unit: int | None = None,
+        input_unit: int | None = None,
         center_time: bool = False
-    ) -> Union[int, Fraction]:
+    ) -> int | Fraction:
         """
         Moves the time to the corresponding frame time.
         It is something close to using "CTRL + 3" and "CTRL + 4" on Aegisub.
@@ -403,7 +405,7 @@ class ABCTimestamps(ABC):
         pts: int,
         time_type: TimeType,
         output_unit: int,
-        time_scale: Optional[Fraction] = None
+        time_scale: Fraction | None = None
     ) -> int:
         """
         Converts a given PTS into the corresponding time, ensuring that
@@ -440,7 +442,7 @@ class ABCTimestamps(ABC):
         time: int,
         time_type: TimeType,
         input_unit: int,
-        time_scale: Optional[Fraction] = None,
+        time_scale: Fraction | None = None,
     ) -> int:
         ...
 
@@ -450,16 +452,16 @@ class ABCTimestamps(ABC):
         time: Fraction,
         time_type: TimeType,
         input_unit: None = None,
-        time_scale: Optional[Fraction] = None,
+        time_scale: Fraction | None = None,
     ) -> int:
         ...
 
     def time_to_pts(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
-        input_unit: Optional[int] = None,
-        time_scale: Optional[Fraction] = None,
+        input_unit: int | None = None,
+        time_scale: Fraction | None = None,
     ) -> int:
         """
         Converts a given time value into the corresponding PTS, ensuring that
@@ -546,10 +548,10 @@ class ABCTimestamps(ABC):
 
     def time_to_time(
         self,
-        time: Union[int, Fraction],
+        time: int | Fraction,
         time_type: TimeType,
         output_unit: int,
-        input_unit: Optional[int] = None,
+        input_unit: int | None = None,
     ) -> int:
         """
         Converts a given time value from one unit to another, ensuring that

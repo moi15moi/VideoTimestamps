@@ -17,7 +17,7 @@ class FPSTimestamps(ABCTimestamps):
         self,
         rounding_method: RoundingMethod,
         time_scale: Fraction,
-        fps: Union[int, float, Fraction, Decimal],
+        fps: int | float | Fraction | Decimal,
         first_timestamps: Fraction = Fraction(0)
     ):
         """Initialize the FPSTimestamps object.

@@ -20,7 +20,7 @@ class VideoTimestamps(ABCTimestamps):
         pts_list: list[int],
         time_scale: Fraction,
         normalize: bool = True,
-        fps: Optional[Fraction] = None,
+        fps: Fraction | None = None,
     ):
         """Initialize the VideoTimestamps object.
 
@@ -213,8 +213,8 @@ class VideoTimestamps(ABCTimestamps):
         self,
         timestamps_filename: Path,
         *,
-        precision: Optional[int] = 9,
-        precision_rounding: Optional[RoundingCallType] = RoundingMethod.ROUND,
+        precision: int | None = 9,
+        precision_rounding: RoundingCallType | None = RoundingMethod.ROUND,
         use_fraction: bool = False
     ) -> None:
         """Export the timestamps to [timestamp format v2 file](https://mkvtoolnix.download/doc/mkvmerge.html#d4e4659).
