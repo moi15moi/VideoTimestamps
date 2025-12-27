@@ -14,16 +14,16 @@ public:
         errinfo.BufferSize  = sizeof(errmsg);
         errinfo.ErrorType   = FFMS_ERROR_SUCCESS;
         errinfo.SubType     = FFMS_ERROR_SUCCESS;
-        
+
         FFMS_Init(0, 0);
 
         FFMS_Indexer *indexer = FFMS_CreateIndexer(filename.c_str(), &errinfo);
         if (!indexer)
-            throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateIndexer: " + std::string(errinfo.Buffer) + ".");    
+            throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateIndexer: " + std::string(errinfo.Buffer) + ".");
 
         int num_tracks = FFMS_GetNumTracksI(indexer);
         if (index >= num_tracks)
-            throw std::invalid_argument("The index " + std::to_string(index) + " is not in the file " + filename + ".");    
+            throw std::invalid_argument("The index " + std::to_string(index) + " is not in the file " + filename + ".");
 
         int track_type = FFMS_GetTrackTypeI(indexer, index);
         if (track_type != FFMS_TYPE_VIDEO) {
@@ -46,7 +46,7 @@ public:
                     break;
             }
 
-            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");    
+            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
         }
 
         auto ffms2_index = std::unique_ptr<FFMS_Index, void(*)(FFMS_Index*)>(
@@ -54,7 +54,7 @@ public:
             FFMS_DestroyIndex
         );
         if (!ffms2_index)
-            throw std::runtime_error("ffms2 reported an error while calling FFMS_DoIndexing2: " + std::string(errinfo.Buffer) + ".");    
+            throw std::runtime_error("ffms2 reported an error while calling FFMS_DoIndexing2: " + std::string(errinfo.Buffer) + ".");
 
         int threads = 1;
         int seek_mode = FFMS_SEEK_NORMAL;
@@ -63,11 +63,11 @@ public:
             FFMS_DestroyVideoSource
         );
         if (!video_source)
-            throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateVideoSource: " + std::string(errinfo.Buffer) + ".");    
+            throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateVideoSource: " + std::string(errinfo.Buffer) + ".");
 
         FFMS_Track *track = FFMS_GetTrackFromVideo(video_source.get());
         if (!track)
-            throw std::runtime_error("ffms2 reported an error while calling FFMS_GetTrackFromVideo");    
+            throw std::runtime_error("ffms2 reported an error while calling FFMS_GetTrackFromVideo");
 
         const FFMS_VideoProperties *videoprops = FFMS_GetVideoProperties(video_source.get());
 

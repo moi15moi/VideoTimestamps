@@ -38,7 +38,7 @@ nav:
   - Home: index.md
   - Reference:
     - Timestamps:
-      - ABCTimestamps: reference/abc_timestamps.md        
+      - ABCTimestamps: reference/abc_timestamps.md
       - FPSTimestamps: reference/fps_timestamps.md
       - VideoTimestamps: reference/video_timestamps.md
       - TextFileTimestamps: reference/text_file_timestamps.md

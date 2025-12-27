@@ -46,7 +46,7 @@ public:
                     break;
             }
 
-            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");    
+            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
         }
 
         std::map<std::string, std::string> bsopts;

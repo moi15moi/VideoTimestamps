@@ -22,7 +22,7 @@ class FPSTimestamps(ABCTimestamps):
     ):
         """Initialize the FPSTimestamps object.
 
-        To understand why the `rounding_method` and the `time_scale` are needed, see the detailed explanation in the 
+        To understand why the `rounding_method` and the `time_scale` are needed, see the detailed explanation in the
         [frame_to_time](../Algorithm conversion explanation.md#frame_to_time) section.
         If after reading the [frame_to_time](../Algorithm conversion explanation.md#frame_to_time) section,
         you still think you need to have `time = frame * (1/fps)` instead of `time = pts * timebase`, use **any** `rounding_method` and use the same value for the `time_scale` as for the `fps`.

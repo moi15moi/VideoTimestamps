@@ -18,13 +18,13 @@ class ABCTimestamps(ABC):
 
     Depending of the software you use to create the video, the PTS (Presentation Time Stamp)
     may be rounded of floored.
-    
+
     In general, the PTS are floored, so you should use [`RoundingMethod.FLOOR`][video_timestamps.rounding_method.RoundingMethod.FLOOR].
-    
+
     But, Matroska (.mkv) file are an exception because they are rounded.
     If you want to be compatible with mkv, use [`RoundingMethod.ROUND`][video_timestamps.rounding_method.RoundingMethod.ROUND].
     By default, they only have a precision to milliseconds instead of nanoseconds like most format.
-    
+
     For more detail see:
         1. [mkvmerge timestamp scale documentation](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.description.timestamp_scale)
         2. [Matroska timestamp scale rounding notes](https://www.matroska.org/technical/notes.html#timestampscale-rounding)
@@ -101,7 +101,7 @@ class ABCTimestamps(ABC):
         Examples:
             >>> timestamps.time_to_frame(50, TimeType.START, 3)
             2
-            >>> timestamps.time_to_frame(Fraction(50/1000), TimeType.START)   
+            >>> timestamps.time_to_frame(Fraction(50/1000), TimeType.START)
             2
             # Example with FPS = 24000/1001, time_scale = 90000, rounding method = FLOOR.
         """
@@ -435,7 +435,7 @@ class ABCTimestamps(ABC):
             time = pts / time_scale
 
         return self.time_to_time(time, time_type, output_unit)
-    
+
 
     @overload
     def time_to_pts(
@@ -503,7 +503,7 @@ class ABCTimestamps(ABC):
             time_in_second = time
         else:
             time_in_second = time * Fraction(1, 10 ** input_unit)
-        
+
         if time_scale is None:
             output_time_scale = self.time_scale
         else:

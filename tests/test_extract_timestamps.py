@@ -40,7 +40,7 @@ def test_extracttimestamps(monkeypatch: pytest.MonkeyPatch) -> None:
         "450\n"
         "475\n"
     )
-    
+
     content = expected_timestamps_file.read_text(encoding="utf-8")
     assert content == expected
 
@@ -81,7 +81,7 @@ def test_extracttimestamps_precision_round(monkeypatch: pytest.MonkeyPatch) -> N
         "333.666666666667\n"
         "375.375\n"
     )
-    
+
     content = expected_timestamps_file.read_text(encoding="utf-8")
     assert content.startswith(expected)
 
@@ -123,7 +123,7 @@ def test_extracttimestamps_precision_floor(monkeypatch: pytest.MonkeyPatch) -> N
         "333.666666666666\n"
         "375.375\n"
     )
-    
+
     content = expected_timestamps_file.read_text(encoding="utf-8")
     assert content.startswith(expected)
 
@@ -164,7 +164,7 @@ def test_extracttimestamps_use_fraction(monkeypatch: pytest.MonkeyPatch) -> None
         "1001/3\n"
         "3003/8\n"
     )
-    
+
     content = expected_timestamps_file.read_text(encoding="utf-8")
     assert content.startswith(expected)
 

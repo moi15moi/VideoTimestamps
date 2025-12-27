@@ -19,7 +19,7 @@ class TimeUnitConverter:
             The corresponding time scale.
         """
         return 1 / time_base
-    
+
 
     @staticmethod
     def time_scale_to_time_base(time_scale: Fraction) -> Fraction:
@@ -66,7 +66,7 @@ class TimeUnitConverter:
             is_integer = timestamp_scale.is_integer()
         else:
             is_integer = timestamp_scale.denominator == 1
-        
+
         if not is_integer:
             raise ValueError(f"The timescale {time_scale} cannot be converted to a timestamp scale because the result {timestamp_scale} isn't a integer.")
 
@@ -104,8 +104,8 @@ class TimeUnitConverter:
             is_integer = timestamp_scale.is_integer()
         else:
             is_integer = timestamp_scale.denominator == 1
-        
+
         if not is_integer:
             raise ValueError(f"The timebase {time_base} cannot be converted to a timestamp scale because the result {timestamp_scale} isn't a integer.")
-    
+
         return int(timestamp_scale)
