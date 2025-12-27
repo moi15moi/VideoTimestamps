@@ -1,5 +1,6 @@
 from fractions import Fraction
-from video_timestamps import FPSTimestamps, TimeType, RoundingMethod
+
+from video_timestamps import FPSTimestamps, RoundingMethod, TimeType
 
 fps = Fraction(24000, 1001)
 time_scale = Fraction(1000)

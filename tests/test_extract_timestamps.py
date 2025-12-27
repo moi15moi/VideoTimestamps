@@ -1,7 +1,8 @@
 import os
-import pytest
 import runpy
 from pathlib import Path
+
+import pytest
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

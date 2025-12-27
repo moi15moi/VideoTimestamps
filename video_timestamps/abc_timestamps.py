@@ -1,12 +1,13 @@
 from __future__ import annotations
-from .rounding_method import RoundingMethod
-from .time_type import TimeType
+
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from fractions import Fraction
 from math import ceil, floor
 from typing import overload
 
-from collections.abc import Callable
+from .rounding_method import RoundingMethod
+from .time_type import TimeType
 
 __all__ = ["ABCTimestamps"]
 

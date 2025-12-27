@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from fractions import Fraction
+
 from .abc_video_provider import ABCVideoProvider
 
 __all__ = ['FFMS2VideoProvider']
