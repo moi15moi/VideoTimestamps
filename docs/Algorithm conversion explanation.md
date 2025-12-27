@@ -95,7 +95,7 @@ For the $pts$, it is simple, $pts = \text{roundingMethod}(frame \times ticks)$. 
 
 $$ticks = {timescale \over fps}$$
 
-So, in brief, the expended formula is: 
+So, in brief, the expended formula is:
 
 $time = pts \times timebase$
 

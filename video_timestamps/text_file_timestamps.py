@@ -27,7 +27,7 @@ class TextFileTimestamps(ABCTimestamps):
 
         The `time_scale` and `rounding_method` are required because, in reality, if you provide a timestamps file to `mkvmerge`, it can round the result.
         For example, let's say we use this timestamps file with this command `mkvmerge --output output.mkv --timestamps 0:input_timestamps_file.txt input.mkv`
-        ``` 
+        ```
         # timestamp format v2
         0
         50.5
@@ -39,7 +39,7 @@ class TextFileTimestamps(ABCTimestamps):
 
         Since mkvmerge set a default `timescale` of 1000 and use the `rounding_method` [`RoundingMethod.ROUND`][video_timestamps.rounding_method.RoundingMethod.ROUND],
         it cannot properly represent the provided timestamps.
-        If you extract the timestamps with `mkvextract output.mkv timestamps_v2 0:final_timestamps_file.txt`, you will get this result:                
+        If you extract the timestamps with `mkvextract output.mkv timestamps_v2 0:final_timestamps_file.txt`, you will get this result:
         ```
         # timestamp format v2
         0
@@ -72,7 +72,7 @@ class TextFileTimestamps(ABCTimestamps):
         self.__version = version
 
         pts_list = [self.rounding_method(Fraction(time, pow(10, 3)) * time_scale) for time in timestamps]
-        
+
         self._video_timestamps = VideoTimestamps(pts_list, time_scale, normalize, fps)
 
         self._fps_timestamps = None

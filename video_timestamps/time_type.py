@@ -8,7 +8,7 @@ class TimeType(Enum):
 
     When working with a video that has a frame rate of 24000/1001 fps, using the [`RoundingMethod.ROUND`][video_timestamps.rounding_method.RoundingMethod.ROUND] and with the timescale 1000,
     the first 4 frames will start at the following times in a video player:
-    
+
     - Frame 0: 0 ms
     - Frame 1: 42 ms
     - Frame 2: 83 ms

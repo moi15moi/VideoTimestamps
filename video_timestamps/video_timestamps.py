@@ -29,7 +29,7 @@ class VideoTimestamps(ABCTimestamps):
         Parameters:
             pts_list: A list containing the Presentation Time Stamps (PTS) for all frames.
 
-                The last pts correspond to the pts of the last frame + it's duration. 
+                The last pts correspond to the pts of the last frame + it's duration.
             time_scale: Unit of time (in seconds) in terms of which frame timestamps are represented.
 
                 Important: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
@@ -77,7 +77,7 @@ class VideoTimestamps(ABCTimestamps):
             use_video_provider_to_guess_fps: If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
             video_provider: The video provider to use to get the information about the video timestamps/fps.
-                
+
         Returns:
             An VideoTimestamps instance representing the video file.
         """
@@ -118,7 +118,7 @@ class VideoTimestamps(ABCTimestamps):
         """
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
-                The last pts correspond to the pts of the last frame + it's duration. 
+                The last pts correspond to the pts of the last frame + it's duration.
         """
         return self.__pts_list
 
@@ -129,7 +129,7 @@ class VideoTimestamps(ABCTimestamps):
             A list of timestamps (in seconds) corresponding to each frame, stored as `Fraction` for precision.
         """
         return self.__timestamps
-    
+
     @property
     def nbr_frames(self) -> int:
         """

@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "customManagers": [    
+  "customManagers": [
     {
       "customType": "regex",
       "managerFilePatterns": ["/^dependencies\\.txt$/"],

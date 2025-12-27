@@ -34,7 +34,7 @@ build_ffmpeg() {
     FFMPEG_VERSION=$(grep '^ffmpeg=' "${SCRIPT_DIR}/dependencies.txt" | cut -d= -f2)
 
     echo "Downloading and extracting ffmpeg..."
-    wget -O ffmpeg.tar.gz "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/${FFMPEG_VERSION}.tar.gz"    
+    wget -O ffmpeg.tar.gz "https://github.com/FFmpeg/FFmpeg/archive/refs/tags/${FFMPEG_VERSION}.tar.gz"
     tar -xf ffmpeg.tar.gz
 
     cd "FFmpeg-${FFMPEG_VERSION}"

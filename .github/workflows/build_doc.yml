@@ -31,7 +31,7 @@ jobs:
 
     - name: Build dependencies
       run: ./build_dependencies.sh
-        
+
     - name: Build project
       run: pip install --no-build-isolation --editable .[dev] -Csetup-args="--pkg-config-path=$(pwd)/build_dependencies/usr/local/lib/pkgconfig"
 
