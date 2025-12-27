@@ -7,7 +7,6 @@ from .video_timestamps import VideoTimestamps
 from fractions import Fraction
 from io import StringIO
 from pathlib import Path
-from typing import Union
 
 __all__ = ["TextFileTimestamps"]
 

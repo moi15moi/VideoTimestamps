@@ -4,7 +4,6 @@ from .time_type import TimeType
 from decimal import Decimal
 from fractions import Fraction
 from math import ceil, floor
-from typing import Union
 
 __all__ = ["FPSTimestamps"]
 

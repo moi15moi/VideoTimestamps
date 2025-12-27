@@ -7,7 +7,7 @@ from bisect import bisect_left, bisect_right
 from decimal import Decimal, localcontext
 from fractions import Fraction
 from pathlib import Path
-from typing import Literal, Optional, overload
+from typing import Literal, overload
 
 __all__ = ["VideoTimestamps"]
 

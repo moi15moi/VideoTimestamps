@@ -1,7 +1,6 @@
 from fractions import Fraction
 from io import TextIOBase
 from re import compile
-from typing import Optional
 
 
 class RangeV1:
