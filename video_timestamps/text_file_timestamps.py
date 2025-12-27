@@ -18,7 +18,7 @@ class TextFileTimestamps(ABCTimestamps):
 
     def __init__(
         self,
-        path_to_timestamps_file_or_content: Union[str, Path],
+        path_to_timestamps_file_or_content: str | Path,
         time_scale: Fraction,
         rounding_method: RoundingMethod,
         normalize: bool = True,
@@ -62,7 +62,7 @@ class TextFileTimestamps(ABCTimestamps):
         """
 
         if isinstance(path_to_timestamps_file_or_content, Path):
-            with open(path_to_timestamps_file_or_content, "r", encoding="utf-8") as f:
+            with open(path_to_timestamps_file_or_content, encoding="utf-8") as f:
                 timestamps, fps, version = TimestampsFileParser.parse_file(f)
         else:
             file = StringIO(path_to_timestamps_file_or_content)

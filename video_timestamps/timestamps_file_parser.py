@@ -13,7 +13,7 @@ class RangeV1:
 
 class TimestampsFileParser:
     @staticmethod
-    def parse_file(file_content: TextIOBase) -> tuple[list[Fraction], Optional[Fraction], int]:
+    def parse_file(file_content: TextIOBase) -> tuple[list[Fraction], Fraction | None, int]:
         """Parse timestamps from a [timestamps file](https://mkvtoolnix.download/doc/mkvmerge.html#mkvmerge.external_timestamp_files) and return them.
 
         Inspired by: https://gitlab.com/mbunkus/mkvtoolnix/-/blob/72dfe260effcbd0e7d7cf6998c12bb35308c004f/src/merge/timestamp_factory.cpp#L27-74
@@ -171,7 +171,7 @@ class TimestampsFileParser:
             raise ValueError("You can only specify version 2 or 4.")
 
         timestamps: list[Fraction] = []
-        previous_timestamp: Optional[Fraction] = None
+        previous_timestamp: Fraction | None = None
 
         for line in file_content.read().splitlines():
             line = line.strip(" \t")
