@@ -2,6 +2,9 @@
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
+extern "C" {
+#include <libavutil/avutil.h>
+}
 #include <ffms.h>
 #include "abc_video_provider.hpp"
 
@@ -49,6 +52,8 @@ public:
             throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
         }
 
+        auto container_first_pts = FFMS_GetContainerFirstTimeI(indexer);
+
         auto ffms2_index = std::unique_ptr<FFMS_Index, void(*)(FFMS_Index*)>(
             FFMS_DoIndexing2(indexer, FFMS_IEH_ABORT, &errinfo),
             FFMS_DestroyIndex
@@ -90,8 +95,9 @@ public:
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
         nanobind::object time_base = fraction_class(ffms2_time_base->Num, ffms2_time_base->Den) / fraction_class(1000, 1);
         nanobind::object fps = fraction_class(videoprops->FPSNumerator, videoprops->FPSDenominator);
+        nanobind::object container_first_time = fraction_class(container_first_pts, AV_TIME_BASE);
 
-        return nanobind::make_tuple(pts_list, time_base, fps);
+        return nanobind::make_tuple(pts_list, time_base, fps, container_first_time);
     }
 };
 

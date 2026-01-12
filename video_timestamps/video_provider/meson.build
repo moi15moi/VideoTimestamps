@@ -37,7 +37,7 @@ py.extension_module(
     'ffms2_video_provider',
     'ffms2_video_provider.cpp',
     install: true,
-    dependencies : [nanobind_dep, ffms2_dep],
+    dependencies : [nanobind_dep, ffms2_dep, libavutil_dep],
     cpp_args: ['-DFFMS_STATIC'],
     link_args: symbolic_link_args,
     subdir: 'video_timestamps/video_provider',

@@ -23,6 +23,7 @@ class VideoTimestamps(ABCTimestamps):
         time_scale: Fraction,
         normalize: bool = True,
         fps: Fraction | None = None,
+        start_time: Fraction | None = None,
     ):
         """Initialize the VideoTimestamps object.
 
@@ -37,7 +38,9 @@ class VideoTimestamps(ABCTimestamps):
             fps: The frames per second of the video.
 
                 It doesn't matter if you pass this parameter because the fps isn't used.
-                It is only a parameter to avoid breaking change
+                It is only a parameter to avoid breaking change.
+            
+            start_time: TODO
         """
         # Validate the PTS
         if len(pts_list) <= 1:
@@ -45,6 +48,9 @@ class VideoTimestamps(ABCTimestamps):
 
         if any(pts_list[i] >= pts_list[i + 1] for i in range(len(pts_list) - 1)):
             raise ValueError("PTS must be in non-decreasing order.")
+        
+        if normalize and start_time is not None:
+            raise ValueError("You cannot use normalize=True with a start_time. normalize=True is the equivalent to start_time=0.")
 
         self.__pts_list = pts_list
         self.__time_scale = time_scale
@@ -53,6 +59,10 @@ class VideoTimestamps(ABCTimestamps):
             self.__pts_list = VideoTimestamps.normalize(self.pts_list)
 
         self.__timestamps = [pts / self.time_scale for pts in self.pts_list]
+
+        if start_time is not None:
+            first_timestamps = self.__timestamps[0]
+            self.__timestamps = [x + (start_time - first_timestamps) for x in self.__timestamps]
 
         if fps is None:
             self.__fps = Fraction(len(pts_list) - 1, Fraction((self.pts_list[-1] - self.pts_list[0]), self.time_scale))
@@ -85,7 +95,7 @@ class VideoTimestamps(ABCTimestamps):
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
 
-        pts_list, time_base, fps_from_video_provider = video_provider.get_pts(str(video_path.resolve()), index)
+        pts_list, time_base, fps_from_video_provider, container_first_time = video_provider.get_pts(str(video_path.resolve()), index)
         time_scale = 1 / time_base
 
         if use_video_provider_to_guess_fps:
@@ -93,11 +103,16 @@ class VideoTimestamps(ABCTimestamps):
         else:
             fps = None
 
+        start_time = None
+        if not normalize:
+            start_time = pts_list[0] - container_first_time
+
         timestamps = VideoTimestamps(
             pts_list,
             time_scale,
             normalize,
-            fps
+            fps,
+            start_time
         )
         return timestamps
 
@@ -119,6 +134,7 @@ class VideoTimestamps(ABCTimestamps):
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
                 The last pts correspond to the pts of the last frame + it's duration.
+                Note that if you used a `start_time` when initializing this object, the `pts_list` won't represent the `timestamps`.
         """
         return self.__pts_list
 

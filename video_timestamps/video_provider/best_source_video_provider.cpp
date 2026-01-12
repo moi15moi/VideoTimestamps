@@ -68,8 +68,9 @@ public:
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
         nanobind::object time_base = fraction_class(properties.TimeBase.Num, properties.TimeBase.Den);
         nanobind::object fps = fraction_class(properties.FPS.Num, properties.FPS.Den);
+        nanobind::object container_first_time = fraction_class(0, 1);
 
-        return nanobind::make_tuple(pts_list, time_base, fps);
+        return nanobind::make_tuple(pts_list, time_base, fps, container_first_time);
     }
 };
 
