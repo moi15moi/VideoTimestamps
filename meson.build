@@ -10,8 +10,8 @@ cc = meson.get_compiler('cpp')
 py = import('python').find_installation(pure: false)
 
 nanobind_dep = dependency('nanobind')
-bestsource_dep = dependency('bestsource')
+bestsource_dep = dependency('bestsource', version: '>= 14.0')
 libavutil_dep = dependency('libavutil')
-ffms2_dep = dependency('ffms2', static: true)
+ffms2_dep = dependency('ffms2', static: true, version: '>= 5.1.1')
 
 subdir('video_timestamps')
