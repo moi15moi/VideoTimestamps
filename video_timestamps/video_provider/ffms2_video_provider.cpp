@@ -22,8 +22,10 @@ public:
             throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateIndexer: " + std::string(errinfo.Buffer) + ".");
 
         int num_tracks = FFMS_GetNumTracksI(indexer);
-        if (index >= num_tracks)
+        if (index >= num_tracks) {
+            FFMS_CancelIndexing(indexer);
             throw std::invalid_argument("The index " + std::to_string(index) + " is not in the file " + filename + ".");
+        }
 
         int track_type = FFMS_GetTrackTypeI(indexer, index);
         if (track_type != FFMS_TYPE_VIDEO) {
@@ -46,6 +48,7 @@ public:
                     break;
             }
 
+            FFMS_CancelIndexing(indexer);
             throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
         }
 
