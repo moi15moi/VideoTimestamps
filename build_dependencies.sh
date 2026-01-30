@@ -74,33 +74,6 @@ build_ffmpeg() {
     rm ffmpeg.tar.gz
 }
 
-build_ffms2() {
-    echo "Building ffms2..."
-    cd "$BUILD_DIR"
-
-    echo "Downloading and extracting ffms2..."
-    wget -O ffms2.tar.gz https://github.com/FFMS/ffms2/archive/refs/heads/master.tar.gz
-    tar -xf ffms2.tar.gz
-
-    cd ffms2-master
-
-    NOCONFIGURE=1 ./autogen.sh
-    if ! ./configure --prefix=$ABS_BUILD_PATH/usr/local \
-                    --enable-static \
-                    --disable-shared \
-                    --with-pic; then
-        echo "configure failed! Showing config.log:"
-        cat config.log
-        exit 1
-    fi
-
-    make
-    make install
-
-    cd "$BUILD_DIR"
-    rm ffms2.tar.gz
-}
-
 main() {
     # If an error occurs, stop the script
     set -eu
@@ -142,8 +115,6 @@ main() {
     build_dav1d
     echo "--------------------------------------------------------------"
     build_ffmpeg
-    echo "--------------------------------------------------------------"
-    build_ffms2
 }
 
 main
