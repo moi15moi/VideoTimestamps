@@ -12,5 +12,5 @@ class BestSourceVideoProvider(ABCVideoProvider):
     """
     def __init__(self) -> None:
         ...
-    def get_pts(self, filename: str, index: int) -> tuple[list[int], Fraction, Fraction]:
+    def get_pts(self, filename: str, index: int) -> tuple[list[int], Fraction, Fraction, Fraction | None]:
         ...
