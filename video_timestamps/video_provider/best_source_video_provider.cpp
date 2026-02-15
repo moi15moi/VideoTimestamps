@@ -65,7 +65,6 @@ public:
         if (pts_list.size() > 0)
             pts_list.push_back(pts_list.front() + properties.Duration);
 
-
         BestTrackList::FileInfo file_info = tracklist.GetFileInfo();
 
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");

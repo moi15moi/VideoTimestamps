@@ -143,6 +143,7 @@ class VideoTimestamps(ABCTimestamps):
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
                 The last pts correspond to the pts of the last frame + it's duration.
+                Note: If you used a `shift_time` when initializing this object, the `pts_list` won't represent the `timestamps`.
         """
         return self.__pts_list
 
@@ -271,15 +272,15 @@ class VideoTimestamps(ABCTimestamps):
             with open(timestamps_filename, "w", encoding="utf-8") as f:
                 f.write("# timestamp format v2\n")
 
-                for pts in self.pts_list:
+                for timestamp in self.timestamps:
                     if use_fraction:
-                        time_ms = pts / self.time_scale * 1000
+                        time_ms = timestamp * 1000
                         f.write(f"{time_ms}\n")
                     else:
                         assert precision is not None # Make mypy happy
                         assert precision_rounding is not None # Make mypy happy
 
-                        time_precision = precision_rounding(pts / self.time_scale * pow(10, precision))
+                        time_precision = precision_rounding(timestamp * pow(10, precision))
                         time_ms = Fraction(time_precision, pow(10, precision - 3))
 
                         # Be sure that decimal.Context.prec is high enough to do the conversion
