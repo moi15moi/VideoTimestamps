@@ -104,7 +104,7 @@ jobs:
         python -m build --sdist
 
     - name: Upload wheel
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: wheel-${{ runner.os }}-${{ runner.arch }}
         path: dist
