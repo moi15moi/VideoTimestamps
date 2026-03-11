@@ -5,7 +5,7 @@ from fractions import Fraction
 __all__ = ['ABCVideoProvider']
 
 class ABCVideoProvider:
-    def get_pts(self, filename: str, index: int) -> tuple[list[int], Fraction, Fraction]:
+    def get_pts(self, filename: str, index: int) -> tuple[list[int], Fraction, Fraction, Fraction | None]:
         """
         Parameters:
             filename: A video path.
@@ -17,5 +17,6 @@ class ABCVideoProvider:
                 1. A list of each frame's pts. The last pts correspond to the pts of the last frame + it's duration.
                 2. The time_base.
                 3. The fps.
+                4. The container start time.
         """
         ...
