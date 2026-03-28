@@ -65,11 +65,17 @@ public:
         if (pts_list.size() > 0)
             pts_list.push_back(pts_list.front() + properties.Duration);
 
+        BestTrackList::FileInfo file_info = tracklist.GetFileInfo();
+
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
         nanobind::object time_base = fraction_class(properties.TimeBase.Num, properties.TimeBase.Den);
         nanobind::object fps = fraction_class(properties.FPS.Num, properties.FPS.Den);
+        nanobind::object container_first_time = nanobind::none();
 
-        return nanobind::make_tuple(pts_list, time_base, fps);
+        if (file_info.ContainerStartTime != AV_NOPTS_VALUE)
+            container_first_time = fraction_class(file_info.ContainerStartTime, file_info.ContainerStartTimeBase);
+
+        return nanobind::make_tuple(pts_list, time_base, fps, container_first_time);
     }
 };
 
