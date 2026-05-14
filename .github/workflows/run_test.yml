@@ -81,7 +81,7 @@ jobs:
         coverage xml
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         disable_file_fixes: true # temp patch for https://github.com/getsentry/prevent-cli/issues/101
         fail_ci_if_error: true
