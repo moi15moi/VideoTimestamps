@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from enum import Enum
+from enum import Enum, auto
 from fractions import Fraction
 from math import ceil, floor
 
@@ -20,12 +20,17 @@ def round_method(number: Fraction) -> int:
 class RoundingMethod(Enum):
     """Method used to adjust presentation timestamps (PTS).
     """
-    FLOOR = floor_method
+    FLOOR = auto()
     """Floor"""
 
-    ROUND = round_method
+    ROUND = auto()
     """Round half up"""
 
     def __call__(self, number: Fraction) -> int:
-        method: RoundingCallType = self.value
+        if self.value == self.FLOOR.value:
+            method = floor_method
+        elif self.value == self.ROUND.value:
+            method = round_method
+        else:
+            raise NotImplementedError(f"Rounding method {self} is not implemented.")
         return method(number)
