@@ -23,6 +23,7 @@ class VideoTimestamps(ABCTimestamps):
         time_scale: Fraction,
         normalize: bool = True,
         fps: Fraction | None = None,
+        shift_time: Fraction | None = None,
     ):
         """Initialize the VideoTimestamps object.
 
@@ -37,7 +38,8 @@ class VideoTimestamps(ABCTimestamps):
             fps: The frames per second of the video.
 
                 It doesn't matter if you pass this parameter because the fps isn't used.
-                It is only a parameter to avoid breaking change
+                It is only a parameter to avoid breaking change.
+            shift_time: Shift the pts by a certain amount of time (in seconds).
         """
         # Validate the PTS
         if len(pts_list) <= 1:
@@ -46,6 +48,9 @@ class VideoTimestamps(ABCTimestamps):
         if any(pts_list[i] >= pts_list[i + 1] for i in range(len(pts_list) - 1)):
             raise ValueError("PTS must be in non-decreasing order.")
 
+        if normalize and shift_time is not None:
+            raise ValueError("You cannot use normalize=True with a shift_time.")
+
         self.__pts_list = pts_list
         self.__time_scale = time_scale
 
@@ -53,6 +58,9 @@ class VideoTimestamps(ABCTimestamps):
             self.__pts_list = VideoTimestamps.normalize(self.pts_list)
 
         self.__timestamps = [pts / self.time_scale for pts in self.pts_list]
+
+        if shift_time is not None:
+            self.__timestamps = [x + shift_time for x in self.__timestamps]
 
         if fps is None:
             self.__fps = Fraction(len(pts_list) - 1, Fraction((self.pts_list[-1] - self.pts_list[0]), self.time_scale))
@@ -66,7 +74,8 @@ class VideoTimestamps(ABCTimestamps):
         index: int = 0,
         normalize: bool = True,
         use_video_provider_to_guess_fps: bool = True,
-        video_provider: ABCVideoProvider = FFMS2VideoProvider()
+        video_provider: ABCVideoProvider = FFMS2VideoProvider(),
+        shift_by_container_start_time: bool = False
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
 
@@ -74,9 +83,13 @@ class VideoTimestamps(ABCTimestamps):
             video_path: A video path.
             index: Index of the video stream.
             normalize: If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
+                You cannot combine this parameter with `shift_by_container_start_time`.
             use_video_provider_to_guess_fps: If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
             video_provider: The video provider to use to get the information about the video timestamps/fps.
+            shift_by_container_start_time: If True, it will shift the PTS with the container start time.
+                This allows to emulate how mpv set the video timestamps.
+                You cannot combine this parameter with `normalize`.
 
         Returns:
             An VideoTimestamps instance representing the video file.
@@ -85,7 +98,13 @@ class VideoTimestamps(ABCTimestamps):
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
 
-        pts_list, time_base, fps_from_video_provider = video_provider.get_pts(str(video_path.resolve()), index)
+        if normalize and shift_by_container_start_time:
+            raise ValueError(
+                "Conflicting options: 'normalize' and 'shift_by_container_start_time' "
+                "cannot both be True. Choose only one to adjust timestamps."
+            )
+
+        pts_list, time_base, fps_from_video_provider, container_first_time = video_provider.get_pts(str(video_path.resolve()), index)
         time_scale = 1 / time_base
 
         if use_video_provider_to_guess_fps:
@@ -93,11 +112,16 @@ class VideoTimestamps(ABCTimestamps):
         else:
             fps = None
 
+        shift_time = None
+        if shift_by_container_start_time and container_first_time is not None:
+            shift_time = container_first_time * -1
+
         timestamps = VideoTimestamps(
             pts_list,
             time_scale,
             normalize,
-            fps
+            fps,
+            shift_time
         )
         return timestamps
 
@@ -119,6 +143,7 @@ class VideoTimestamps(ABCTimestamps):
         Returns:
             A list containing the Presentation Time Stamps (PTS) for all frames.
                 The last pts correspond to the pts of the last frame + it's duration.
+                Note: If you used a `shift_time` when initializing this object, the `pts_list` won't represent the `timestamps`.
         """
         return self.__pts_list
 
@@ -247,15 +272,15 @@ class VideoTimestamps(ABCTimestamps):
             with open(timestamps_filename, "w", encoding="utf-8") as f:
                 f.write("# timestamp format v2\n")
 
-                for pts in self.pts_list:
+                for timestamp in self.timestamps:
                     if use_fraction:
-                        time_ms = pts / self.time_scale * 1000
+                        time_ms = timestamp * 1000
                         f.write(f"{time_ms}\n")
                     else:
                         assert precision is not None # Make mypy happy
                         assert precision_rounding is not None # Make mypy happy
 
-                        time_precision = precision_rounding(pts / self.time_scale * pow(10, precision))
+                        time_precision = precision_rounding(timestamp * pow(10, precision))
                         time_ms = Fraction(time_precision, pow(10, precision - 3))
 
                         # Be sure that decimal.Context.prec is high enough to do the conversion

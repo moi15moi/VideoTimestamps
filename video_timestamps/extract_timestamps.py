@@ -89,6 +89,14 @@ def main() -> None:
         Note that this is not a conform to the specification.
     """,
     )
+    parser.add_argument(
+        "--use-container-start-time",
+        action="store_true",
+        help="""
+        If specified, shift the timestamps with the container start time.
+        This allows to emulate how mpv set the video timestamps.
+    """,
+    )
 
     args = parser.parse_args()
 
@@ -97,6 +105,7 @@ def main() -> None:
     normalize: bool = args.normalize
     use_fraction: bool = args.use_fraction
     precision: int = args.precision
+    use_container_start_time: bool = args.use_container_start_time
 
     timestamps_filename: Path
     if args.output is not None:
@@ -123,7 +132,7 @@ def main() -> None:
     else:
         raise ValueError(f"The precision-rounding \"{args.precision_rounding}\" is not supported.")
 
-    video_timestamps = VideoTimestamps.from_video_file(video_path, video_index, normalize, video_provider=video_provider)
+    video_timestamps = VideoTimestamps.from_video_file(video_path, video_index, normalize, video_provider=video_provider, shift_by_container_start_time=use_container_start_time)
     if use_fraction:
         video_timestamps.export_timestamps(timestamps_filename, use_fraction=use_fraction)
     else:

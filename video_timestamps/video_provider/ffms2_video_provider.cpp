@@ -52,6 +52,10 @@ public:
             throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
         }
 
+        int64_t container_first_pts;
+        int container_first_timebase;
+        bool first_time_succeeded = FFMS_GetContainerFirstTimeI(indexer, &container_first_pts, &container_first_timebase);
+
         auto ffms2_index = std::unique_ptr<FFMS_Index, void(*)(FFMS_Index*)>(
             FFMS_DoIndexing2(indexer, FFMS_IEH_ABORT, &errinfo),
             FFMS_DestroyIndex
@@ -93,8 +97,12 @@ public:
         nanobind::object fraction_class = nanobind::module_::import_("fractions").attr("Fraction");
         nanobind::object time_base = fraction_class(ffms2_time_base->Num, ffms2_time_base->Den) / fraction_class(1000, 1);
         nanobind::object fps = fraction_class(videoprops->FPSNumerator, videoprops->FPSDenominator);
+        nanobind::object container_first_time = nanobind::none();
 
-        return nanobind::make_tuple(pts_list, time_base, fps);
+        if (first_time_succeeded)
+            container_first_time = fraction_class(container_first_pts, container_first_timebase);
+
+        return nanobind::make_tuple(pts_list, time_base, fps, container_first_time);
     }
 };
 
