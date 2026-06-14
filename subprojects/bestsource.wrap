@@ -2,6 +2,7 @@
 url = https://github.com/vapoursynth/bestsource
 revision = R19
 clone-recursive = true
+diff_files = bestsource/to_chars-fallback.patch
 
 [provide]
 bestsource = bestsource_dep
