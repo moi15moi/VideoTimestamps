@@ -7,7 +7,7 @@ import pytest
 from video_timestamps import (
     ABCVideoProvider,
     BestSourceVideoProvider,
-    FFMS2VideoProvider
+    FFMS2VideoProvider,
 )
 
 dir_path = Path(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))

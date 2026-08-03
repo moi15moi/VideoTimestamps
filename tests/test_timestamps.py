@@ -8,7 +8,7 @@ from video_timestamps import (
     FPSTimestamps,
     RoundingMethod,
     TimeType,
-    VideoTimestamps
+    VideoTimestamps,
 )
 
 
