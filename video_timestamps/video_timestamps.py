@@ -149,7 +149,7 @@ class VideoTimestamps(ABCTimestamps):
             The pts_list normalized.
         """
         if pts_list[0]:
-            return list(map(lambda pts: pts - pts_list[0], pts_list))
+            return [pts - pts_list[0] for pts in pts_list]
         return pts_list
 
 
