@@ -8,7 +8,7 @@ from video_timestamps import (
     ABCVideoProvider,
     BestSourceVideoProvider,
     FFMS2VideoProvider,
-    VideoTimestamps
+    VideoTimestamps,
 )
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
