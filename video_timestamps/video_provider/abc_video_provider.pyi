@@ -16,4 +16,3 @@ class ABCVideoProvider:
                 2. The time_base.
                 3. The fps.
         """
-        ...
