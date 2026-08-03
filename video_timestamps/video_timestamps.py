@@ -247,27 +247,26 @@ class VideoTimestamps(ABCTimestamps):
         if precision is not None and precision < 3:
             raise ValueError("The precision needs to be at least 3 (milliseconds).")
 
-        with localcontext() as ctx:
-            with open(timestamps_filename, "w", encoding="utf-8") as f:
-                f.write("# timestamp format v2\n")
+        with localcontext() as ctx, open(timestamps_filename, "w", encoding="utf-8") as f:
+            f.write("# timestamp format v2\n")
 
-                for pts in self.pts_list:
-                    if use_fraction:
-                        time_ms = pts / self.time_scale * 1000
-                        f.write(f"{time_ms}\n")
-                    else:
-                        assert precision is not None # Make mypy happy
-                        assert precision_rounding is not None # Make mypy happy
+            for pts in self.pts_list:
+                if use_fraction:
+                    time_ms = pts / self.time_scale * 1000
+                    f.write(f"{time_ms}\n")
+                else:
+                    assert precision is not None # Make mypy happy
+                    assert precision_rounding is not None # Make mypy happy
 
-                        time_precision = precision_rounding(pts / self.time_scale * pow(10, precision))
-                        time_ms = Fraction(time_precision, pow(10, precision - 3))
+                    time_precision = precision_rounding(pts / self.time_scale * pow(10, precision))
+                    time_ms = Fraction(time_precision, pow(10, precision - 3))
 
-                        # Be sure that decimal.Context.prec is high enough to do the conversion
-                        num_digits = len(str(time_ms.numerator // time_ms.denominator))
-                        ctx.prec = (precision - 3) + num_digits
+                    # Be sure that decimal.Context.prec is high enough to do the conversion
+                    num_digits = len(str(time_ms.numerator // time_ms.denominator))
+                    ctx.prec = (precision - 3) + num_digits
 
-                        time_ms_d = Decimal(time_ms.numerator) / Decimal(time_ms.denominator)
-                        f.write(f"{time_ms_d}\n")
+                    time_ms_d = Decimal(time_ms.numerator) / Decimal(time_ms.denominator)
+                    f.write(f"{time_ms_d}\n")
 
 
     def __hash__(self) -> int:
