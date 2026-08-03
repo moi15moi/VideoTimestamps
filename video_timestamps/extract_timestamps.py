@@ -6,7 +6,7 @@ from .rounding_method import RoundingCallType, RoundingMethod
 from .video_provider import (
     ABCVideoProvider,
     BestSourceVideoProvider,
-    FFMS2VideoProvider
+    FFMS2VideoProvider,
 )
 from .video_timestamps import VideoTimestamps
 
