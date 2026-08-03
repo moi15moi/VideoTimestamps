@@ -37,7 +37,6 @@ class ABCTimestamps(ABC):
         Returns:
             The framerate of the video.
         """
-        pass
 
     @property
     @abstractmethod
@@ -48,7 +47,6 @@ class ABCTimestamps(ABC):
 
                 **Important**: Don't confuse time_scale with the time_base. As a reminder, time_base = 1 / time_scale.
         """
-        pass
 
     @property
     @abstractmethod
@@ -59,7 +57,6 @@ class ABCTimestamps(ABC):
 
                 **Warning**: Depending on the subclass, the first_timestamps may not be rounded, so it won't really be first_timestamps.
         """
-        pass
 
     @abstractmethod
     def _time_to_frame(
