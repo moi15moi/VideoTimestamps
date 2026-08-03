@@ -66,7 +66,7 @@ class VideoTimestamps(ABCTimestamps):
         index: int = 0,
         normalize: bool = True,
         use_video_provider_to_guess_fps: bool = True,
-        video_provider: ABCVideoProvider = FFMS2VideoProvider()
+        video_provider: ABCVideoProvider | None = None
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
 
@@ -77,10 +77,14 @@ class VideoTimestamps(ABCTimestamps):
             use_video_provider_to_guess_fps: If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
             video_provider: The video provider to use to get the information about the video timestamps/fps.
+                If not specified, it will default to [`FFMS2VideoProvider`][video_timestamps.video_provider.ffms2_video_provider.FFMS2VideoProvider].
 
         Returns:
             An VideoTimestamps instance representing the video file.
         """
+
+        if video_provider is None:
+            video_provider = FFMS2VideoProvider()
 
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
