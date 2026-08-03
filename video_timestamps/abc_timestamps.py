@@ -313,7 +313,7 @@ class ABCTimestamps(ABC):
         if time_scale is None:
             pts = time * self.time_scale
             if pts != round_pts_method(pts):
-                raise ValueError(f"An unexpected error occured. The generated pts {pts} isn't an integer. The requested frame is {frame} and the requested time_type is {time_type}. The object is {repr(self)}. Please, open an issue on GitHub.")
+                raise ValueError(f"An unexpected error occured. The generated pts {pts} isn't an integer. The requested frame is {frame} and the requested time_type is {time_type}. The object is {self!r}. Please, open an issue on GitHub.")
         else:
             pts = time * time_scale
 
