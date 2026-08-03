@@ -265,7 +265,7 @@ def test_init_v1() -> None:
     assert timestamps.version == 1
 
     with pytest.raises(ValueError) as exc_info:
-        timestamps.nbr_frames
+        _ = timestamps.nbr_frames
     assert str(exc_info.value) == "V1 timestamps file doesn't specify a number of frames."
 
 
