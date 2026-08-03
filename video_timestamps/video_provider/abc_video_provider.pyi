@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from fractions import Fraction
 
 __all__ = ['ABCVideoProvider']
