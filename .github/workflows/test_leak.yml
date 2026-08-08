@@ -1,0 +1,41 @@
+name: Test leak
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
+jobs:
+  test-leak:
+    name: Test leak
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.14'
+
+    - name: install deps (ubuntu)
+      run: |
+        sudo apt-get update
+        sudo apt-get install autoconf automake wget nasm
+
+    - name: Install meson
+      run: pip install meson meson-python
+
+    - name: Build dependencies
+      run: ./build_dependencies.sh
+
+    - name: Build project
+      run: pip install --no-build-isolation --editable .[dev] -Csetup-args="--pkg-config-path=$(pwd)/build_dependencies/usr/local/lib/pkgconfig" -Csetup-args="-Db_sanitize=address" -Csetup-args="-Dbuildtype=debug"
+
+    - name: Run tests
+      # pass -s to pytest to see ASAN errors and warnings,
+      run: |
+        export LD_PRELOAD="$(gcc -print-file-name=libasan.so) $(gcc -print-file-name=libstdc++.so)"
+        pytest -s
