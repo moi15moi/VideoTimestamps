@@ -52,6 +52,7 @@ setup = [
   "--default-library=static",
   "--wrap-mode=forcefallback",
   "-Dbestsource:enable_plugin=false",
+  "-Dbestsource:enable_avisynth=false",
 ]
 install = ['--skip-subprojects']
 
