@@ -108,6 +108,53 @@ def test_get_pts_mkv_10_frames(video_provider: ABCVideoProvider) -> None:
 
 
 @pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_multiple_video_track_absolute_index_0(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "multiple_video_track.mkv")
+    pts_list, time_base, fps = video_provider.get_pts(str(video_file_path), 0)
+
+    assert pts_list[:11] == [0, 17, 33, 50, 67, 83, 100, 117, 133, 150, 167]
+    assert time_base == Fraction(1, 1000)
+    assert fps == Fraction(60)
+
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_multiple_video_track_absolute_index_2(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "multiple_video_track.mkv")
+    pts_list, time_base, fps = video_provider.get_pts(str(video_file_path), 2)
+
+    assert pts_list[:11] == [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250]
+    assert time_base == Fraction(1, 1000)
+    assert fps == Fraction(40)
+
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_multiple_video_track_relative_index_0(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "multiple_video_track.mkv")
+    pts_list, time_base, fps = video_provider.get_pts(str(video_file_path), None, 0)
+
+    assert pts_list[:11] == [0, 17, 33, 50, 67, 83, 100, 117, 133, 150, 167]
+    assert time_base == Fraction(1, 1000)
+    assert fps == Fraction(60)
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_multiple_video_track_relative_index_1(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "multiple_video_track.mkv")
+    pts_list, time_base, fps = video_provider.get_pts(str(video_file_path), None, 1)
+
+    assert pts_list[:11] == [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250]
+    assert time_base == Fraction(1, 1000)
+    assert fps == Fraction(40)
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_multiple_video_track_relative_index_invalid(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "multiple_video_track.mkv")
+
+    with pytest.raises(ValueError) as exc_info:
+        video_provider.get_pts(str(video_file_path), None, 2)
+    assert str(exc_info.value) == f"The video_stream_index 2 is not in the file {video_file_path}. It only contains 2 video stream(s)."
+
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
 def test_get_pts_non_video_index(video_provider: ABCVideoProvider) -> None:
     video_file_path = dir_path.joinpath("files", "test_video.mkv")
 
@@ -123,6 +170,15 @@ def test_get_pts_invalid_index(video_provider: ABCVideoProvider) -> None:
     with pytest.raises(ValueError) as exc_info:
         video_provider.get_pts(str(video_file_path), 2)
     assert str(exc_info.value) == f"The index 2 is not in the file {video_file_path}."
+
+
+@pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])
+def test_get_pts_without_index(video_provider: ABCVideoProvider) -> None:
+    video_file_path = dir_path.joinpath("files", "test_video.mkv")
+
+    with pytest.raises(ValueError) as exc_info:
+        video_provider.get_pts(str(video_file_path), None)
+    assert str(exc_info.value) == "You must specify exactly one of \"index\" or \"video_stream_index\"."
 
 
 @pytest.mark.parametrize("video_provider", [BestSourceVideoProvider(), FFMS2VideoProvider()])

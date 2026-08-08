@@ -172,6 +172,74 @@ def main() -> None:
 
     os.remove(os.path.join(dir_path, "test_video_10_frames_temp.mkv"))
 
+    # Create a mkv with 3 tracks: track 0 is a 60 fps video, track 1 is audio, track 2 is a 40 fps video
+    video_60fps_path = os.path.join(dir_path, "video_60fps_temp.mkv")
+    subprocess.check_call(
+        [
+            "ffmpeg",
+            "-y",
+            "-r",
+            "60",
+            "-i",
+            os.path.join(dir_path, "img", "test_video_%04d.png"),
+            "-frames:v",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            video_60fps_path,
+        ]
+    )
+
+    video_40fps_path = os.path.join(dir_path, "video_40fps_temp.mkv")
+    subprocess.check_call(
+        [
+            "ffmpeg",
+            "-y",
+            "-r",
+            "40",
+            "-i",
+            os.path.join(dir_path, "img", "test_video_%04d.png"),
+            "-frames:v",
+            "40",
+            "-pix_fmt",
+            "yuv420p",
+            video_40fps_path,
+        ]
+    )
+
+    audio_path = os.path.join(dir_path, "audio_temp.mka")
+    subprocess.check_call(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "lavfi",
+            "-i",
+            "anullsrc",
+            "-t",
+            "1",
+            audio_path,
+        ]
+    )
+
+    # Merge the tracks in order: video 60 fps, audio, video 40 fps
+    subprocess.check_call(
+        [
+            "mkvmerge",
+            "--output",
+            os.path.join(dir_path, "multiple_video_track.mkv"),
+            video_60fps_path,
+            audio_path,
+            video_40fps_path,
+            "--track-order",
+            "0:0,1:0,2:0",
+        ]
+    )
+
+    os.remove(video_60fps_path)
+    os.remove(video_40fps_path)
+    os.remove(audio_path)
+
     # If img folder exist, delete it
     if os.path.isdir(os.path.join(dir_path, "img")):
         shutil.rmtree(os.path.join(dir_path, "img"))

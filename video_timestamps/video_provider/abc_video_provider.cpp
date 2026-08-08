@@ -3,5 +3,5 @@
 
 NB_MODULE(abc_video_provider, m) {
     nanobind::class_<ABCVideoProvider>(m, "ABCVideoProvider")
-        .def("get_pts", &ABCVideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"));
+        .def("get_pts", &ABCVideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"), nanobind::arg("video_stream_index") = nanobind::none());
 }
