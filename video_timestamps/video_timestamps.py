@@ -60,36 +60,75 @@ class VideoTimestamps(ABCTimestamps):
             self.__fps = fps
 
     @classmethod
+    @overload
     def from_video_file(
         cls,
         video_path: Path,
         index: int = 0,
         normalize: bool = True,
         use_video_provider_to_guess_fps: bool = True,
-        video_provider: ABCVideoProvider | None = None
+        video_provider: ABCVideoProvider | None = None,
+        video_stream_index: None = None
+    ) -> VideoTimestamps:
+        ...
+
+    @classmethod
+    @overload
+    def from_video_file(
+        cls,
+        video_path: Path,
+        index: None,
+        normalize: bool = True,
+        use_video_provider_to_guess_fps: bool = True,
+        video_provider: ABCVideoProvider | None = None,
+        *,
+        video_stream_index: int
+    ) -> VideoTimestamps:
+        ...
+
+    @classmethod
+    def from_video_file(
+        cls,
+        video_path: Path,
+        index: int | None = 0,
+        normalize: bool = True,
+        use_video_provider_to_guess_fps: bool = True,
+        video_provider: ABCVideoProvider | None = None,
+        video_stream_index: int | None = None
     ) -> VideoTimestamps:
         """Create timestamps based on the ``video_path`` provided.
 
         Parameters:
             video_path: A video path.
-            index: Index of the video stream.
+            index: Absolute index of the stream in the file. Its position among *all* streams
+                (audio, video, subtitles, etc.), regardless of their type.
+
+                This is equivalent to ffmpeg/ffprobe's global stream index (ex: the `0` in `-map 0:0`).
+                The stream at this index must be a video stream.
+
+                Mutually exclusive with `video_stream_index`. Exactly one of the two must be specified.
             normalize: If True, it will shift the PTS to make them start from 0. If false, the option does nothing.
             use_video_provider_to_guess_fps: If True, use the video_provider to guess the video fps.
                 If not specified, the fps will be approximate from the first and last frame PTS.
             video_provider: The video provider to use to get the information about the video timestamps/fps.
                 If not specified, it will default to [`FFMS2VideoProvider`][video_timestamps.video_provider.ffms2_video_provider.FFMS2VideoProvider].
+            video_stream_index: Index of the video stream, relative to the other video streams in the file.
+
+                This is equivalent to ffmpeg's `v` stream specifier (ex: `v:0` is the first video stream,
+                `v:1` is the second video stream, etc).
+
+                Mutually exclusive with `index`. Exactly one of the two must be specified.
 
         Returns:
             An VideoTimestamps instance representing the video file.
         """
-
         if video_provider is None:
             video_provider = FFMS2VideoProvider()
 
         if not video_path.is_file():
             raise FileNotFoundError(f'Invalid path for the video file: "{video_path}"')
 
-        pts_list, time_base, fps_from_video_provider = video_provider.get_pts(str(video_path.resolve()), index)
+        pts_list, time_base, fps_from_video_provider = video_provider.get_pts(str(video_path.resolve()), index, video_stream_index)
         time_scale = 1 / time_base
 
         if use_video_provider_to_guess_fps:

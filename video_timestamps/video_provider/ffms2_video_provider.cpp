@@ -1,4 +1,5 @@
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
@@ -7,7 +8,10 @@
 
 class FFMS2VideoProvider: public ABCVideoProvider {
 public:
-    nanobind::tuple get_pts(const std::string &filename, int index) {
+    nanobind::tuple get_pts(const std::string &filename, std::optional<int> index, std::optional<int> video_stream_index) {
+        if (index.has_value() == video_stream_index.has_value())
+            throw std::invalid_argument("You must specify exactly one of \"index\" or \"video_stream_index\".");
+
         char errmsg[1024];
         FFMS_ErrorInfo errinfo;
         errinfo.Buffer      = errmsg;
@@ -22,34 +26,62 @@ public:
             throw std::runtime_error("ffms2 reported an error while calling FFMS_CreateIndexer: " + std::string(errinfo.Buffer) + ".");
 
         int num_tracks = FFMS_GetNumTracksI(indexer);
-        if (index >= num_tracks) {
-            FFMS_CancelIndexing(indexer);
-            throw std::invalid_argument("The index " + std::to_string(index) + " is not in the file " + filename + ".");
-        }
+        int resolved_index;
 
-        int track_type = FFMS_GetTrackTypeI(indexer, index);
-        if (track_type != FFMS_TYPE_VIDEO) {
-            std::string steam_media_type = "";
-            switch (track_type) {
-                case FFMS_TYPE_AUDIO:
-                    steam_media_type = "audio";
-                    break;
-                case FFMS_TYPE_DATA:
-                    steam_media_type = "data";
-                    break;
-                case FFMS_TYPE_SUBTITLE:
-                    steam_media_type = "subtitle";
-                    break;
-                case FFMS_TYPE_ATTACHMENT:
-                    steam_media_type = "attachment";
-                    break;
-                default:
-                    steam_media_type = "unknown";
-                    break;
+        if (index.has_value()) {
+            resolved_index = index.value();
+            if (resolved_index < 0 || resolved_index >= num_tracks) {
+                FFMS_CancelIndexing(indexer);
+                throw std::invalid_argument("The index " + std::to_string(resolved_index) + " is not in the file " + filename + ".");
             }
 
-            FFMS_CancelIndexing(indexer);
-            throw std::invalid_argument("The index " + std::to_string(index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
+            int track_type = FFMS_GetTrackTypeI(indexer, resolved_index);
+            if (track_type != FFMS_TYPE_VIDEO) {
+                std::string steam_media_type = "";
+                switch (track_type) {
+                    case FFMS_TYPE_AUDIO:
+                        steam_media_type = "audio";
+                        break;
+                    case FFMS_TYPE_DATA:
+                        steam_media_type = "data";
+                        break;
+                    case FFMS_TYPE_SUBTITLE:
+                        steam_media_type = "subtitle";
+                        break;
+                    case FFMS_TYPE_ATTACHMENT:
+                        steam_media_type = "attachment";
+                        break;
+                    default:
+                        steam_media_type = "unknown";
+                        break;
+                }
+
+                FFMS_CancelIndexing(indexer);
+                throw std::invalid_argument("The index " + std::to_string(resolved_index) + " is not a video stream. It is an \"" + steam_media_type + "\" stream.");
+            }
+        } else {
+            int target_video_stream_index = video_stream_index.value();
+            if (target_video_stream_index < 0) {
+                FFMS_CancelIndexing(indexer);
+                throw std::invalid_argument("The video_stream_index " + std::to_string(target_video_stream_index) + " must be a positive integer.");
+            }
+
+            int video_track_count = 0;
+            resolved_index = -1;
+            for (int i = 0; i < num_tracks; i++) {
+                if (FFMS_GetTrackTypeI(indexer, i) == FFMS_TYPE_VIDEO) {
+                    if (video_track_count == target_video_stream_index) {
+                        resolved_index = i;
+                        break;
+                    }
+                    video_track_count++;
+                }
+            }
+
+            if (resolved_index == -1) {
+                FFMS_CancelIndexing(indexer);
+                throw std::invalid_argument("The video_stream_index " + std::to_string(target_video_stream_index) + " is not in the file " + filename + ". It only contains " + std::to_string(video_track_count) + " video stream(s).");
+            }
         }
 
         auto ffms2_index = std::unique_ptr<FFMS_Index, void(*)(FFMS_Index*)>(
@@ -62,7 +94,7 @@ public:
         int threads = 1;
         int seek_mode = FFMS_SEEK_NORMAL;
         auto video_source = std::unique_ptr<FFMS_VideoSource, void(*)(FFMS_VideoSource*)>(
-            FFMS_CreateVideoSource(filename.c_str(), index, ffms2_index.get(), threads, seek_mode, &errinfo),
+            FFMS_CreateVideoSource(filename.c_str(), resolved_index, ffms2_index.get(), threads, seek_mode, &errinfo),
             FFMS_DestroyVideoSource
         );
         if (!video_source)
@@ -103,5 +135,5 @@ NB_MODULE(ffms2_video_provider, m) {
 
     nanobind::class_<FFMS2VideoProvider, ABCVideoProvider>(m, "FFMS2VideoProvider")
         .def(nanobind::init<>())
-        .def("get_pts", &FFMS2VideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"));
+        .def("get_pts", &FFMS2VideoProvider::get_pts, nanobind::arg("filename"), nanobind::arg("index"), nanobind::arg("video_stream_index") = nanobind::none());
 }
