@@ -3,12 +3,12 @@ directory = nanobind-2.14.0
 source_url = https://github.com/wjakob/nanobind/archive/refs/tags/v2.14.0.tar.gz
 source_filename = nanobind-2.14.0.tar.gz
 source_hash = 937b08801b9b61c98192d9ec5ddb712256961fbe8ccc1122d6ee3d574600287c
-source_fallback_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.14.0-1/get_source/nanobind-2.14.0.tar.gz
-patch_filename = nanobind_2.14.0-1_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.14.0-1/get_patch
-patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.14.0-1/nanobind_2.14.0-1_patch.zip
-patch_hash = d036c5abfd27f5a4a9b8036282696a77eb6f56c071ec2f0bdef44771b201863c
-wrapdb_version = 2.14.0-1
+source_fallback_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.14.0-2/get_source/nanobind-2.14.0.tar.gz
+patch_filename = nanobind_2.14.0-2_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.14.0-2/get_patch
+patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.14.0-2/nanobind_2.14.0-2_patch.zip
+patch_hash = a8d78c646a4754dcedd8c4b5f2336f86cd3aa77c133681008ad9b90e9fa06a70
+wrapdb_version = 2.14.0-2
 
 [provide]
 dependency_names = nanobind
