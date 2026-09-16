@@ -1,7 +1,7 @@
 [wrap-git]
 url = https://github.com/vapoursynth/bestsource
-revision = R20
+revision = R22
 diff_files = bestsource/to_chars-fallback.patch
 
 [provide]
-bestsource = bestsource_dep
+dependency_names = bestsource

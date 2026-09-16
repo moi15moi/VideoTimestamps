@@ -53,6 +53,7 @@ setup = [
   "--wrap-mode=forcefallback",
   "-Dbestsource:enable_plugin=false",
   "-Dbestsource:enable_avisynth=false",
+  "-Dbestsource:enable_gpu=disabled",
 ]
 install = ['--skip-subprojects']
 

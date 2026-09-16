@@ -80,7 +80,7 @@ public:
         }
 
         std::map<std::string, std::string> bsopts;
-        std::unique_ptr<BestVideoSource> bs = std::make_unique<BestVideoSource>(filename, "", 0, resolved_index, 0, 0, 3, filename, &bsopts);
+        std::unique_ptr<BestVideoSource> bs = std::make_unique<BestVideoSource>(filename, false, std::nullopt, resolved_index, 0, 0, 3, filename, &bsopts);
         BSVideoProperties properties = bs->GetVideoProperties();
 
         std::vector<int64_t> pts_list;
