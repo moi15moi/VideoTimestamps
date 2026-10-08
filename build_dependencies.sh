@@ -7,7 +7,7 @@ build_dav1d() {
     DAV1D_VERSION=$(grep '^dav1d=' "${SCRIPT_DIR}/dependencies.txt" | cut -d= -f2)
 
     echo "Downloading and extracting dav1d..."
-    wget -O dav1d.tar.gz "https://code.videolan.org/videolan/dav1d/-/archive/${DAV1D_VERSION}/dav1d-${DAV1D_VERSION}.tar.gz?ref_type=tags"
+    wget -O dav1d.tar.gz "https://github.com/videolan/dav1d/archive/refs/tags/${DAV1D_VERSION}.tar.gz"
     tar -xf dav1d.tar.gz
 
     cd "dav1d-${DAV1D_VERSION}"
