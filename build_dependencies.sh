@@ -58,6 +58,12 @@ build_ffmpeg() {
                     --disable-programs \
                     --disable-debug \
                     --disable-doc \
+                    --disable-muxers \
+                    --disable-encoders \
+                    --disable-filters \
+                    --disable-hwaccels \
+                    --disable-network \
+                    --disable-devices \
                     --disable-autodetect \
                     --enable-libdav1d \
                     $cc \
