@@ -34,7 +34,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: "3.14"
+        python-version: "3.15"
 
     - name: Install platform-specific requirements X64 (Windows)
       if: runner.os == 'Windows' && runner.arch == 'X64'
