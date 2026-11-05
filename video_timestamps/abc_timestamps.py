@@ -325,7 +325,7 @@ class ABCTimestamps(ABC):
         self,
         time: int | Fraction,
         time_type: TimeType,
-        output_unit: None,
+        output_unit: None = None,
         input_unit: int | None = None,
         center_time: bool = False
     ) -> Fraction:

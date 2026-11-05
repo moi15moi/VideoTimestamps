@@ -1193,6 +1193,9 @@ def test_move_time_to_frame(timestamp: ABCTimestamps) -> None:
     assert timestamp.move_time_to_frame(50, TimeType.EXACT, 3, 3) == 42
     # Test without specifying the input_unit
     assert timestamp.move_time_to_frame(Fraction(50, 1000), TimeType.EXACT, 3) == 42
+    # Test without specifying the output_unit
+    assert timestamp.move_time_to_frame(Fraction(50, 1000), TimeType.EXACT) == Fraction(3753, 90000)
+    assert timestamp.move_time_to_frame(50, TimeType.EXACT, input_unit=3) == Fraction(3753, 90000)
 
 
 @pytest.mark.parametrize(
