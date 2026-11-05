@@ -290,8 +290,8 @@ class ABCTimestamps(ABC):
         Parameters:
             frame: The frame number to convert.
             time_type: The type of timing to use for conversion.
-            time_scale: The time scale to interpret the `pts` parameter.
-                If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
+            time_scale: The time scale of the PTS that will be returned by this function.
+                If None, the returned PTS uses the same time scale as the Timestamps object.
 
         Returns:
             The corresponding PTS for the given frame number.
