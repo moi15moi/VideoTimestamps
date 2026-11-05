@@ -115,9 +115,9 @@ main() {
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
     # Build directory
-    rm -rf build_dependencies
-    mkdir "build_dependencies"
     BUILD_DIR="$SCRIPT_DIR/build_dependencies"
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
 
     # Configure dependencies build path
     ABS_BUILD_PATH=$(realpath "$BUILD_DIR")
