@@ -12,15 +12,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest, windows-11-arm]
         arch: [auto64]
-        py_build: ["cp310-* cp311-* cp312-* cp313-* cp314-*"]
+        py_build: ["cp311-* cp312-* cp313-* cp314-*"]
         include:
           - os: ubuntu-24.04-arm
             arch: aarch64
-            py_build: "cp310-* cp311-* cp312-* cp313-* cp314-*"
+            py_build: "cp311-* cp312-* cp313-* cp314-*"
           # Add a single one to mark it as sdist builder
           - os: macos-latest
             arch: auto64
-            py_build: "cp310-* cp311-* cp312-* cp313-* cp314-*"
+            py_build: "cp311-* cp312-* cp313-* cp314-*"
             sdist: true
 
     defaults:
