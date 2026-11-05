@@ -305,7 +305,7 @@ class VideoTimestamps(ABCTimestamps):
                     ctx.prec = (precision - 3) + num_digits
 
                     time_ms_d = Decimal(time_ms.numerator) / Decimal(time_ms.denominator)
-                    f.write(f"{time_ms_d}\n")
+                    f.write(f"{time_ms_d:f}\n")
 
 
     def __hash__(self) -> int:

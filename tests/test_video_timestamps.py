@@ -121,3 +121,18 @@ def test__eq__and__hash__() -> None:
     )
     assert video_1 != video_5
     assert hash(video_1) != hash(video_5)
+
+
+def test_export_timestamps_no_scientific_notation(tmp_path: Path) -> None:
+    timestamps = VideoTimestamps([0, 1, 15, 10**13], Fraction(10**12), normalize=False)
+    timestamps_filename = tmp_path.joinpath("timestamps.txt")
+
+    timestamps.export_timestamps(timestamps_filename, precision=13)
+
+    assert timestamps_filename.read_text(encoding="utf-8") == (
+        "# timestamp format v2\n"
+        "0\n"
+        "0.000000001\n"
+        "0.000000015\n"
+        "10000\n"
+    )
