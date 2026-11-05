@@ -27,7 +27,7 @@ jobs:
         sudo apt-get install autoconf automake wget nasm
 
     - name: Install meson
-      run: pip install meson meson-python
+      run: pip install meson meson-python setuptools
 
     - name: Build dependencies
       run: ./build_dependencies.sh
