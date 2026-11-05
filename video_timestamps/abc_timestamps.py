@@ -412,11 +412,19 @@ class ABCTimestamps(ABC):
         Parameters:
             pts: The Presentation Time Stamp value to convert.
             time_type: The type of timing to use for conversion.
+            output_unit: The unit of the output time value.
+                Must be a non-negative integer.
+
+                Common values:
+
+                - 3 means milliseconds
+                - 6 means microseconds
+                - 9 means nanoseconds
             time_scale: The time scale to interpret the `pts` parameter.
                 If None, it is assumed that the `pts` parameter uses the same time scale as the Timestamps object.
 
         Returns:
-            The corresponding time for the given PTS.
+            The corresponding time for the given PTS, expressed in `output_unit`.
 
         Examples:
             >>> timestamps.pts_to_time(7507, TimeType.START, 3, Fraction(90000))
