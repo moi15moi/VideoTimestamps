@@ -120,8 +120,8 @@ class TimestampsFileParser:
                 raise ValueError(
                     "End frame must be greater than or equal to start frame."
                 )
-            if range_v1.fps <= 0:
-                raise ValueError("FPS must be greater than zero.")
+            if range_v1.fps < 0:
+                raise ValueError("FPS must be greater than or equal to zero.")
             elif range_v1.fps == 0:
                 # mkvmerge allow fps to 0, but we can ignore them, since they won't impact the timestamps
                 continue

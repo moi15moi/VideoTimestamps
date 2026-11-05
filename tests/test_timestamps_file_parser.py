@@ -33,3 +33,23 @@ def test_v1_only_assume_line() -> None:
     assert timestamps == [Fraction(0), Fraction(40)]
     assert fps == Fraction(25)
     assert version == 1
+
+
+def test_v1_zero_fps_range_is_ignored() -> None:
+    timestamps_str = "# timestamp format v1\nAssume 25\n0,1,0\n2,2,50"
+    f = StringIO(timestamps_str)
+
+    timestamps, fps, version = TimestampsFileParser.parse_file(f)
+
+    assert timestamps == [Fraction(0), Fraction(40), Fraction(80), Fraction(100)]
+    assert fps == Fraction(25)
+    assert version == 1
+
+
+def test_v1_negative_fps_range() -> None:
+    timestamps_str = "# timestamp format v1\nAssume 25\n0,10,-1"
+    f = StringIO(timestamps_str)
+
+    with pytest.raises(ValueError) as exc_info:
+        TimestampsFileParser.parse_file(f)
+    assert str(exc_info.value) == "FPS must be greater than or equal to zero."
