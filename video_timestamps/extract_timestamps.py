@@ -103,7 +103,7 @@ def main() -> None:
         timestamps_filename = args.output
     else:
         # Remove the video file extension and add "_VIDEO_INDEX.txt"
-        timestamps_filename = video_path.with_suffix("").with_name(video_path.stem + f"_{video_index}").with_suffix(".txt")
+        timestamps_filename = video_path.with_name(f"{video_path.stem}_{video_index}.txt")
 
     video_provider: ABCVideoProvider
     if args.video_provider == "ffms2":
