@@ -248,8 +248,8 @@ class VideoTimestamps(ABCTimestamps):
         self,
         timestamps_filename: Path,
         *,
-        precision: int,
-        precision_rounding: RoundingCallType,
+        precision: int = 9,
+        precision_rounding: RoundingCallType = RoundingMethod.ROUND,
         use_fraction: Literal[False] = False,
     ) -> None:
         ...
