@@ -53,3 +53,23 @@ def test_v1_negative_fps_range() -> None:
     with pytest.raises(ValueError) as exc_info:
         TimestampsFileParser.parse_file(f)
     assert str(exc_info.value) == "FPS must be greater than or equal to zero."
+
+
+def test_v1_blank_lines_before_assume() -> None:
+    timestamps_str = "# timestamp format v1\n\n# comment\n  \n\nAssume 25\n"
+    f = StringIO(timestamps_str)
+
+    timestamps, fps, version = TimestampsFileParser.parse_file(f)
+
+    assert timestamps == [Fraction(0), Fraction(40)]
+    assert fps == Fraction(25)
+    assert version == 1
+
+
+def test_v1_no_assume_line() -> None:
+    timestamps_str = "# timestamp format v1\n\n# comment\n\n"
+    f = StringIO(timestamps_str)
+
+    with pytest.raises(ValueError) as exc_info:
+        TimestampsFileParser.parse_file(f)
+    assert str(exc_info.value) == "The timestamps file does not contain a valid 'Assume' line with the default number of frames per second."

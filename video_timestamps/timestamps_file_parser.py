@@ -70,10 +70,6 @@ class TimestampsFileParser:
         file_iterator = iter(file_lines)
 
         for line in file_iterator:
-            if not line:
-                raise ValueError(
-                    "The timestamps file does not contain a valid 'Assume' line with the default number of frames per second."
-                )
             line = line.strip(" \t")
 
             if line and not line.startswith("#"):
