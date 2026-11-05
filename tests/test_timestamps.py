@@ -63,7 +63,7 @@ def test_frame_to_time_output_unit_too_low(timestamp: ABCTimestamps) -> None:
 
     with pytest.raises(ValueError) as exc_info:
         timestamp.frame_to_time(1, TimeType.START, 1)
-    assert str(exc_info.value) == "The frame 1 cannot be represented exactly at output_unit=1. The conversion gave the time 0 which correspond to the frame 0 which is different then 1. Try using a finer output_unit then 0."
+    assert str(exc_info.value) == "The frame 1 cannot be represented exactly at output_unit=1. The conversion gave the time 0 which correspond to the frame 0 which is different than 1. Try using a finer output_unit than 1."
 
 
 @pytest.mark.parametrize(

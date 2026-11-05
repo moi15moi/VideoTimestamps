@@ -240,8 +240,8 @@ class ABCTimestamps(ABC):
         if frame != result_frame:
             raise ValueError(
                 f"The frame {frame} cannot be represented exactly at output_unit={output_unit}. "
-                f"The conversion gave the time {time_output} which correspond to the frame {result_frame} which is different then {frame}. "
-                f"Try using a finer output_unit then {time_output}."
+                f"The conversion gave the time {time_output} which correspond to the frame {result_frame} which is different than {frame}. "
+                f"Try using a finer output_unit than {output_unit}."
             )
 
         return time_output
