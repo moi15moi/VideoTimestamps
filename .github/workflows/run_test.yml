@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest, windows-11-arm]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
         include:
           - python-version: "3.11"
             py_build: "cp311"
@@ -28,6 +28,8 @@ jobs:
             py_build: "cp313"
           - python-version: "3.14"
             py_build: "cp314"
+          - python-version: "3.15"
+            py_build: "cp315"
 
     steps:
     - name: Checkout code
