@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from video_timestamps import RoundingMethod, TextFileTimestamps, TimeType
+from video_timestamps import FPSTimestamps, RoundingMethod, TextFileTimestamps, TimeType
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -422,3 +422,22 @@ def test__eq__and__hash__() -> None:
     )
     assert timestamps_1 != timestamps_5
     assert hash(timestamps_1) != hash(timestamps_5)
+
+
+def test_only_assume_line_v1() -> None:
+    timestamps_str = "# timestamp format v1\nAssume 25"
+    time_scale = Fraction(1000)
+    rounding_method = RoundingMethod.ROUND
+
+    timestamps = TextFileTimestamps(timestamps_str, time_scale, rounding_method)
+    fps_timestamps = FPSTimestamps(rounding_method, time_scale, Fraction(25))
+
+    assert timestamps.fps == Fraction(25)
+    assert timestamps.version == 1
+    for frame in range(100):
+        assert timestamps.frame_to_time(frame, TimeType.EXACT) == fps_timestamps.frame_to_time(frame, TimeType.EXACT)
+        assert timestamps.frame_to_time(frame, TimeType.START) == fps_timestamps.frame_to_time(frame, TimeType.START)
+        assert timestamps.frame_to_time(frame, TimeType.END) == fps_timestamps.frame_to_time(frame, TimeType.END)
+    for time in range(1, 4000):
+        for time_type in (TimeType.EXACT, TimeType.START, TimeType.END):
+            assert timestamps.time_to_frame(time, time_type, 3) == fps_timestamps.time_to_frame(time, time_type, 3)

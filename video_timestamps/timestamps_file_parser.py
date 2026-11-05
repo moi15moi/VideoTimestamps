@@ -146,6 +146,11 @@ class TimestampsFileParser:
                 time += Fraction(1000) / range_v1.fps
                 frame += 1
 
+        if frame == 0:
+            # The file contains only the "Assume" line
+            timestamps.append(time)
+            time += Fraction(1000) / default_fps
+
         timestamps.append(time)
         return timestamps, default_fps
 

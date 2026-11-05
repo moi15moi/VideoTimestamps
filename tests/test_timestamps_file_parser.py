@@ -1,3 +1,4 @@
+from fractions import Fraction
 from io import StringIO
 
 import pytest
@@ -21,3 +22,14 @@ def test_invalid_timestamps_version() -> None:
     with pytest.raises(NotImplementedError) as exc_info:
         TimestampsFileParser.parse_file(f)
     assert str(exc_info.value) == "The file uses version 3, but this format is currently not supported."
+
+
+def test_v1_only_assume_line() -> None:
+    timestamps_str = "# timestamp format v1\nAssume 25"
+    f = StringIO(timestamps_str)
+
+    timestamps, fps, version = TimestampsFileParser.parse_file(f)
+
+    assert timestamps == [Fraction(0), Fraction(40)]
+    assert fps == Fraction(25)
+    assert version == 1
