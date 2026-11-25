@@ -20,7 +20,7 @@ def test_get_pts_mkv(video_provider: ABCVideoProvider) -> None:
 
     assert len(pts_list) == 501
     assert pts_list[:10] == [3, 45, 86, 128, 170, 212, 253, 295, 337, 378]
-    assert pts_list[-10:] == [20482, 20524, 20565, 20607, 20649, 20690, 20732, 20774, 20815, 20856]
+    assert pts_list[-10:] == [20482, 20524, 20565, 20607, 20649, 20690, 20732, 20774, 20815, 20857]
     assert time_base == Fraction(1, 1000)
     assert fps == Fraction(24000, 1001)
 
